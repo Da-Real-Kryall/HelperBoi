@@ -1,0 +1,182 @@
+{
+    "item_name": {
+        "display_name": "Sample Item",
+        "emoji": ":abacus:",
+        "description":"How did you get this?!",
+        "value": 9999,
+        "purchasable": null,
+        "type":"Misc",
+        "usability": {
+            "function": "sample_func",
+            "consumable": 0
+        }
+    },
+    "rock": {
+        "display_name": "Rock",
+        "emoji": ":rock:",
+        "description":"A relatively useless pebble. This probably isn't worth much.",
+        "value": 10,
+        "purchasable": null,
+        "type":"Material",
+        "usability": null
+    },
+    "stick": {
+        "display_name": "Stick",
+        "emoji": ":herb:",
+        "description":"A small, half-dead tree branch. Not many uses.",
+        "value": 5,
+        "purchasable": null,
+        "type":"Material",
+        "usability": {
+            "function": "poke_other",
+            "consumable": 0
+        }
+    },
+    "log": {
+        "display_name": "Log",
+        "emoji": ":wood:",
+        "description":"A wood log. Can be sold or used to make other things.",
+        "value": 50,
+        "purchasable": null,
+        "type":"Material",
+        "usability": null
+    },
+    "quartz": {
+        "display_name": "Quartz",
+        "emoji": ":ice_cube:",
+        "description":"A semi-opaque white crystal with piezoelectric properties. Probably worth a bit.",
+        "value": 175,
+        "purchasable": null,
+        "type":"Collectible",
+        "usability": null
+    },
+    "fossil": {
+        "display_name": "Fossil",
+        "emoji": ":shell:",
+        "description":"A fossilized sea shell specimen. This is probably worth a bunch of money.",
+        "value": 250,
+        "purchasable": null,
+        "type":"Collectible",
+        "usability": null
+    },
+    "bananabread": {
+        "display_name": "BananaBread",
+        "emoji": "<:bananabread:776722921338961956>",
+        "description":"Bread made with banana, a favourite among home-cooks.",
+        "value": 120,
+        "purchasable": null,
+        "type":"Food",
+        "usability": {
+            "function": "eat_banana_bread",
+            "consumable": 1
+        }
+    },
+    "banana": {
+        "display_name": "Banana",
+        "emoji": ":banana:",
+        "description":"A berry from a herb thats related to ginger. also radioactive. Commonly eaten everywhere!",
+        "value": 25,
+        "purchasable": "grocer",
+        "type":"Food",
+        "usability": {
+            "function": "eat_banana",
+            "consumable": 1
+        }
+    },
+    "apple": {
+        "display_name": "Apple",
+        "emoji": ":apple:",
+        "description":"A popular edible fruit, its core has 2.5% of a lethal dose of cyanide.",
+        "value": 30,
+        "purchasable": "grocer",
+        "type":"Food",
+        "usability": {
+            "function": "eat_apple",
+            "consumable": 1
+        }
+    },
+    "bread": {
+        "display_name": "Bread",
+        "emoji": ":bread:",
+        "description":"Gluten matrix aerated with yeast farts. A staple food made mainly from cooked mixes of grain flour and water.",
+        "value": 75,
+        "purchasable": "baker",
+        "type":"Food",
+        "usability": {
+            "function": "eat_bread",
+            "consumable": 1
+        }
+    },
+    "baguette": {
+        "display_name": "Baguette",
+        "emoji": ":french_bread:",
+        "description":"Gluten matrix aerated with yeast farts. French style!",
+        "value": 90,
+        "purchasable": "baker",
+        "type":"Food",
+        "usability": {
+            "function": "eat_baguette",
+            "consumable": 1
+        }
+    },
+    "flatbread": {
+        "display_name": "FlatBread",
+        "emoji": ":flatbread:",
+        "description":"A kind of unleavened (without yeast) bread that usually includes yogurt in its dough.",
+        "value": 70,
+        "purchasable": "baker",
+        "type":"Food",
+        "usability": {
+            "function": "eat_flatbread",
+            "consumable": 1
+        }
+    },
+    "biscuit": {
+        "display_name": "Cookie",
+        "emoji": ":cookie:",
+        "description":"A flat, round disk of baked cookie dough. yum!",
+        "value": 35,
+        "purchasable": "baker",
+        "type":"Food",
+        "usability": {
+            "function": "eat_biscuit",
+            "consumable": 1
+        }
+    },
+    "empty_can": {
+        "display_name": "Empty Can",
+        "emoji": ":canned_food:",
+        "description":"A scrunched-up empty tin can- probably contained a drink initially.",
+        "value": 7,
+        "purchasable": null,
+        "type":"Rubbish",
+        "usability": {
+            "function": "eat_biscuit",
+            "consumable": 1
+        }
+    },
+    "food_wrapper": {
+        "display_name": "Food Wrapper",
+        "emoji": ":red_envelope:",
+        "description":"The old wrapper of some probably unhealthy snack.",
+        "value": 3,
+        "purchasable": null,
+        "type":"Rubbish",
+        "usability": {
+            "function": "eat_biscuit",
+            "consumable": 1
+        }
+    },
+    "mushroom": {
+        "display_name": "Toadstool",
+        "emoji": ":mushroom:",
+        "description":"A *Amanita* muscaria toadstool. Known widely as that stereotypical red and white (halucinogenic and poisonous) mushroom.",
+        "value": 25,
+        "purchasable": null,
+        "type":"Food",
+        "usability": {
+            "function": "eat_mushroom",
+            "consumable": 1
+        }
+    }
+}

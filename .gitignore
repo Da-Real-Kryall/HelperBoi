@@ -1,0 +1,13 @@
+#sensitive info
+token.txt
+
+#other files automatically created when running the scripts/using vscode (idk what the official term for them is)
+__pycache__
+.vscode
+
+#database files: (these will be created automatically, so it is fine to just remove them from the repo)
+*.db
+
+#info only needed for development
+ideas.txt
+todo.txt

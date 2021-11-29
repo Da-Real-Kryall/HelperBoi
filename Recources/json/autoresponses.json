@@ -1,0 +1,63 @@
+{
+    "directs": {
+        "hay": 0,
+        "bruh": 1,
+        "brah": 1,
+        "monkeyflip": 2,
+        "monkiflip": 2,
+        "stickbug": 3,
+        "stickbugged": 3,
+        "pog": 4,
+        "poggers": 4,
+        "bach": 5,
+        "stonks": 6,
+        "duckroll": 7,
+        "duckrolled": 7,
+        "distract": 8,
+        "distracted": 8,
+        "distraction": 8,
+        "doot": 9
+    },
+    "responses": [
+        {
+            "msg": "hay in a stack of needles",
+            "fp": ""
+        },
+        {
+            "msg": "",
+            "fp": "/sounds/BRUH.mp3"
+        },
+        {
+            "msg": "",
+            "fp": "/images/monkiflip.gif"
+        },
+        {
+            "msg": "get stickbugged lol",
+            "fp": "/images/stickbugged.gif"
+        },
+        {
+            "msg": "",
+            "fp": "/images/POG.png"
+        },
+        {
+            "msg": "bach hole",
+            "fp": "/images/Bach_Hole.png"
+        },
+        {
+            "msg": "yes.",
+            "fp": "/images/Meme_Man.png"
+        },
+        {
+            "msg": "get duckrolled lol",
+            "fp": "/images/Duckroll.png"
+        },
+        {
+            "msg":"",
+            "fp": "/images/Distraction_dance.gif"
+        },
+        {
+            "msg": "noot noot",
+            "fp": "/sounds/DOOT.mp3"
+        }
+    ]
+}

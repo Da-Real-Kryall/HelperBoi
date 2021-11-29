@@ -1,0 +1,22 @@
+{
+    "users": {
+        "level_up_alert": {
+            "default": 0,
+            "description": "This preference determines whether you will recieve a notification upon levelling up in coolness."
+        },
+        "economy_invisibility": {
+            "default": 0,
+            "description": "This will control whether you will show up on things like leaderboards and net server statistics concerning your economic data."
+        }
+    },
+    "servers": {
+        "dad_jokes": {
+            "default": 0,
+            "description": "Enables automated dad jokes!"
+        },
+        "autoresponses_require_ping": {
+            "default": 1,
+            "description": "Controls whether autoresponses occur without the bot being directly @'ed also."
+        }
+    }
+}

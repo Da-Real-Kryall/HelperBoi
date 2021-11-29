@@ -1,0 +1,149 @@
+{
+    "crafting_recipes": {
+        "bananabread": [
+             "bread",
+             "banana"
+        ]
+    },
+    "stores": {
+        "grocer":{
+            "display_name": "Grocery Store",
+            "description": "A store specialising in fresh produce, meats, dairy products, frozen goods and canned foods, alongside a range of household and personal care items.",
+            "colour": 3831830
+        },
+        "baker": {
+            "display_name": "Bakery",
+            "description": "A store that primarily makes and sells various pastries and breads.",
+            "colour": 9733723
+        }
+    },
+    "forage_data": {
+        "weights": {
+            "rock": 30,
+            "stick": 40,
+            "fossil": 2,
+            "quartz": 7,
+            "mushroom": 12,
+            "NOTHING": 20
+        },
+        "name_choices": {
+            "stick": [
+                "a very straight stick",
+                "a twig",
+                "a dead branch"
+            ],
+            "rock": [
+                "a round pebble",
+                "a small rock",
+                "a stone"
+            ],
+            "fossil": [
+                "a petrified shell",
+                "a fossilized sea shell",
+                "a shell fossil"
+            ],
+            "quartz": [
+                "a quartz crystal",
+                "a lump of white quartz",
+                "some quartz"
+            ],
+            "mushroom": [
+                "a red toadstool",
+                "that stereotypical mushroom",
+                "a red and white mushroom"
+            ]
+        },
+        "messages": {
+            "success": [
+                "You found % underneath a log!",
+                "You spotted % underneath a log!",
+                "You acquired % from underneath a log!",
+
+                "You spotted % on the ground at your feet.",
+                "You found % on the ground at your feet.",
+
+                "You found % while digging in the sand!",
+                "You acquired % while digging in the sand!",
+
+                "You spotted % under a tree!",
+                "You found % under a tree.",
+                "You acquired % from under a tree."
+            ],
+            "faliure": [
+                "You find nothing after digging in the sand.",
+                "You came up empty handed after digging in the sand.",
+                "After digging in the sand you acquired... nothing!",
+
+                "You find nothing after looking under a log.",
+                "You came up empty handed after looking under a log.",
+                "After looking under a log you find... nothing!",
+
+                "After searching a tree you find... nothing.",
+                "You came up empty handed after searching a tree.",
+                "You find nothing after searching a tree."
+            ]
+        }
+    },
+    "scrounge_data": {
+        "weights": {
+            "rock": 5,
+            "empty_can": 12,
+            "food_wrapper": 15,
+            "NOTHING": 10,
+            "MONEY": 7
+        },
+        "name_choices": {
+            "MONEY": [
+                "a few simoleons",
+                "a couple coins",
+                "a few bucks",
+                "some simoleons"
+            ],
+            "rock": [
+                "a round pebble",
+                "a small rock",
+                "a stone"
+            ],
+            "empty_can": [
+                "an empty soda can",
+                "a soup can",
+                "an empty fizzy drink",
+                "an empty can of soft drink"
+            ],
+            "food_wrapper": [
+                "a candy bar wrapper",
+                "an empty chip packet",
+                "a chocolate wrapper",
+                "one of those straw wrappers from a juice box",
+                "an (empty) chip bag",
+                "an empty bag of crisps"
+            ]
+        },
+        "messages": {
+            "success": [
+                "You found % underneath a park bench!",
+                "You spotted % underneath a park bench!",
+                "You acquired % from underneath a park bench!",
+
+                "You spotted % on the ground at your feet.",
+                "You found % on the ground at your feet.",
+                "You found % on a nearby footpath.",
+
+                "You found % on the ground next to a trash can.",
+                "You spotted % on the ground next to a trash can."
+            ],
+            "faliure": [
+                "There was nothing on the ground at your feet.",
+                "There was nothing on the nearby footpaths.",
+                
+                "You find nothing after looking under a park bench.",
+                "You came up empty handed after looking under a park bench.",
+                "After looking under a park bench you find... nothing!",
+
+                "After searching an alleyway you find... nothing.",
+                "You came up empty handed after searching an alleyway.",
+                "You find nothing after searching an alleyway."
+            ]
+        }
+    }
+}
