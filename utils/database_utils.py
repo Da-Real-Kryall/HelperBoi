@@ -7,6 +7,8 @@
 
 import math, sqlite3, os, json, time
 
+from discord.utils import valid_icon_size
+
 with open(os.getcwd()+"/Recources/json/items.json") as file:
     item_json = json.loads(file.read())
 with open(os.getcwd()+"/Recources/json/misc_economy.json") as file:
@@ -18,22 +20,23 @@ with open(os.getcwd()+"/Recources/json/command_cooldowns.json") as file:
 
 #init suggstions and bug reports:
 def init_main():
-    pass
     submission_database = sqlite3.connect(f"Databases/submissions/submissions.db")
     cursor = submission_database.cursor()
-    cursor.execute(f'''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'suggestions' ''')
+    cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'suggestions' ''')
     if cursor.fetchone()[0] == 0:
-        cursor.execute(f'''CREATE TABLE suggestions (
-            ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-            user_id INTEGER,
-            content TEXT
+        cursor.execute('''CREATE TABLE suggestions (
+            ID INTEGER PRIMARY KEY, 
+            user_id INTEGER NOT NULL,
+            content TEXT NOT NULL,
+            timestamp INTEGER
         )''')
-    cursor.execute(f'''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'bugreports' ''')
+    cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'bugreports' ''')
     if cursor.fetchone()[0] == 0:
-        cursor.execute(f'''CREATE TABLE bugreports (
-            ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-            user_id INTEGER,
-            content TEXT
+        cursor.execute('''CREATE TABLE bugreports (
+            ID INTEGER PRIMARY KEY, 
+            user_id INTEGER NOT NULL,
+            content TEXT NOT NULL,
+            timestamp INTEGER
         )''')
     
     submission_database.commit()
@@ -45,92 +48,92 @@ def init_user(user_id):  #inits a user's balance, inventory and preferences. try
     user_cursor = user_database.cursor()
 
     #single values, balance, exp etc
-    user_cursor.execute(f'''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'single_values' ''')
+    user_cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'single_values' ''')
     if user_cursor.fetchone()[0] == 0:
-        user_cursor.execute(f'''CREATE TABLE single_values (
+        user_cursor.execute('''CREATE TABLE single_values (
             balance INTEGER, 
             coolness INTEGER,
             boops INTEGER
         )''')
-        user_cursor.execute(f'''INSERT into single_values values (
+        user_cursor.execute('''INSERT into single_values values (
             100,
             0,
             0
         )''')
 
     #inventory
-    user_cursor.execute(f'''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'inventory' ''')
+    user_cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'inventory' ''')
     if user_cursor.fetchone()[0] == 0:
-        user_cursor.execute(f'''CREATE TABLE inventory (
+        user_cursor.execute('''CREATE TABLE inventory (
             item_name TEXT,
             quantity INTEGER
         )''') #perhaps add flags when switching to mode two for storage; item nbt and such
     
     #remove unknown items
-    user_cursor.execute(f'''SELECT item_name FROM inventory''')
+    user_cursor.execute('''SELECT item_name FROM inventory''')
     data = user_cursor.fetchall()
 
     if len(data) > 0:
         for item in data:
             if item[0] not in list(item_json.keys()):
-                user_cursor.execute(f'''DELETE FROM inventory WHERE item_name = '{item[0]}' ''')
+                user_cursor.execute('''DELETE FROM inventory WHERE item_name = ? ''', (str(item[0]),))
 
     #add in all items
     for item in item_json.keys():
-        user_cursor.execute(f'''SELECT quantity FROM inventory WHERE item_name = '{item}' ''')
+        user_cursor.execute('''SELECT quantity FROM inventory WHERE item_name = ? ''', (str(item),))
         fetched_item = user_cursor.fetchall()
         if len(fetched_item) == 0:
-            user_cursor.execute(f'''INSERT into inventory values ('{item}', {"1" if item == "biscuit" else "0"})''')
+            user_cursor.execute('''INSERT into inventory values (?,?)''', (item, "1" if item == "biscuit" else "0"))
 
 
     #settings
-    user_cursor.execute(f'''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'settings' ''')
+    user_cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'settings' ''')
     if user_cursor.fetchone()[0] == 0:
-        user_cursor.execute(f'''CREATE TABLE settings (
+        user_cursor.execute('''CREATE TABLE settings (
             option TEXT,
             value INTEGER
         )''')
 
 
     #remove unknown settings
-    user_cursor.execute(f'''SELECT option FROM settings''')
+    user_cursor.execute('''SELECT option FROM settings''')
     data = user_cursor.fetchall()
 
     if len(data) > 0:
         for setting in data:
             if setting[0] not in list(settings_json["users"].keys()):
-                user_cursor.execute(f'''DELETE FROM settings WHERE option = '{setting[0]}' ''')
+                user_cursor.execute('''DELETE FROM settings WHERE option = ? ''', (str(setting[0]),))
 
     #add in all settings
     for setting in settings_json["users"].keys():
-        user_cursor.execute(f'''SELECT value FROM settings WHERE option = '{setting}' ''')
+        user_cursor.execute('''SELECT value FROM settings WHERE option = ? ''', (setting,))
         fetched_setting = user_cursor.fetchall()
         if len(fetched_setting) == 0:
-            user_cursor.execute(f'''INSERT into settings values ('{setting}', '{int(settings_json["users"][setting]["default"])}')''')
+            user_cursor.execute('''INSERT into settings values (?,?)''', (setting, int(settings_json["users"][setting]["default"])))
 
     #cooldowns
-    user_cursor.execute(f'''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'cooldowns' ''')
+    user_cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'cooldowns' ''')
     if user_cursor.fetchone()[0] == 0:
-        user_cursor.execute(f'''CREATE TABLE cooldowns (
+        user_cursor.execute('''CREATE TABLE cooldowns (
             name TEXT,
             timestamp INTEGER
         )''') 
     
     #remove unknown entries
-    user_cursor.execute(f'''SELECT name FROM cooldowns''')
+    user_cursor.execute('''SELECT name FROM cooldowns''')
     data = user_cursor.fetchall()
 
     if len(data) > 0:
         for entry in data:
             if entry[0] not in list(cooldowns_json.keys()):
-                user_cursor.execute(f'''DELETE FROM cooldowns WHERE name = '{entry[0]}' ''')
+                user_cursor.execute('''DELETE FROM cooldowns WHERE name = ?''', (entry[0],))
 
     #add in all entries
     for entry in cooldowns_json.keys():
-        user_cursor.execute(f'''SELECT timestamp FROM cooldowns WHERE name = '{entry}' ''')
+        user_cursor.execute('''SELECT timestamp FROM cooldowns WHERE name = ?''', (entry,))
         fetched_timestamp = user_cursor.fetchall()
         if len(fetched_timestamp) == 0:
-            user_cursor.execute(f'''INSERT into cooldowns values ('{entry}', {int(time.time())-cooldowns_json[entry]}) ''')
+            user_cursor.execute('''INSERT into cooldowns values (?,?)''', (str(entry), int(time.time())-cooldowns_json[entry]))
 
     user_database.commit()
 
@@ -141,28 +144,28 @@ def init_server(server_id):
     server_cursor = server_database.cursor()
 
     #settings
-    server_cursor.execute(f'''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'settings' ''')
+    server_cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'settings' ''')
     if server_cursor.fetchone()[0] == 0:
-        server_cursor.execute(f'''CREATE TABLE settings (
+        server_cursor.execute('''CREATE TABLE settings (
             option TEXT,
             value INTEGER
         )''')
 
     #remove unknown settings
-    server_cursor.execute(f'''SELECT option FROM settings''')
+    server_cursor.execute('''SELECT option FROM settings''')
     data = server_cursor.fetchall()
 
     if len(data) > 0:
         for setting in data:
             if setting[0] not in list(settings_json["servers"].keys()):
-                server_cursor.execute(f'''DELETE FROM settings WHERE option = '{setting[0]}' ''')
+                server_cursor.execute('''DELETE FROM settings WHERE option = ?''', (str(setting[0]),))
 
     #add in all settings
     for setting in settings_json["servers"].keys():
-        server_cursor.execute(f'''SELECT value FROM settings WHERE option = '{setting}' ''')
+        server_cursor.execute('''SELECT value FROM settings WHERE option = ?''', (str(setting),))
         fetched_setting = server_cursor.fetchall()
         if len(fetched_setting) == 0:
-            server_cursor.execute(f'''INSERT into settings values ('{setting}', '{int(settings_json["servers"][setting]["default"])}')''')
+            server_cursor.execute('''INSERT into settings values (?,?)''', (str(setting), int(settings_json["servers"][setting]["default"])))
     
     server_database.commit()
 
@@ -179,7 +182,7 @@ def fetch_timedelta(user_id:int, entry:str):
     user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
-    user_cursor.execute(f''' SELECT timestamp FROM cooldowns WHERE name = '{entry}' ''')
+    user_cursor.execute(''' SELECT timestamp FROM cooldowns WHERE name = ?''', (str(entry),))
     data = user_cursor.fetchall()[0][0]
 
     user_database.commit()
@@ -192,7 +195,7 @@ def fetch_balance(user_id:int):
     user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
-    user_cursor.execute(f'''SELECT balance from single_values''')
+    user_cursor.execute('''SELECT balance from single_values''')
     balance = user_cursor.fetchall()[0][0]
 
     user_database.close()
@@ -204,20 +207,78 @@ def fetch_boops(user_id):
     user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
-    user_cursor.execute(f'''SELECT boops from single_values''')
+    user_cursor.execute('''SELECT boops from single_values''')
     boops = user_cursor.fetchall()[0][0]
 
     user_database.close()
 
     return boops
 
+def fetch_bugreports(mode:str, integer:int):
+    if mode not in ["all", "primary_key", "user", "latest"]: #grab all, those with a certain primary id, all from a specific user's id, or the n latest submissions
+        raise ValueError("For the \'mode\' argument specify either \'all\' for all entries, \'primary_key\' for search by primary key (given as 'integer'), \'user\' for all entries from a given id (given in the 'integer' arg), or \'latest\' for the <integer> latest entries.")
+
+    submissions_database = sqlite3.connect(f"Databases/submissions/submissions.db")
+    cursor = submissions_database.cursor()
+
+    if mode == "all":
+        cursor.execute('''SELECT ID, user_id, content, timestamp FROM bugreports''')
+        data = cursor.fetchall()
+        submissions_database.close()
+        return data
+    elif mode == "primary_key":
+        cursor.execute('''SELECT user_id, content, timestamp FROM bugreports WHERE ID = ? ''', (integer,))
+        data = cursor.fetchall()
+        submissions_database.close()
+        return data
+    elif mode == "user":
+        init_user(integer)
+        cursor.execute('''SELECT ID, content, timestamp FROM bugreports WHERE user_id = ? ''', (integer,))
+        data = cursor.fetchall()
+        submissions_database.close()
+        return data
+    elif mode == "latest":
+        cursor.execute('''SELECT ID, user_id, content, timestamp FROM bugreports ORDER BY timestamp''')
+        data = cursor.fetchall()[-integer:]
+        submissions_database.close()
+        return data
+
+def fetch_suggestions(mode:str, integer:int):
+    if mode not in ["all", "primary_key", "user", "latest"]: #grab all, those with a certain primary id, all from a specific user's id, or the n latest submissions
+        raise ValueError("For the \'mode\' argument specify either \'all\' for all entries, \'primary_key\' for search by primary key (given as 'integer'), \'user\' for all entries from a given id (given in the 'integer' arg), or \'latest\' for the <integer> latest entries.")
+
+    submissions_database = sqlite3.connect(f"Databases/submissions/submissions.db")
+    cursor = submissions_database.cursor()
+
+    if mode == "all":
+        cursor.execute('''SELECT ID, user_id, content, timestamp FROM suggestions''')
+        data = cursor.fetchall()
+        submissions_database.close()
+        return data
+    elif mode == "primary_key":
+        cursor.execute('''SELECT user_id, content, timestamp FROM suggestions WHERE ID = ? ''', (integer,))
+        data = cursor.fetchall()
+        submissions_database.close()
+        return data
+    elif mode == "user":
+        init_user(integer)
+        cursor.execute('''SELECT ID, content, timestamp FROM suggestions WHERE user_id = ? ''', (integer,))
+        data = cursor.fetchall()
+        submissions_database.close()
+        return data
+    elif mode == "latest":
+        cursor.execute('''SELECT ID, user_id, content, timestamp FROM suggestions ORDER BY timestamp''')
+        data = cursor.fetchall()[-integer:]
+        submissions_database.close()
+        return data
+        
 
 def fetch_coolness(user_id):
     init_user(user_id)
     user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
-    user_cursor.execute(f'''SELECT coolness from single_values''')
+    user_cursor.execute('''SELECT coolness from single_values''')
     coolness = user_cursor.fetchall()[0][0]
 
     user_database.close()
@@ -244,7 +305,7 @@ def fetch_inventory(user_id:int, all_items:bool=True, item:str=None):
         data = {elm[0]:elm[1] for elm in data}
         return data
     else:
-        user_cursor.execute(f'''SELECT quantity FROM inventory WHERE item_name = '{item}' ''')
+        user_cursor.execute('''SELECT quantity FROM inventory WHERE item_name = ? ''', (str(item),))
         data = user_cursor.fetchall()
         return data[0][0]
 
@@ -264,10 +325,10 @@ def fetch_setting(group:str, id:int,setting:str):
     database = sqlite3.connect(f"Databases/{group}/{id}.db")
     cursor = database.cursor()
 
-    cursor.execute(f'''SELECT value FROM settings WHERE option = '{setting}' ''')
+    cursor.execute('''SELECT value FROM settings WHERE option = ? ''', (str(setting),))
     fetched_setting = cursor.fetchall()
     if len(fetched_setting) == 0:
-        cursor.execute(f'''INSERT into settings values ('{setting}', '{settings_json[group][setting]["default"]}')''')
+        cursor.execute('''INSERT into settings values (?,?)''', (str(setting), str(settings_json[group][setting]["default"])))
         database.commit()
         database.close()
         return int(settings_json[group][setting]["default"])
@@ -282,7 +343,7 @@ def omit_data(user_id:int, table:str, drop:bool=False, obliterate:bool=False):
     user_cursor = user_database.cursor()
 
     if obliterate == False:
-        user_cursor.execute(f'''{'DROP' if drop else 'DELETE from'} {table};''')
+        user_cursor.execute(f'''{'DROP' if drop else 'DELETE from'} ?;''', (str(table),))
     else: #boom!
         os.remove(f'Recources/users/{user_id}.db')
 
@@ -299,7 +360,7 @@ def refresh_cooldown(user_id:int, entry:str):
     user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
-    user_cursor.execute(f'''UPDATE cooldowns SET timestamp = {int(time.time())} WHERE name = '{entry}' ''')
+    user_cursor.execute('''UPDATE cooldowns SET timestamp = ? WHERE name = ? ''', (int(time.time()), str(entry)))
 
     user_database.commit()
     user_database.close()
@@ -323,19 +384,19 @@ def alter_items(user_id:int, mode:str, items:dict): #set, take, or overwrite to.
 
     if mode == "delta": #change existing values of items given
         for item, quantity in items.items(): # lol items.items
-            user_cursor.execute(f'''SELECT quantity FROM inventory WHERE item_name = '{item}' ''')
+            user_cursor.execute('''SELECT quantity FROM inventory WHERE item_name = ?''', (item,))
             current_quantity = user_cursor.fetchall()[0][0]
             end_quantity = quantity+current_quantity
-            user_cursor.execute(f'''UPDATE inventory SET quantity = {end_quantity} WHERE item_name = '{item}' ''')
+            user_cursor.execute('''UPDATE inventory SET quantity = ? WHERE item_name = ?''', (int(end_quantity), str(item)))
     
     elif mode == "set": #set the values of the items given
         for item, quantity in items.items(): # lol items.items
-            user_cursor.execute(f'''UPDATE inventory SET quantity = {quantity} WHERE item_name = '{item}' ''')
+            user_cursor.execute('''UPDATE inventory SET quantity = ? WHERE item_name = ?''', (int(quantity), str(item)))
     
     elif mode == "overwrite_all": #replace the current inv with items given, all others not specified are set to zero.
         for item in item_json.keys():
             new_quantity = items[item] if item in items.keys() else 0
-            user_cursor.execute(f'''UPDATE inventory SET quantity = {new_quantity} WHERE item_name = '{item}' ''')
+            user_cursor.execute('''UPDATE inventory SET quantity = ? WHERE item_name = ?''', (int(new_quantity), str(item)))
 
     user_database.commit()
     user_database.close()
@@ -377,15 +438,42 @@ def alter_setting(group:str,id:int,setting:str,value:int=0,todefault:bool=False)
 
     new_value = value if todefault == False else settings_json[setting]["default"]
 
-    cursor.execute(f'''SELECT value FROM settings WHERE option = '{setting}' ''')
+    cursor.execute('''SELECT value FROM settings WHERE option = ?''', (setting,))
     if len(cursor.fetchall()) == 0:
-        cursor.execute(f'''INSERT into settings values ('{setting}', {new_value})''')
+        cursor.execute('''INSERT into settings values (?,?)''', (str(setting),int(new_value)))
     else:
-        cursor.execute(f'''UPDATE settings set value = {new_value} WHERE option = '{setting}' ''')
+        cursor.execute('''UPDATE settings set value = ? WHERE option = ?''', (int(new_value), str(setting)))
 
     database.commit()
     database.close()
 
+def alter_bugreports(changes:dict):#mode:str,ids:list,contents:str):
+    #dict with "delete" and "insert" items, delete having [primary_key,], insert having {user_id:content,}
+
+    submissions_database = sqlite3.connect(f"Databases/submissions/submissions.db")
+    cursor = submissions_database.cursor()
+
+    for primary_key in changes["delete"]:
+        cursor.execute('''DELETE FROM bugreports WHERE ID = ?''',(int(primary_key),))
+    for user_id, content in changes["insert"].items():
+        cursor.execute('INSERT into bugreports (user_id,content,timestamp) values (?,?,?)', (user_id, content,int(time.time())))
+
+    submissions_database.commit()
+    submissions_database.close()
+
+def alter_suggestions(changes:dict):#mode:str,ids:list,contents:str):
+    #dict with "delete" and "insert" items, delete having [primary_key,], insert having {user_id:content,}
+
+    submissions_database = sqlite3.connect(f"Databases/submissions/submissions.db")
+    cursor = submissions_database.cursor()
+
+    for primary_key in changes["delete"]:
+        cursor.execute('''DELETE FROM suggestions WHERE ID = ?''',(int(primary_key),))
+    for user_id, content in changes["insert"].items():
+        cursor.execute('INSERT into suggestions (user_id,content,timestamp) values (?,?,?)', (user_id, content,int(time.time())))
+
+    submissions_database.commit()
+    submissions_database.close()
 
 def alter_coolness(user_id:int,value:int,overwrite:bool=False):
     init_user(user_id)
@@ -393,12 +481,12 @@ def alter_coolness(user_id:int,value:int,overwrite:bool=False):
     user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
-    user_cursor.execute(f'''SELECT coolness from single_values''')
+    user_cursor.execute('''SELECT coolness from single_values''')
     coolness = user_cursor.fetchall()[0][0]
 
     delta = value if overwrite else coolness+value
 
-    user_cursor.execute(f'''UPDATE single_values set coolness = {delta}''')
+    user_cursor.execute('''UPDATE single_values set coolness = ?''', (int(delta),))
     
     user_database.commit()
     user_database.close()
@@ -411,12 +499,12 @@ def alter_boops(user_id:int,value:int,overwrite:bool=False):
     user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
-    user_cursor.execute(f'''SELECT boops from single_values''')
+    user_cursor.execute('''SELECT boops from single_values''')
     boops = user_cursor.fetchall()[0][0]
 
     delta = value if overwrite else boops+value
 
-    user_cursor.execute(f'''UPDATE single_values set boops = {delta}''')
+    user_cursor.execute('''UPDATE single_values set boops = ?''', (int(delta),))
     
     user_database.commit()
     user_database.close()
@@ -429,12 +517,12 @@ def alter_balance(user_id:int, value:int, overwrite:bool=False):
     user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
-    user_cursor.execute(f'''SELECT balance from single_values''')
+    user_cursor.execute('''SELECT balance from single_values''')
     balance = user_cursor.fetchall()[0][0]
 
     delta = value if overwrite else balance+value
 
-    user_cursor.execute(f'''UPDATE single_values set balance = {delta}''')
+    user_cursor.execute('''UPDATE single_values set balance = ?''', (int(delta),))
 
     user_database.commit()
     user_database.close()

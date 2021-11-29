@@ -1,4 +1,6 @@
 {
     "forage": 15,
-    "scrounge": 20
+    "scrounge": 20,
+    "postsuggestion": 30,
+    "bugreport": 30
 }

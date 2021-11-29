@@ -65,7 +65,7 @@ def setup(Bot):
     }})
     @commands.command(name="catalogue")
     async def _catalogue(ctx): 
-        menu = CatalogueMenu()
+        menu = CatalogueMenu(clear_reactions_after=True)
         await menu.start(ctx)
         #e,n='E'*5,'\n'
         #await ctx.send(embed=discord.Embed(title=((e*3+n)*2+(e+n)*2)*2+(e*3+n)*2,colour=general_utils.Colours.main))

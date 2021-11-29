@@ -84,7 +84,7 @@ def setup(Bot):
     @commands.has_permissions(administrator=True)
     @commands.command(name="server_preferences", aliases=["server_settings"])
     async def _server_preferences(ctx):
-        m = SettingsMenu()
+        m = SettingsMenu(clear_reactions_after=True)
         await m.start(ctx)
         
     Bot.add_command(_server_preferences)

@@ -6,6 +6,7 @@ class Colours:
     yellow = 0xFACE0A   #0xF4D640
     green = 0x09DF17
     red = 0xEA1510
+    charcoal = 0x2E2D2B
 
 #utils file for functions used repeatadly across command files.
 def error_embed(apologise:bool, message:str):

@@ -84,7 +84,7 @@ def setup(Bot):
     @commands.command(name="user_settings", aliases=["user_preferences"])
     async def _user_settings(ctx):
         
-        m = SettingsMenu()
+        m = SettingsMenu(clear_reactions_after=True)
         await m.start(ctx)
         
     Bot.add_command(_user_settings)
