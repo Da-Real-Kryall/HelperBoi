@@ -12,10 +12,16 @@ def setup(Bot):
     }})
     @commands.command(name="sell")
     async def _sell(ctx, amount, *, item_name):
-        if general_utils.represents_int(amount) == False and amount != 'all' or int(amount) < 1:
-            await ctx.send(embed=general_utils.error_embed(ctx.author, "Please give a valid positive integer or 'all' as the amount of items to sell, followed by the name of the item(s) you wish to sell."))
-            return
 
+        error_embed = general_utils.error_embed(ctx.author, "Please give a valid positive integer or 'all' as the amount of items to sell, followed by the name of the item(s) you wish to sell.")
+        if general_utils.represents_int(amount):
+            if int(amount) < 1 and ctx.author.id != general_utils.bot_owner_id:
+                await ctx.send(embed=error_embed)
+                return
+        elif amount != "all":
+            await ctx.send(embed=error_embed)
+            return
+        
         with open(os.getcwd()+"/Recources/json/items.json") as file:
             item_json = json.loads(file.read())
 
@@ -23,11 +29,15 @@ def setup(Bot):
             if item_name.lower() == value["display_name"].lower():
                 if amount == 'all':
                     delta = 0 - database_utils.fetch_inventory(ctx.author.id, False, key)
+                    amount = -delta
+                elif int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key) and ctx.author.id != general_utils.bot_owner_id:
+                    await ctx.send(embed=general_utils.error_embed(False, "You cant sell what you dont have!"))
+                    return
                 else:
                     delta = 0 - int(amount)
                 sell_value = item_json[key]['value']*int(amount)
 
-                await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to sell {'all your' if amount == 'all' else amount} {value['display_name']}{'s' if amount != 1 else ''} for §{sell_value}?", colour=general_utils.Colours.yellow))
+                await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to sell {'all your' if amount == -delta else amount} {value['display_name']}{'s' if amount != 1 else ''} for §{sell_value}?", colour=general_utils.Colours.yellow))
                 
                 check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author and m.content.lower() in ["yes please", "yes", "yep", "yeah", "confirm", "affirmative", "true", "no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]
 
@@ -42,12 +52,13 @@ def setup(Bot):
                     database_utils.alter_balance(ctx.author.id, sell_value)
 
                     sold_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"Sold {amount}x {value['emoji']} {value['display_name']} for §{sell_value}"))
-                    sold_embed.description = f"{'+' if delta > -1 else ''}{delta} {value['emoji']} {value['display_name']}{'s' if amount != 0 else ''}\n{'+' if sell_value > -1 else ''}{sell_value} <:Simolean:769845739043684353> Simoleon{'s' if sell_value != 0 else ''}"
+                    sold_embed.description = f"{'+' if delta > -1 else ''}{delta} {value['emoji']} {value['display_name']}{value['plural'] if amount else ''}\n{'+' if sell_value > -1 else ''}{sell_value} <:Simolean:769845739043684353> Simoleon{'s' if sell_value != 0 else ''}"
  
                     await ctx.send(embed=sold_embed)
                     return
                 elif msg.content.lower() in ["no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]:
                     await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Okie, {random.choice(['nevermind!', 'aborted!'])}")))
+                    return
 
         await ctx.send(embed=general_utils.error_embed(False, f"{item_name} isnt a valid item!"))
 

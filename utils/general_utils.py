@@ -22,6 +22,8 @@ def represents_int(s):
 #1st 2nd 3rd etc
 ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])
 
+#kryall's user id
+bot_owner_id = 479963507631194133
 
 #by default, add timestamp, colour and footer to embed.
 def format_embed(author:discord.Message.author, embed:discord.Embed, colour:str="main", footer:bool=True,timestamp:bool=True):

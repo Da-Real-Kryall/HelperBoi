@@ -1,0 +1,32 @@
+{
+    "spontaneous": [
+        [
+            "why was the cook arrested?",
+            "he was caught beating an egg"
+        ],
+        [
+            "an old lady at the bank asked me if i could help check her balance",
+            "so i pushed her over"
+        ],
+        [
+            "my wife told me to stop impersonating a flamingo",
+            "i had to put my foot down"
+        ],
+        [
+            "dont you hate it when people answer their own questions?",
+            "i do"
+        ],
+        [
+            "did you hear of the band 1023mb?",
+            "they havent got a gig yet"
+        ],
+        [
+            "what do you call a boomerang that doesnt come back?",
+            "a stick"
+        ]
+    ],
+    "responses": {
+        "theres something in my shoe": "its called a foot",
+        "theres something on my face": "its called a nose"
+    }
+}

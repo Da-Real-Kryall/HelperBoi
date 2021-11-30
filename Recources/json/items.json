@@ -1,6 +1,7 @@
 {
     "item_name": {
         "display_name": "Sample Item",
+        "plural": "s",
         "emoji": ":abacus:",
         "description":"How did you get this?!",
         "value": 9999,
@@ -13,6 +14,7 @@
     },
     "rock": {
         "display_name": "Rock",
+        "plural": "s",
         "emoji": ":rock:",
         "description":"A relatively useless pebble. This probably isn't worth much.",
         "value": 10,
@@ -22,6 +24,7 @@
     },
     "stick": {
         "display_name": "Stick",
+        "plural": "s",
         "emoji": ":herb:",
         "description":"A small, half-dead tree branch. Not many uses.",
         "value": 5,
@@ -34,6 +37,7 @@
     },
     "log": {
         "display_name": "Log",
+        "plural": "s",
         "emoji": ":wood:",
         "description":"A wood log. Can be sold or used to make other things.",
         "value": 50,
@@ -43,6 +47,7 @@
     },
     "quartz": {
         "display_name": "Quartz",
+        "plural": "",
         "emoji": ":ice_cube:",
         "description":"A semi-opaque white crystal with piezoelectric properties. Probably worth a bit.",
         "value": 175,
@@ -52,6 +57,7 @@
     },
     "fossil": {
         "display_name": "Fossil",
+        "plural": "s",
         "emoji": ":shell:",
         "description":"A fossilized sea shell specimen. This is probably worth a bunch of money.",
         "value": 250,
@@ -61,6 +67,7 @@
     },
     "bananabread": {
         "display_name": "BananaBread",
+        "plural": "s",
         "emoji": "<:bananabread:776722921338961956>",
         "description":"Bread made with banana, a favourite among home-cooks.",
         "value": 120,
@@ -73,6 +80,7 @@
     },
     "banana": {
         "display_name": "Banana",
+        "plural": "s",
         "emoji": ":banana:",
         "description":"A berry from a herb thats related to ginger. also radioactive. Commonly eaten everywhere!",
         "value": 25,
@@ -85,6 +93,7 @@
     },
     "apple": {
         "display_name": "Apple",
+        "plural": "s",
         "emoji": ":apple:",
         "description":"A popular edible fruit, its core has 2.5% of a lethal dose of cyanide.",
         "value": 30,
@@ -97,6 +106,7 @@
     },
     "bread": {
         "display_name": "Bread",
+        "plural": "s",
         "emoji": ":bread:",
         "description":"Gluten matrix aerated with yeast farts. A staple food made mainly from cooked mixes of grain flour and water.",
         "value": 75,
@@ -109,6 +119,7 @@
     },
     "baguette": {
         "display_name": "Baguette",
+        "plural": "s",
         "emoji": ":french_bread:",
         "description":"Gluten matrix aerated with yeast farts. French style!",
         "value": 90,
@@ -121,6 +132,7 @@
     },
     "flatbread": {
         "display_name": "FlatBread",
+        "plural": "s",
         "emoji": ":flatbread:",
         "description":"A kind of unleavened (without yeast) bread that usually includes yogurt in its dough.",
         "value": 70,
@@ -133,6 +145,7 @@
     },
     "biscuit": {
         "display_name": "Cookie",
+        "plural": "s",
         "emoji": ":cookie:",
         "description":"A flat, round disk of baked cookie dough. yum!",
         "value": 35,
@@ -145,6 +158,7 @@
     },
     "empty_can": {
         "display_name": "Empty Can",
+        "plural": "s",
         "emoji": ":canned_food:",
         "description":"A scrunched-up empty tin can- probably contained a drink initially.",
         "value": 7,
@@ -157,6 +171,7 @@
     },
     "food_wrapper": {
         "display_name": "Food Wrapper",
+        "plural": "s",
         "emoji": ":red_envelope:",
         "description":"The old wrapper of some probably unhealthy snack.",
         "value": 3,
@@ -169,6 +184,7 @@
     },
     "mushroom": {
         "display_name": "Toadstool",
+        "plural": "s",
         "emoji": ":mushroom:",
         "description":"A *Amanita* muscaria toadstool. Known widely as that stereotypical red and white (halucinogenic and poisonous) mushroom.",
         "value": 25,

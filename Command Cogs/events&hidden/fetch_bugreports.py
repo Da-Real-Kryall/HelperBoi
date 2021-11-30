@@ -40,7 +40,7 @@ def setup(Bot):
 
                 for report in reports:
                     author = await Bot.fetch_user(report[1])
-                    self.report_embeds += [general_utils.format_embed(ctx.author, discord.Embed(title=f"(#{report[0]}) Posted by {author.name} <t:{report[3]}:R>:", description=report[2]))]
+                    self.report_embeds += [general_utils.format_embed(ctx.author, discord.Embed(title=f"(ID: {report[0]}) Posted by {author.name} <t:{report[3]}:R>: ({self.scroll_index+1}/{len(self.report_embeds)})", description=report[2]))]
 
                 def _create_embed():
                     embed = self.report_embeds[self.scroll_index]
