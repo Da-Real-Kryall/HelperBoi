@@ -16,7 +16,7 @@ def setup(Bot):
         if user == None:
             user_id = int(ctx.author.id)
         else:
-            user_ids = general_utils.get_player_id(False, ctx, user)
+            user_ids = general_utils.get_player_id(Bot, ctx, user)
             if len(user_ids) == 0:
                 await ctx.send(embed=general_utils.error_embed(False, "That isnt a member's name!"))
                 return

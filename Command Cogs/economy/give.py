@@ -67,7 +67,7 @@ def setup(Bot):
 
                 await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to give {'all your' if amount == 'all' else amount} {value['display_name']}{'s' if amount != 1 else ''} to {recipient_name}?", colour=general_utils.Colours.yellow))
                 
-                check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author and m.content.lower() in ["yes please", "yes", "yep", "yeah", "confirm", "affirmative", "true", "no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]
+                check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author and m.content.lower() in ["yes please", "yes", "ye", "yep", "yeah", "confirm", "affirmative", "true", "no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]
 
                 try:
                     msg = await Bot.wait_for('message', timeout=15.0, check=check)
@@ -75,7 +75,7 @@ def setup(Bot):
                     await ctx.send("nevermind...")
                     return
                 
-                if msg.content.lower() in ["yes", "yep", "yeah", "confirm", "affirmative", "true"]:
+                if msg.content.lower() in ["yes", "ye", "yep", "yeah", "confirm", "affirmative", "true"]:
                     database_utils.alter_items(ctx.author.id, "delta", {key: delta})
                     database_utils.alter_items(user_id, "delta", {key: -delta})
 

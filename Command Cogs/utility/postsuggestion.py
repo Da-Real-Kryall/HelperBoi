@@ -30,6 +30,10 @@ def setup(Bot):
         database_utils.refresh_cooldown(ctx.author.id, "postsuggestion")
         database_utils.alter_suggestions({"insert":{ctx.author.id: text},"delete":[]})
         result_embed = discord.Embed(title="Your suggestion has been recorded!")
+
+        owner = Bot.get_user(general_utils.bot_owner_id)
+        await owner.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"{ctx.author.display_name} just posted a suggestion:", description=text)))
+
         if random.randint(1,9) == 3:
             giveamount = random.randint(2,4)
             result_embed.description = f"Have §{giveamount} as thanks!"

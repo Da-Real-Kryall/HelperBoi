@@ -40,7 +40,7 @@ def setup(Bot):
 
                 for report in reports:
                     author = await Bot.fetch_user(report[1])
-                    self.report_embeds += [general_utils.format_embed(ctx.author, discord.Embed(title=f"(ID: {report[0]}) Posted by {author.name} <t:{report[3]}:R>: ({self.scroll_index+1}/{len(self.report_embeds)})", description=report[2]))]
+                    self.report_embeds += [general_utils.format_embed(ctx.author, discord.Embed(title=f"(ID: {report[0] if mode != 'primary_key' else int(integer)}) Posted by {author.name} <t:{report[3]}:R>: ({len(self.report_embeds)+1}/{len(reports)})", description=report[2]))]
 
                 def _create_embed():
                     embed = self.report_embeds[self.scroll_index]
@@ -68,6 +68,17 @@ def setup(Bot):
 
                 await self.message.edit(embed=self.create_embed())
 
+            @menus.button("\N{COLLISION SYMBOL}")
+            async def on_boom_down(self, payload):
+    
+                database_utils.alter_bugreports({"delete":[reports[self.scroll_index][0] if mode != 'primary_key' else int(integer)],"insert":{}})
+                new_embed = self.report_embeds[self.scroll_index]
+                new_embed.description = "~~"+new_embed.description+"~~"
+                new_embed.title = new_embed.title[:-1]+", DELETED)"
+                new_embed.colour = general_utils.Colours.red
+                self.report_embeds[self.scroll_index] = new_embed
+
+                await self.message.edit(embed=self.create_embed())
 
             @menus.button("\N{BLACK SQUARE FOR STOP}\N{VARIATION SELECTOR-16}")
             async def on_stop(self, payload):

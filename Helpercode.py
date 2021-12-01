@@ -131,7 +131,7 @@ async def on_command_error(ctx, error):
     if error.__class__ == commands.errors.NoPrivateMessage:
         await ctx.send(embed=general_utils.error_embed(True, "This command can only be used in servers!"))
     else:
-        await ctx.send(embed=general_utils.error_embed(True, error))
+        await ctx.send(embed=general_utils.error_embed(True, f"{error}\n\nUse `{Bot.command_prefix}report_bug <bug>` if you want to report this as an unfixed issue."))
 
 @Bot.event
 async def on_connect():

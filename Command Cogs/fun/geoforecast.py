@@ -8,7 +8,7 @@ def setup(Bot):
         "aliases":["geoforecast", "gf"],
         "syntax":"",
         "usage":"Returns some parsed info from a rest api showing the 3-day geomagnetic forecast, credit to the NOAA.",
-        "category":"utility"
+        "category":"fun"
     }})
     @commands.command(name="geoforecast", aliases=["gf"])
     async def _geoforecast(ctx):

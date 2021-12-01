@@ -1,4 +1,4 @@
-import random, discord, datetime, django.utils.timezone
+import random, discord, datetime, django.utils.timezone, asyncio
 
 #colours to be used in most embeds
 class Colours:
@@ -7,6 +7,7 @@ class Colours:
     green = 0x09DF17
     red = 0xEA1510
     charcoal = 0x2E2D2B
+    transparent = 0x2F3136
 
 #utils file for functions used repeatadly across command files.
 def error_embed(apologise:bool, message:str):
@@ -36,12 +37,19 @@ def format_embed(author:discord.Message.author, embed:discord.Embed, colour:str=
         embed.timestamp = datetime.datetime.now(django.utils.timezone.utc)
     return embed
 
-def get_player_id(get_user, ctx, text: str, check_all_users=False):
-    if check_all_users==False:
-        if ctx.guild == None:
-            raise TypeError
-        else:
-            returnlist = {}
+def get_player_id(Bot, ctx, text: str, check_all_users=False):
+    if ctx.guild == None:
+        raise TypeError
+    else:
+        #check if input is a ping
+        if text[:3] == "<@!" and text[-1:] == ">" and represents_int(text[3:-1]):
+            text = text[3:-1]
+        elif text[:2] == "<@" and text[-1:] == ">" and represents_int(text[2:-1]):
+            text = text[2:-1]
+
+        returnlist = {}
+
+        if check_all_users == False:
             for member in ctx.guild.members:
                 if text.casefold() == member.display_name.casefold():
                     returnlist.update(
@@ -60,8 +68,16 @@ def get_player_id(get_user, ctx, text: str, check_all_users=False):
                     {member.id: member.display_name}
                 )
         if len(returnlist) == 0 and represents_int(text) == True:
-            user = get_user(int(text))
+            user = Bot.get_user(int(text))
             if user != None:
                 returnlist.update({user.id: user.name})
-
+                
+        elif check_all_users == True:
+            #require it to be an id
+            if represents_int(text) == False:
+                raise ValueError("input text must be a valid id when checking all users.")
+            else:
+                user = asyncio.run(Bot.fetch_user(int(text)))
+                if user != None:
+                    returnlist.update({user.id: user.name})
     return returnlist

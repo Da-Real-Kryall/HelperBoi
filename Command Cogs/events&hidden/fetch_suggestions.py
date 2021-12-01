@@ -40,7 +40,7 @@ def setup(Bot):
 
                 for suggestion in suggestions:
                     author = await Bot.fetch_user(suggestion[1])
-                    self.suggestion_embeds += [general_utils.format_embed(ctx.author, discord.Embed(title=f"(ID: {suggestion[0]}) Posted by {author.name} <t:{suggestion[3]}:R>: ({self.scroll_index+1}/{len(self._embeds)})", description=suggestion[2]))]
+                    self.suggestion_embeds += [general_utils.format_embed(ctx.author, discord.Embed(title=f"(ID: {suggestion[0] if mode != 'primary_key' else int(integer)}) Posted by {author.name} <t:{suggestion[3]}:R>: ({len(self.suggestion_embeds)+1}/{len(suggestions)})", description=suggestion[2]))]
 
                 def _create_embed():
                     embed = self.suggestion_embeds[self.scroll_index]
@@ -65,6 +65,18 @@ def setup(Bot):
     
                 if self.scroll_index < len(suggestions)-1:
                     self.scroll_index += 1
+
+                await self.message.edit(embed=self.create_embed())
+
+            @menus.button("\N{COLLISION SYMBOL}")
+            async def on_boom_down(self, payload):
+    
+                database_utils.alter_suggestions({"delete":[suggestions[self.scroll_index][0] if mode != 'primary_key' else int(integer)],"insert":{}})
+                new_embed = self.suggestion_embeds[self.scroll_index]
+                new_embed.description = "~~"+new_embed.description+"~~"
+                new_embed.title = new_embed.title[:-1]+", DELETED)"
+                new_embed.colour = general_utils.Colours.red
+                self.suggestion_embeds[self.scroll_index] = new_embed
 
                 await self.message.edit(embed=self.create_embed())
 

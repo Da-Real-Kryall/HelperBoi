@@ -29,6 +29,10 @@ def setup(Bot):
         database_utils.refresh_cooldown(ctx.author.id, "bugreport")
         database_utils.alter_bugreports({"insert":{ctx.author.id: text},"delete":[]})
         result_embed = discord.Embed(title="Your report has been recorded!")
+
+        owner = Bot.get_user(general_utils.bot_owner_id)
+        await owner.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"{ctx.author.display_name} just reported the following bug:", description=text)))
+
         if random.randint(1,9) == 3:
             giveamount = random.randint(2,4)
             result_embed.description = f"Have §{giveamount} as thanks!"

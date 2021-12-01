@@ -12,7 +12,7 @@ def setup(Bot):
         "aliases":["translate", "tl"],
         "syntax":"<from> <to>\"<text>\"",
         "usage":"A simple translator between different representations of **ENGLISH** text.\nTranslates the given text from the first type specified in '<from>' to the type specified in '<to>'.\nThe choices for translation are \"wingdings\", \"plaintext\", and \"morse\"",
-        "category":"utility"
+        "category":"fun"
     }})
 
     @commands.command(name="translate", aliases=["tl"])

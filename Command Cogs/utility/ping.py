@@ -10,7 +10,7 @@ def setup(Bot):
         "usage":"Returns the bot latency",
         "category":"utility"
     }})
-    @commands.is_owner()
+    
     @commands.command(name="ping", aliases=["latency"])
     async def _ping(ctx):
 

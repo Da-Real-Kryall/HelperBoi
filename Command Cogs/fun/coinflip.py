@@ -8,7 +8,7 @@ def setup(Bot):
         "aliases":["coinflip", "cf"],
         "syntax":"",
         "usage":"Flips a coin and tells you the result!",
-        "category":"utility"
+        "category":"fun"
     }})
     @commands.command(name="coinflip", aliases=['cf'])
     async def _coinflip(ctx):
