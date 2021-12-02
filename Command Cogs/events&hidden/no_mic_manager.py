@@ -14,7 +14,7 @@ def setup(Bot):
     }
     @Bot.listen()
     async def on_message(message):
-        if message.content[:len(Bot.command_prefix)] == Bot.command_prefix or len(message.content) > 500:
+        if message.content[:len(await Bot.get_prefix(message))] == await Bot.get_prefix(message) or len(message.content) > 500:
             return
         if hasattr(message.channel, "me"):
             return

@@ -7,8 +7,6 @@
 
 import math, sqlite3, os, json, time
 
-from discord.utils import valid_icon_size
-
 with open(os.getcwd()+"/Recources/json/items.json") as file:
     item_json = json.loads(file.read())
 with open(os.getcwd()+"/Recources/json/misc_economy.json") as file:
@@ -20,7 +18,7 @@ with open(os.getcwd()+"/Recources/json/command_cooldowns.json") as file:
 
 #init suggstions and bug reports:
 def init_main():
-    submission_database = sqlite3.connect(f"Databases/submissions/submissions.db")
+    submission_database = sqlite3.connect(f"Databases/misc/submissions.db")
     cursor = submission_database.cursor()
     cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'suggestions' ''')
     if cursor.fetchone()[0] == 0:
@@ -41,6 +39,29 @@ def init_main():
     
     submission_database.commit()
     submission_database.close()
+
+    prefix_database = sqlite3.connect(f"Databases/misc/prefixes.db")
+    cursor = prefix_database.cursor()
+    cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'prefixes' ''')
+    if cursor.fetchone()[0] == 0:
+        cursor.execute('''CREATE TABLE prefixes (
+            guild_id INTEGER,
+            prefix TEXT
+        )''')
+
+    #cursor.execute('''SELECT guild_id, prefix FROM prefixes''')
+    #data = cursor.fetchall()
+    #data = {elm[0]:elm[1] for elm in data}
+    #print(data, "test")
+    #print(Bot.guilds)
+    #for guild in Bot.guilds:
+    #    print(guild.id)
+    #    if guild.id not in list(data.keys()):
+    #        print("tst")
+    #        cursor.execute('''INSERT into prefixes values (?,?)''', (guild.id, Bot.default_prefix))
+
+    prefix_database.commit()
+    prefix_database.close()
 
 def init_user(user_id):  #inits a user's balance, inventory and preferences. try to make this efficient.
     
@@ -218,7 +239,7 @@ def fetch_bugreports(mode:str, integer:int):
     if mode not in ["all", "primary_key", "user", "latest"]: #grab all, those with a certain primary id, all from a specific user's id, or the n latest submissions
         raise ValueError("For the \'mode\' argument specify either \'all\' for all entries, \'primary_key\' for search by primary key (given as 'integer'), \'user\' for all entries from a given id (given in the 'integer' arg), or \'latest\' for the <integer> latest entries.")
 
-    submissions_database = sqlite3.connect(f"Databases/submissions/submissions.db")
+    submissions_database = sqlite3.connect(f"Databases/misc/submissions.db")
     cursor = submissions_database.cursor()
 
     if mode == "all":
@@ -247,7 +268,7 @@ def fetch_suggestions(mode:str, integer:int):
     if mode not in ["all", "primary_key", "user", "latest"]: #grab all, those with a certain primary id, all from a specific user's id, or the n latest submissions
         raise ValueError("For the \'mode\' argument specify either \'all\' for all entries, \'primary_key\' for search by primary key (given as 'integer'), \'user\' for all entries from a given id (given in the 'integer' arg), or \'latest\' for the <integer> latest entries.")
 
-    submissions_database = sqlite3.connect(f"Databases/submissions/submissions.db")
+    submissions_database = sqlite3.connect(f"Databases/misc/submissions.db")
     cursor = submissions_database.cursor()
 
     if mode == "all":
@@ -303,11 +324,25 @@ def fetch_inventory(user_id:int, all_items:bool=True, item:str=None):
         user_cursor.execute('''SELECT item_name, quantity FROM inventory''')
         data = user_cursor.fetchall()
         data = {elm[0]:elm[1] for elm in data}
+        user_database.close()
         return data
     else:
         user_cursor.execute('''SELECT quantity FROM inventory WHERE item_name = ? ''', (str(item),))
         data = user_cursor.fetchall()
+        user_database.close()
         return data[0][0]
+
+def fetch_prefixes():
+
+    database = sqlite3.connect(f"Databases/misc/prefixes.db")
+    cursor = database.cursor()
+
+    cursor.execute('''SELECT guild_id, prefix FROM prefixes''')
+    data = cursor.fetchall()
+    database.close()
+
+    data = {elm[0]:elm[1] for elm in data}
+    return data
 
 def fetch_setting(group:str, id:int,setting:str):
     if group not in ["servers", "users"]:
@@ -420,6 +455,42 @@ def alter_items(user_id:int, mode:str, items:dict): #set, take, or overwrite to.
     #    data = user_cursor.fetchall()
     #    return data[0][0]
 
+def alter_prefix(guild_ids:list, mode:str, prefix:str):
+
+    database = sqlite3.connect(f"Databases/misc/prefixes.db")
+    cursor = database.cursor()
+
+    if mode not in ["insert", "update", "remove"]:
+        raise KeyError("mode argument must be update or remove or insert, their meaning is self explanatory.") #il probably change the message here
+
+    if mode == "insert": #yes this is larger but i think is probably faster than the method with less code
+        for guild_id in guild_ids:
+            init_server(guild_id)
+            cursor.execute('''SELECT prefix FROM prefixes WHERE guild_id = ?''', (guild_id,))
+            if len(cursor.fetchall()) == 0:
+                cursor.execute('''INSERT into prefixes values (?,?)''', (guild_id,prefix))
+            else:
+                cursor.execute('''UPDATE prefixes set prefix = ? WHERE guild_id = ?''', (prefix, guild_id))
+
+    elif mode == "update":
+        for guild_id in guild_ids:
+            init_server(guild_id)
+            cursor.execute('''SELECT prefix FROM prefixes WHERE guild_id = ?''', (guild_id,))
+            if len(cursor.fetchall()) == 0:
+                cursor.execute('''INSERT into prefixes values (?,?)''', (guild_id,prefix))
+            else:
+                cursor.execute('''UPDATE prefixes set prefix = ? WHERE guild_id = ?''', (prefix, guild_id))
+
+    elif mode == "remove":
+        for guild_id in guild_ids:
+            init_server(guild_id)
+            cursor.execute('''SELECT prefix FROM prefixes WHERE guild_id = ?''', (guild_id,))
+            if len(cursor.fetchall()) != 0:
+                cursor.execute('''DELETE FROM prefixes WHERE guild_id = ?''', (guild_id,))
+
+    database.commit()
+    database.close()
+
 def alter_setting(group:str,id:int,setting:str,value:int=0,todefault:bool=False):
     if group not in ["servers", "users"]:
         raise KeyError
@@ -450,7 +521,7 @@ def alter_setting(group:str,id:int,setting:str,value:int=0,todefault:bool=False)
 def alter_bugreports(changes:dict):#mode:str,ids:list,contents:str):
     #dict with "delete" and "insert" items, delete having [primary_key,], insert having {user_id:content,}
 
-    submissions_database = sqlite3.connect(f"Databases/submissions/submissions.db")
+    submissions_database = sqlite3.connect(f"Databases/misc/submissions.db")
     cursor = submissions_database.cursor()
 
     for primary_key in changes["delete"]:
@@ -464,7 +535,7 @@ def alter_bugreports(changes:dict):#mode:str,ids:list,contents:str):
 def alter_suggestions(changes:dict):#mode:str,ids:list,contents:str):
     #dict with "delete" and "insert" items, delete having [primary_key,], insert having {user_id:content,}
 
-    submissions_database = sqlite3.connect(f"Databases/submissions/submissions.db")
+    submissions_database = sqlite3.connect(f"Databases/misc/submissions.db")
     cursor = submissions_database.cursor()
 
     for primary_key in changes["delete"]:

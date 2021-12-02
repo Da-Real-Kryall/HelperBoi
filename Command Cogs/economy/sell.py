@@ -6,14 +6,23 @@ def setup(Bot):
 
     Bot.command_info.update({"sell":{
         "aliases":["sell"],
-        "syntax":"<amount> <item>",
-        "usage":"Will sell the specified item from your inventory. You must already have the item in your inventory (obviously), and to sell all of the specified item you can give 'all' as the amount.",
+        "syntax":"<item> <amount>",
+        "usage":"Will sell the specified item from your inventory. You must already have the item in your inventory (obviously), and to sell all of the specified item you can give 'all' as the amount, instead of a specific number.",
         "category":"economy"
     }})
     @commands.command(name="sell")
-    async def _sell(ctx, amount, *, item_name):
+    async def _sell(ctx, *, args):
 
-        error_embed = general_utils.error_embed(ctx.author, "Please give a valid positive integer or 'all' as the amount of items to sell, followed by the name of the item(s) you wish to sell.")
+        error_embed = general_utils.error_embed(ctx.author, "Please provide a valid item name, followed by either a valid positive integer or 'all', as the amount.")
+        
+        args = args.split(" ")
+        if len(args) < 2:
+            await ctx.send(embed=error_embed)
+            return
+        
+        amount = args[-1]
+        item_name = ' '.join(args[:-1])
+
         if general_utils.represents_int(amount):
             if int(amount) < 1 and ctx.author.id != general_utils.bot_owner_id:
                 await ctx.send(embed=error_embed)

@@ -17,6 +17,9 @@ def setup(Bot):
     }})
     @commands.command(name="postsuggestion", aliases=['ps', "suggest"])
     async def _postsuggestion(ctx, *, text):
+        #if ctx.author.id == 517371142508380170:
+        #    await ctx.send("no")
+        #    return
         timedelta = database_utils.fetch_timedelta(ctx.author.id, "postsuggestion")
 
         if timedelta < cooldowns_json["postsuggestion"]:

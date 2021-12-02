@@ -5,13 +5,19 @@ from dotenv import load_dotenv
 from discord.ext import commands
 from utils import general_utils, database_utils
 
+database_utils.init_main()
+
 load_dotenv()
 stop_event = asyncio.Event()
 loop = asyncio.get_event_loop()
 
-Bot = commands.Bot(command_prefix='!kbr ', intents=discord.Intents.all())
+async def get_pre(Bot, message):
+    return Bot.prefix_cache[message.guild.id]
+
+Bot = commands.Bot(command_prefix=get_pre, intents=discord.Intents.all())
 Bot.command_info = {}
 
+Bot.default_prefix = "!kbr "
 
 extension_paths = []
 
@@ -48,7 +54,8 @@ Bot.remove_command('help')
 async def _help(ctx, command=None):
     #general help, like that returned by the ping
     if command == None:
-        help_embed = discord.Embed(title=f"**{Bot.user.display_name}'s Commands & Info**", colour=general_utils.Colours.main, description=f"The command prefix is `{Bot.command_prefix}`, so `{Bot.command_prefix}command` is generally how commands are used. Also use `{Bot.command_prefix}help [command]` for info on its usage.", timestamp=datetime.now(timezone.utc))
+        prefix = await Bot.get_prefix(ctx)
+        help_embed = discord.Embed(title=f"**{Bot.user.display_name}'s Commands & Info**", colour=general_utils.Colours.main, description=f"The command prefix is `{prefix}`, so `{prefix}command` is generally how commands are used. Also use `{prefix}help [command]` for info on its usage.", timestamp=datetime.now(timezone.utc))
         
         help_embed.set_footer(text=f'Requested by {ctx.author.display_name}', icon_url=ctx.author.avatar_url)
         for category in categories:
@@ -60,7 +67,7 @@ async def _help(ctx, command=None):
                 help_embed.add_field(name=categories[category], value='`'+('`, `'.join([str(command) for command in commandlist]))+'`', inline=True)
 
         #consider adding cube mcdude advert
-        help_embed.add_field(name="Notes:", inline=False, value=f"Use `{Bot.command_prefix}botinfo` for information about this bot, and `{Bot.command_prefix}privacy` for info regarding the info that is saved and used by {Bot.user.display_name}.")
+        help_embed.add_field(name="Notes:", inline=False, value=f"Use `{prefix}botinfo` for information about this bot, and `{prefix}privacy` for info regarding the info that is saved and used by {Bot.user.display_name}.\nAlso also, use `{prefix}suggest` if you have any ideas/suggestions for new features!")
     
     elif command != None:
 
@@ -76,7 +83,7 @@ async def _help(ctx, command=None):
             help_embed = discord.Embed(title=f"**Info For The Command: \"{command.name}\"**")
             help_embed = general_utils.format_embed(ctx.author, help_embed)
             
-            help_embed.add_field(name="Syntax:", value=f"{Bot.command_prefix}{command} {Bot.command_info[command.name]['syntax']}")
+            help_embed.add_field(name="Syntax:", value=f"{await Bot.get_prefix(ctx)}{command} {Bot.command_info[command.name]['syntax']}")
 
             aliases = list(command.aliases)+[command.name]
             aliases.remove(command_name_given)
@@ -86,7 +93,7 @@ async def _help(ctx, command=None):
 
             help_embed.add_field(name="Aliases:", value=', '.join(aliases))
 
-            help_embed.add_field(name="Usage:", value=Bot.command_info[command.name]["usage"], inline=False)
+            help_embed.add_field(name="Usage:", value=Bot.command_info[command.name]["usage"].replace("%prefix", await Bot.get_prefix(ctx)), inline=False)
 
             
 
@@ -106,9 +113,10 @@ async def _test(ctx):
 
 @Bot.event
 async def on_message(message):
-    if Bot.user in message.mentions and len(message.content.split(" ")) == 1:
 
-        help_embed = discord.Embed(title=f"**{Bot.user.display_name}'s Commands & Info**", description=f"The command prefix is `{Bot.command_prefix}`, so `{Bot.command_prefix}command` is generally how commands are used. Also use `{Bot.command_prefix}help [command]` for info on its usage.")
+    if Bot.user in message.mentions and len(message.content.split(" ")) == 1:
+        prefix = await Bot.get_prefix(message)
+        help_embed = discord.Embed(title=f"**{Bot.user.display_name}'s Commands & Info**", description=f"The command prefix is `{prefix}`, so `{prefix}command` is generally how commands are used. Also use `{prefix}help [command]` for info on its usage.")
         
         help_embed = general_utils.format_embed(message.author, help_embed)
         for category in categories:
@@ -120,7 +128,7 @@ async def on_message(message):
                 help_embed.add_field(name=categories[category], value='`'+('`, `'.join([str(command) for command in commandlist]))+'`', inline=True)
         
         #consider adding cube mcdude advert
-        help_embed.add_field(name="Notes:", inline=False, value=f"Use `{Bot.command_prefix}botinfo` for information about this bot, and `{Bot.command_prefix}privacy` for info regarding the info that is saved and used by {Bot.user.display_name}.")
+        help_embed.add_field(name="Notes:", inline=False, value=f"Use `{prefix}botinfo` for information about this bot, and `{prefix}privacy` for info regarding the info that is saved and used by {Bot.user.display_name}.\nAlso also, use `{prefix}suggest` if you have any ideas/suggestions for new features!")
 
         await message.channel.send(embed=help_embed)
    
@@ -130,18 +138,32 @@ async def on_message(message):
 async def on_command_error(ctx, error):
     if error.__class__ == commands.errors.NoPrivateMessage:
         await ctx.send(embed=general_utils.error_embed(True, "This command can only be used in servers!"))
-    else:
-        await ctx.send(embed=general_utils.error_embed(True, f"{error}\n\nUse `{Bot.command_prefix}report_bug <bug>` if you want to report this as an unfixed issue."))
+    elif database_utils.fetch_setting("servers", ctx.guild.id, "cmd_not_found_errors") and error.__class__ == commands.errors.CommandNotFound: #ill probably remove this, it seems like a laggy check
+        await ctx.send(embed=general_utils.error_embed(True, str(error)+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,10) == 3 else "")))
 
 @Bot.event
-async def on_connect():
+async def on_connect(): 
+    #init prefix cache
+    Bot.prefix_cache = database_utils.fetch_prefixes()
+
+    prefixes = database_utils.fetch_prefixes()
+    unsynced_guilds = []
+
+    for guild in Bot.guilds:
+        if guild.id not in list(prefixes.keys()):
+            unsynced_guilds += [guild.id]
+
+    database_utils.alter_prefix(unsynced_guilds, "insert", Bot.default_prefix)
+    if unsynced_guilds != []:
+        prefixes = database_utils.fetch_prefixes()
+    Bot.prefix_cache = prefixes
+
     print("I'm ready!")
     await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f" {str(len(Bot.guilds))} server{'s' if len(Bot.guilds) > 1 else ''} | @{str(Bot.user.name)} for help."))
 
 with open(os.getcwd()+"/token.txt") as nonofile:
     nonokey = nonofile.read()
 
-database_utils.init_main()
 
 Bot.run(nonokey)
 

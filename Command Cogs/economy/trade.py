@@ -10,7 +10,7 @@ def setup(Bot):
     Bot.command_info.update({"trade":{
         "aliases":["trade"],
         "syntax":"<user> `<items_to_give>` `<items_to_recieve>`",
-        "usage":f"Will (after confirming with both users) trade the first lot of items given for the second lot of items given, with your and the player specified's inventories. The item lots should be given as `Item name*amount+Second item name*amount+third item name*amount... etc etc`\nExcuse the jankiness with the method for specifying items, i am open for suggestions with alternate methods. (`{Bot.command_prefix}suggest`)\n\n__EXAMPLE:__\n{Bot.command_prefix}trade jeff `Food wrapper*6+Empty Can*5+apple*2` `quartz*2`",
+        "usage":f"Will (after confirming with both users) trade the first lot of items given for the second lot of items given, with your and the player specified's inventories. The item lots should be given as `Item name*amount+Second item name*amount+third item name*amount... etc etc`\nExcuse the jankiness with the method for specifying items, i am open for suggestions with alternate methods. (`%prefixsuggest`)\n\n__EXAMPLE:__\n%prefixtrade jeff `Food wrapper*6+Empty Can*5+apple*2` `quartz*2`",
         "category":"economy"
     }})
     @commands.command(name="trade")

@@ -17,6 +17,9 @@ def setup(Bot):
     }})
     @commands.command(name="report_bug", aliases=['rb'])
     async def _report_bug(ctx, *, text):
+        #if ctx.author.id == 517371142508380170:
+        #    await ctx.send("no!")
+        #    return
         timedelta = database_utils.fetch_timedelta(ctx.author.id, "bugreport")
 
         if timedelta < cooldowns_json["bugreport"]:
