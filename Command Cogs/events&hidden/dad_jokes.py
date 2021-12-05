@@ -12,7 +12,7 @@ def setup(Bot):
 
     @Bot.listen()
     async def on_message(message):
-        if message.author.bot == False:
+        if message.author.bot == False and message.guild != None:
             if database_utils.fetch_setting("servers", message.guild.id, "dad_jokes") == 1:
 
                 #try the hi hungry im dad

@@ -21,33 +21,9 @@ def setup(Bot):
             await ctx.send(embed=error_embed)
             return
 
-        user_ids = general_utils.get_player_id(False, ctx, user)
-        if len(user_ids) == 0:
-            await ctx.send(embed=general_utils.error_embed(False, "That isnt a member's name!"))
+        user_id = await general_utils.get_user_id(Bot, ctx, user, False)
+        if user_id == None:
             return
-        elif len(user_ids) > 1:
-            await ctx.send("Please say the number corresponding to whichever of the possible users you meant:\n"+'\n'.join([f"[{index}] \"{str(ctx.guild.get_member(value))}\"" for index, value in enumerate(list(user_ids.keys()))]))
-            
-            check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author
-
-            try:
-                msg = await Bot.wait_for('message', timeout=10.0, check=check)
-            except asyncio.TimeoutError:
-                await ctx.send("nevermind...")
-            
-            id_list = [value for value in list(user_ids.keys())]
-
-            if general_utils.represents_int(msg.content):
-                if int(msg.content) < len(id_list):
-                    user_id = [value for value in list(user_ids.keys())][int(msg.content)]
-                else:
-                    await ctx.send(embed=general_utils.error_embed(False, "Please pick a number that was listed."))
-                    return
-            else:
-                await ctx.send(embed=general_utils.error_embed(False, "Please pick a number that was listed."))
-                return
-        else:
-            user_id = int(list(user_ids.keys())[0])
 
         with open(os.getcwd()+"/Recources/json/items.json") as file:
             item_json = json.loads(file.read())

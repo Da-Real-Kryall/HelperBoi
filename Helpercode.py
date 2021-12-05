@@ -12,7 +12,9 @@ stop_event = asyncio.Event()
 loop = asyncio.get_event_loop()
 
 async def get_pre(Bot, message):
-    return Bot.prefix_cache[message.guild.id]
+    if message.guild != None:
+        return Bot.prefix_cache[message.guild.id]
+    return Bot.default_prefix
 
 Bot = commands.Bot(command_prefix=get_pre, intents=discord.Intents.all())
 Bot.command_info = {}
@@ -138,7 +140,9 @@ async def on_message(message):
 async def on_command_error(ctx, error):
     if error.__class__ == commands.errors.NoPrivateMessage:
         await ctx.send(embed=general_utils.error_embed(True, "This command can only be used in servers!"))
-    elif database_utils.fetch_setting("servers", ctx.guild.id, "cmd_not_found_errors") and error.__class__ == commands.errors.CommandNotFound: #ill probably remove this, it seems like a laggy check
+    elif (database_utils.fetch_setting("servers", ctx.guild.id, "cmd_not_found_errors") if ctx.guild != None else True) == True and type(error) == commands.errors.CommandNotFound: #ill probably remove this, it seems like a laggy check
+        await ctx.send(embed=general_utils.error_embed(True, str(error)+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,10) == 3 else "")))
+    elif type(error) != commands.errors.CommandNotFound:
         await ctx.send(embed=general_utils.error_embed(True, str(error)+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,10) == 3 else "")))
 
 @Bot.event

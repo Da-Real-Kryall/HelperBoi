@@ -9,7 +9,9 @@
         "type":"Misc",
         "usability": {
             "function": "sample_func",
-            "consumable": 0
+            "consumable": 0,
+            "confirmation": 1,
+            "break_chance": 0
         }
     },
     "rock": {
@@ -32,7 +34,9 @@
         "type":"Material",
         "usability": {
             "function": "poke_other",
-            "consumable": 0
+            "consumable": 0,
+            "confirmation": 0,
+            "break_chance": 0.2
         }
     },
     "log": {
@@ -75,7 +79,8 @@
         "type":"Food",
         "usability": {
             "function": "eat_banana_bread",
-            "consumable": 1
+            "consumable": 1,
+            "confirmation": 0
         }
     },
     "banana": {
@@ -88,7 +93,8 @@
         "type":"Food",
         "usability": {
             "function": "eat_banana",
-            "consumable": 1
+            "consumable": 1,
+            "confirmation": 0
         }
     },
     "apple": {
@@ -101,7 +107,8 @@
         "type":"Food",
         "usability": {
             "function": "eat_apple",
-            "consumable": 1
+            "consumable": 1,
+            "confirmation": 0
         }
     },
     "bread": {
@@ -114,7 +121,8 @@
         "type":"Food",
         "usability": {
             "function": "eat_bread",
-            "consumable": 1
+            "consumable": 1,
+            "confirmation": 0
         }
     },
     "baguette": {
@@ -127,7 +135,8 @@
         "type":"Food",
         "usability": {
             "function": "eat_baguette",
-            "consumable": 1
+            "consumable": 1,
+            "confirmation": 0
         }
     },
     "flatbread": {
@@ -140,7 +149,8 @@
         "type":"Food",
         "usability": {
             "function": "eat_flatbread",
-            "consumable": 1
+            "consumable": 1,
+            "confirmation": 0
         }
     },
     "biscuit": {
@@ -153,7 +163,8 @@
         "type":"Food",
         "usability": {
             "function": "eat_biscuit",
-            "consumable": 1
+            "consumable": 1,
+            "confirmation": 0
         }
     },
     "empty_can": {
@@ -164,10 +175,7 @@
         "value": 7,
         "purchasable": null,
         "type":"Rubbish",
-        "usability": {
-            "function": "eat_biscuit",
-            "consumable": 1
-        }
+        "usability": null
     },
     "food_wrapper": {
         "display_name": "Food Wrapper",
@@ -177,22 +185,20 @@
         "value": 3,
         "purchasable": null,
         "type":"Rubbish",
-        "usability": {
-            "function": "eat_biscuit",
-            "consumable": 1
-        }
+        "usability": null
     },
     "mushroom": {
         "display_name": "Toadstool",
         "plural": "s",
         "emoji": ":mushroom:",
-        "description":"A *Amanita* muscaria toadstool. Known widely as that stereotypical red and white (halucinogenic and poisonous) mushroom.",
+        "description":"An *Amanita* muscaria toadstool. Known widely as that stereotypical red and white (halucinogenic and poisonous) mushroom.",
         "value": 25,
         "purchasable": null,
         "type":"Food",
         "usability": {
             "function": "eat_mushroom",
-            "consumable": 1
+            "consumable": 1,
+            "confirmation": 1
         }
     }
 }

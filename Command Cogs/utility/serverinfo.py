@@ -1,10 +1,10 @@
-import discord, datetime, django.utils.timezone, time
+import discord
 from discord.ext import commands
-from utils import general_utils
+from utils import general_utils, database_utils
 
 def setup(Bot):
 
-    regionsdict = {
+    regionsdict = { #depreciated
         'us_east':'us',
         'us_west':'us',
         'us_south':'us',
@@ -31,7 +31,7 @@ def setup(Bot):
     async def _serverinfo(ctx):
         
         #base embed
-        guild_info_embed = discord.Embed(title=f"Info about the guild \"{ctx.guild.name}")
+        guild_info_embed = discord.Embed(title=f"Info about the guild \"{ctx.guild.name}\"")
         
         #embed icon
         guild_info_embed.set_thumbnail(url=ctx.guild.icon_url)
@@ -42,10 +42,10 @@ def setup(Bot):
         #features
         guild_info_embed.add_field(name='Features:', value=(', '.join(ctx.guild.features) if ', '.join(ctx.guild.features) != '' else 'None :('), inline=True)
 
-        #region
-        region = f":flag_{regionsdict[ctx.guild.region.name]}: {ctx.guild.region.name.capitalize()}"
-        guild_info_embed.add_field(name='Region:', value=region, inline=True)
- 
+        #region (depreciated)
+        #region = f":flag_{regionsdict[ctx.guild.region]}: {ctx.guild.region.capitalize()}"
+        #guild_info_embed.add_field(name='Region:', value=region, inline=True)
+        #print("test")
 
         #statuses
         guild_info_embed.add_field(name="Member Statuses:", value=':green_circle: '+str([str(m.status) == "online" for m in ctx.guild.members].count(True))+"\n:yellow_circle: "+str([str(m.status) == "idle" for m in ctx.guild.members].count(True))+"\n:red_circle: "+str([str(m.status) == "dnd" for m in ctx.guild.members].count(True))+"\n:new_moon: "+str([str(m.status) == "offline" for m in ctx.guild.members].count(True)), inline=True)
@@ -82,14 +82,25 @@ def setup(Bot):
         
         #server creation date
         creation_date = ctx.guild.created_at
-        guild_info_embed.add_field(name='Server Creation Date:', value=creation_date.strftime(f"%-d{'th' if 11<=int(creation_date.strftime('%-d'))<=13 else {1:'st',2:'nd',3:'rd'}.get(int(creation_date.strftime('%-d'))%10, 'th')} of %B at %-I:%M %p (GMT)"), inline=True)
+        guild_info_embed.add_field(name='Server Creation Date:', value=f"<t:{int(creation_date.timestamp())}:f> (<t:{int(creation_date.timestamp())}:R>)", inline=True)
         
         #role num
         guild_info_embed.add_field(name='Number of roles:', value=str(len(ctx.guild.roles)), inline=True)
 
         #server id
-        guild_info_embed.add_field(name='Server_ID:', value=str(ctx.guild.id), inline=True)
+        guild_info_embed.add_field(name='Server ID:', value=str(ctx.guild.id), inline=True)
 
+        #total boops
+        total_boops = 0
+        for user in ctx.guild.members:
+            total_boops += database_utils.fetch_boops(user.id)
+        guild_info_embed.add_field(name="Total boops:", value=f"{general_utils.num_to_words(total_boops).capitalize() } boop{'s' if total_boops != 1 else ''}")
+        
+        #net worth
+        net_worth = 0
+        for user in ctx.guild.members:
+            net_worth += database_utils.fetch_balance(user.id)
+        guild_info_embed.add_field(name="Server Net Worth:", value=f"§{net_worth}")
         guild_info_embed = general_utils.format_embed(ctx.author, guild_info_embed)
 
         await ctx.send(embed=guild_info_embed)

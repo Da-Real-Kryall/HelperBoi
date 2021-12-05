@@ -9,6 +9,7 @@ def setup(Bot):
         "usage":"Will toggle relaying the author's messages sent from the current text channel into the author's voice channel, using a randomized generated voice.\nIntended for when one cannot use their microphone/does not want to use their microphone.",
         "category":"voice"
     }})
+    @commands.guild_only()
     @commands.command(name="no_mic", aliases=["nm"])
     async def _no_mic(ctx):
 

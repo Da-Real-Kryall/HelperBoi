@@ -1,6 +1,8 @@
 import random, discord, datetime, django.utils.timezone, asyncio
 from utils import database_utils
 
+
+
 #colours to be used in most embeds
 class Colours:
     main = 0xBAFDFC
@@ -9,6 +11,7 @@ class Colours:
     red = 0xEA1510
     charcoal = 0x2E2D2B
     transparent = 0x2F3136
+    bread = 0xF0BF6A
 
 #utils file for functions used repeatadly across command files.
 def error_embed(apologise:bool, message:str):
@@ -82,3 +85,97 @@ def get_player_id(Bot, ctx, text: str, check_all_users=False):
                 if user != None:
                     returnlist.update({user.id: user.name})
     return returnlist
+
+async def get_user_id(Bot, ctx, text, check_all_users):
+    if ctx.guild == None and check_all_users == False:
+        raise TypeError("you must be checking all users if in a dm, there isnt a guild to check names from!")
+    else:
+        if text == None or text == '':
+            return ctx.author.id
+        #check if input is a ping
+        if text[:3] == "<@!" and text[-1:] == ">" and represents_int(text[3:-1]):
+            text = text[3:-1]
+        elif text[:2] == "<@" and text[-1:] == ">" and represents_int(text[2:-1]):
+            text = text[2:-1]
+
+        user_ids = {}
+        if ctx.guild != None:
+            for member in ctx.guild.members:
+                if text.casefold() == member.display_name.casefold():
+                    user_ids.update(
+                        {member.id: member.display_name}
+                    ) 
+            _user_ids = dict(user_ids)
+            if text in user_ids.values():
+                for key, value in user_ids.items():
+                    if value != text:
+                        _user_ids.pop(key)
+            user_ids = dict(_user_ids)
+            if len(user_ids) == 0:
+                for member in ctx.guild.members:
+                    if member.display_name.casefold().startswith(text.casefold()):
+                        user_ids.update( 
+                        {member.id: member.display_name}
+                    )
+        if len(user_ids) == 0 and represents_int(text) == True:
+            user = Bot.get_user(int(text))
+            if user != None:
+                user_ids.update({user.id: user.name})
+                
+        if check_all_users == True:
+            #require it to be an id
+            #if represents_int(text) == False and len(user_ids) == 0:
+            #    if ctx.guild != None:
+            #        await ctx.send("This command checks almost ALL discord users and thus integer ids are required for checking users not in the current server.")
+            #    else:
+            #        await ctx.send("This command checks almost ALL discord users and thus integer ids are required for specifying people.")
+            #    return
+            if represents_int(text) == True:
+                user = await Bot.fetch_user(int(text))
+                if user != None:
+                    user_ids.update({user.id: user.name})
+    if len(user_ids) == 0:
+        await ctx.send(embed=error_embed(True, "No users were found."))
+        return None
+    elif len(user_ids) > 1:
+        await ctx.send("Please say the number corresponding to whichever of the possible users you meant:\n"+'\n'.join([f"[{index}] \"{str(ctx.guild.get_member(value))}\"" for index, value in enumerate(list(user_ids.keys()))]))
+        
+        check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author
+        try:
+            msg = await Bot.wait_for('message', timeout=10.0, check=check)
+        except asyncio.TimeoutError:
+            await ctx.send("nevermind...")
+            return None
+        
+        id_list = [value for value in list(user_ids.keys())]
+        if represents_int(msg.content):
+            if int(msg.content) < len(id_list):
+                user_id = [value for value in list(user_ids.keys())][int(msg.content)]
+            else:
+                await ctx.send(embed=error_embed(False, "Please pick a number that was listed."))
+                return None
+        else:
+            await ctx.send(embed=error_embed(False, "Please pick a number that was listed."))
+            return None
+    else:
+        user_id = int(list(user_ids.keys())[0])
+    return user_id
+
+def num_to_words(num): #this code is not mine, it was taken from "https://www.quora.com/How-do-I-convert-numbers-to-words-in-Python" as i could not be bothered to write my own function for this lol
+    if num == 69:
+        return "nice" #dont judge me
+    else:
+        under_20 = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'] 
+        tens = ['twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'] 
+        above_100 = {100: 'hundred and',1000:'thousand,', 1000000:'million', 1000000000:'billion'} 
+    
+        if num < 20: 
+             return under_20[num] 
+
+        if num < 100: 
+            return tens[(int)(num/10)-2] + ('' if num%10==0 else ' ' + under_20[num%10]) 
+    
+        # find the appropriate pivot - 'Million' in 3,603,550, or 'Thousand' in 603,550 
+        pivot = max([key for key in above_100.keys() if key <= num]) 
+    
+        return num_to_words((int)(num/pivot)) + ' ' + above_100[pivot] + ('' if num%pivot==0 else ' ' + num_to_words(num%pivot))
