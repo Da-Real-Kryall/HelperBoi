@@ -59,7 +59,7 @@ def setup(Bot):
                     return
 
                 if value['usability']['confirmation']:
-                    await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to use {'all your' if amount == -delta else amount} {value['display_name']}{'s' if amount != 1 else ''}? They will {'not' if not value['usability']['consumable'] else ''} be consumed.", colour=general_utils.Colours.yellow))
+                    await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to use {'all your' if amount == -delta else amount} {value['display_name']}{'s' if int(amount) != 1 else ''}? {'They' if int(amount) != 1 else 'It'} will {'not' if not value['usability']['consumable'] else ''} be consumed.", colour=general_utils.Colours.yellow))
                     
                     check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author and m.content.lower() in ["yes please", "yes", "ye", "yep", "yeah", "confirm", "affirmative", "true", "no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]
                     
@@ -84,7 +84,11 @@ def setup(Bot):
                 if value['usability']['consumable']:
                     database_utils.alter_items(ctx.author.id, "delta", {key: delta})
 
-                await use_functions.reference[value['usability']['function']](ctx=ctx, Bot=Bot, amount=int(amount))
+                try:
+                    await use_functions.reference[value['usability']['function']](ctx=ctx, Bot=Bot, amount=int(amount))
+                except RuntimeError:
+                    return
+
                 if value['usability']['consumable'] == 0:
                     if random.random() < value['usability']['break_chance']:
                         #i should probably move these title options to a json file, not sure if its worth it tho

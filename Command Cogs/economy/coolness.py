@@ -14,8 +14,8 @@ def setup(Bot):
         user_id = await general_utils.get_user_id(Bot, ctx, user, False)
         if user_id == None:
             return
-
-        await ctx.send(f"{ctx.guild.get_member(user_id).display_name}'s coolness is level {database_utils.fetch_coolness(user_id)[1]}! :sunglasses:")
+        level = database_utils.fetch_coolness(user_id)[1]
+        await ctx.send(f"{ctx.guild.get_member(user_id).display_name}'s coolness is level {level}! :{'sunglasses' if level >= 0 else 'confused'}:")
     
     Bot.add_command(_coolness)
 

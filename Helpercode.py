@@ -37,8 +37,8 @@ for extension in extension_paths:
 categories = {
     "utility":"Utility/Moderation Commands:",
     "fun":"Fun Commands:",
-    "voice":"Voice Channel Commands: (W.I.P)",
     "economy":"Economy Commands:",
+    "voice":"Voice Channel Commands: (W.I.P)",
     "cah":"Cards-Against-Humanity Commands:"
 }
 

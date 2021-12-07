@@ -61,11 +61,41 @@ def setup(Bot):
             #status
             status = ""
             print([user.status[0]])
-            if user.status[0] != 'offline':
+            if user.status[0] != 'offline' and user.activity != None:
                 print("test2")
                 if user.activity.type == discord.ActivityType.custom:
-                    user_info.update({"Activity:": f"\"{user.activity.emoji if user.activity.emoji != None else ''} {user.activity.name if user.activity.name != None else ''}\""})
-            print("test")
+                    user_info.update({"Activity:": f"\"{user.activity.emoji+' ' if user.activity.emoji != None else ''}{user.activity.name if user.activity.name != None else ''}\""})
+                
+                elif user.activity.type == discord.ActivityType.listening:   
+                    #excuse the switch-like hardcoding, its the least messy way i can think of.
+        
+                    if hasattr(user.activity, 'title') and hasattr(user.activity, 'artist') and hasattr(user.activity, 'name'):
+                        user_info.update({"Activity:": f"Listening to {user.activity.title} By {user.activity.artist} on {user.activity.name}."})
+                    
+                    elif hasattr(user.activity, 'title') and hasattr(user.activity, 'name'):
+                        user_info.update({"Activity:": f"Listening to {user.activity.title} on {user.activity.name}."})
+
+                    elif hasattr(user.activity, 'title') and hasattr(user.activity, 'artist'):
+                        user_info.update({"Activity:": f"Listening to {user.activity.title} By {user.activity.artist}."})
+
+                    elif hasattr(user.activity, 'name') and hasattr(user.activity, 'artist'):
+                        user_info.update({"Activity:": f"Listening to a song by {user.activity.artist} on {user.activity.name}."})
+
+                    elif hasattr(user.activity, 'name'):
+                        user_info.update({"Activity:": f"Listening to {user.activity.name}."})
+
+                    elif hasattr(user.activity, 'title'):
+                        user_info.update({"Activity:": f"Listening to {user.activity.title}."})
+
+                    elif hasattr(user.activity, 'artist'):
+                        user_info.update({"Activity:": f"Listening to a song by {user.activity.artist}."})
+                
+                elif user.activity.type == discord.ActivityType.playing:
+                    user_info.update({"Activity:": f"Playing {user.activity.name}."})
+                
+                elif user.activity.type == discord.ActivityType.watching:
+                    user_info.update({"Activity:": f"Watching {user.activity.name}."})
+                    
             #time joined the server  
             user_info.update({"Server join date:": f"<t:{int(user.joined_at.timestamp())}:f> (<t:{int(user.joined_at.timestamp())}:R>)"})
 
@@ -103,7 +133,8 @@ def setup(Bot):
                 item_json = json.loads(file.read())
 
             #coolness
-            user_info.update({"Level:": f"Coolness level {database_utils.fetch_coolness(user_id)[1]} :sunglasses:"})
+            level = database_utils.fetch_coolness(user_id)[1]
+            user_info.update({"Level:": f"Coolness level {level} :{'sunglasses' if level >= 0 else 'confused'}:"})
         
             #balance
             user_info.update({"Balance:": f"§{database_utils.fetch_balance(user_id)}"})

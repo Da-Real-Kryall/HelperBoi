@@ -11,4 +11,7 @@ def setup(Bot):
         newlevel = database_utils.fetch_coolness(message.author.id)[1]
         if newlevel != level:
             if database_utils.fetch_setting("users", message.author.id, 'level_up_alert') == True:
-                await message.channel.send(f"{':tada: ' if randint(1,3) == 3 else ''}{message.author.name}, your coolness is now level {newlevel}. :sunglasses:")
+                if newlevel > level:
+                    await message.channel.send(f"{':tada: ' if randint(1,3) == 3 else ''}{message.author.name}, your coolness is now level {newlevel}. :sunglasses:")
+                elif newlevel < level:
+                    await message.channel.send(f"{':confused: ' if randint(1,3) == 3 else ''}{message.author.name}, your coolness has decreased to level {newlevel}...")

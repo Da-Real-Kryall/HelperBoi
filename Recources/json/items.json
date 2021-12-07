@@ -22,7 +22,12 @@
         "value": 10,
         "purchasable": null,
         "type":"Material",
-        "usability": null
+        "usability": {
+            "function": "throw_at_other",
+            "consumable": 0,
+            "confirmation": 1,
+            "break_chance": 0.1
+        }
     },
     "stick": {
         "display_name": "Stick",

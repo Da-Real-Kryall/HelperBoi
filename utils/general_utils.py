@@ -12,6 +12,8 @@ class Colours:
     charcoal = 0x2E2D2B
     transparent = 0x2F3136
     bread = 0xF0BF6A
+    wood = 0x663300
+    silver = 0xE2E2E2
 
 #utils file for functions used repeatadly across command files.
 def error_embed(apologise:bool, message:str):
@@ -41,52 +43,7 @@ def format_embed(author:discord.Message.author, embed:discord.Embed, colour:str=
         embed.timestamp = datetime.datetime.now(django.utils.timezone.utc)
     return embed
 
-def get_player_id(Bot, ctx, text: str, check_all_users=False):
-    if ctx.guild == None:
-        raise TypeError
-    else:
-        #check if input is a ping
-        if text[:3] == "<@!" and text[-1:] == ">" and represents_int(text[3:-1]):
-            text = text[3:-1]
-        elif text[:2] == "<@" and text[-1:] == ">" and represents_int(text[2:-1]):
-            text = text[2:-1]
-
-        returnlist = {}
-
-        if check_all_users == False:
-            for member in ctx.guild.members:
-                if text.casefold() == member.display_name.casefold():
-                    returnlist.update(
-                        {member.id: member.display_name}
-                    ) 
-            _returnlist = dict(returnlist)
-            if text in returnlist.values():
-                for key, value in returnlist.items():
-                    if value != text:
-                        _returnlist.pop(key)
-            returnlist = dict(_returnlist)
-        if len(returnlist) == 0:
-            for member in ctx.guild.members:
-                if member.display_name.casefold().startswith(text.casefold()):
-                    returnlist.update( 
-                    {member.id: member.display_name}
-                )
-        if len(returnlist) == 0 and represents_int(text) == True:
-            user = Bot.get_user(int(text))
-            if user != None:
-                returnlist.update({user.id: user.name})
-                
-        elif check_all_users == True:
-            #require it to be an id
-            if represents_int(text) == False:
-                raise ValueError("input text must be a valid id when checking all users.")
-            else:
-                user = asyncio.run(Bot.fetch_user(int(text)))
-                if user != None:
-                    returnlist.update({user.id: user.name})
-    return returnlist
-
-async def get_user_id(Bot, ctx, text, check_all_users):
+async def get_user_id(Bot, ctx, text, check_all_users=False, lenient=False): #lenient means error messages will be avoided, further prompts will be minimal, and plaintext that doesnt specify a single person is also accepted.
     if ctx.guild == None and check_all_users == False:
         raise TypeError("you must be checking all users if in a dm, there isnt a guild to check names from!")
     else:
@@ -135,9 +92,12 @@ async def get_user_id(Bot, ctx, text, check_all_users):
                 if user != None:
                     user_ids.update({user.id: user.name})
     if len(user_ids) == 0:
-        await ctx.send(embed=error_embed(True, "No users were found."))
-        return None
-    elif len(user_ids) > 1:
+        if lenient==False:
+            await ctx.send(embed=error_embed(True, "No users were found."))
+            return None
+        else:
+            return text
+    elif len(user_ids) > 1 and lenient == False:
         await ctx.send("Please say the number corresponding to whichever of the possible users you meant:\n"+'\n'.join([f"[{index}] \"{str(ctx.guild.get_member(value))}\"" for index, value in enumerate(list(user_ids.keys()))]))
         
         check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author
