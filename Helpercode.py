@@ -137,6 +137,10 @@ async def on_message(message):
     await Bot.process_commands(message)      
 
 @Bot.event
+async def on_guild_join(guild):
+    database_utils.init_server(guild.id)
+
+@Bot.event
 async def on_command_error(ctx, error):
     if error.__class__ == commands.errors.NoPrivateMessage:
         await ctx.send(embed=general_utils.error_embed(True, "This command can only be used in servers!"))

@@ -60,9 +60,9 @@ def setup(Bot):
         if type(user) == discord.Member:
             #status
             status = ""
-            print([user.status[0]])
+            #print([user.status[0]])
             if user.status[0] != 'offline' and user.activity != None:
-                print("test2")
+                #print("test2")
                 if user.activity.type == discord.ActivityType.custom:
                     user_info.update({"Activity:": f"\"{user.activity.emoji+' ' if user.activity.emoji != None else ''}{user.activity.name if user.activity.name != None else ''}\""})
                 

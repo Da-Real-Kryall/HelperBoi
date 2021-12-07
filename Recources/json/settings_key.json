@@ -21,6 +21,10 @@
         "cmd_not_found_errors": {
             "default": 1,
             "description": "Controls whether the bot sends error messages when a command isnt valid. Toggleable because the messages can be both useful and annoying."
+        },
+        "censoring": {
+            "default": 0,
+            "description": "Enables a light swear word filter. Requires the manage webhooks permission."
         }
     }
 }

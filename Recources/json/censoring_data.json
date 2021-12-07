@@ -1,0 +1,25 @@
+{
+    "swapped_characters": {
+        "$": "s",
+        "!": "i",
+        "3": "e",
+        "_": " ",
+        ":": "\u200b",
+        "\\": "\u200b",
+        "*": "\u200b",
+        "|": "\u200b",
+        "`": "\u200b",
+        "-": "\u200b",
+        ".": "\u200b"
+    },
+    "words_to_filter": [
+        "shit",
+        "cunt",
+        "fuck",
+        "nigger",
+        "wanker",
+        "retard",
+        "bitch",
+        "whore"
+    ]
+}

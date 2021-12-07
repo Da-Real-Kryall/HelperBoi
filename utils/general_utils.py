@@ -1,7 +1,4 @@
-import random, discord, datetime, django.utils.timezone, asyncio
-from utils import database_utils
-
-
+import random, discord, datetime, django.utils.timezone, asyncio, aiohttp
 
 #colours to be used in most embeds
 class Colours:
@@ -44,7 +41,7 @@ def format_embed(author:discord.Message.author, embed:discord.Embed, colour:str=
     return embed
 
 async def get_user_id(Bot, ctx, text, check_all_users=False, lenient=False): #lenient means error messages will be avoided, further prompts will be minimal, and plaintext that doesnt specify a single person is also accepted.
-    if ctx.guild == None and check_all_users == False:
+    if ctx.guild == None and check_all_users == False and lenient == False:
         raise TypeError("you must be checking all users if in a dm, there isnt a guild to check names from!")
     else:
         if text == None or text == '':
@@ -139,3 +136,13 @@ def num_to_words(num): #this code is not mine, it was taken from "https://www.qu
         pivot = max([key for key in above_100.keys() if key <= num]) 
     
         return num_to_words((int)(num/pivot)) + ' ' + above_100[pivot] + ('' if num%pivot==0 else ' ' + num_to_words(num%pivot))
+
+async def send_via_webhook(ctx, Bot, message, username, avatar_url):
+    webhooks = await ctx.channel.webhooks()
+    webhook = [webhook for webhook in webhooks if webhook.name == f"{Bot.user.name} Webhook"]
+    if len(webhook) == 0: #make webhook
+        avatar = await (await aiohttp.ClientSession().get(str(Bot.user.avatar_url))).read()
+        await ctx.channel.create_webhook(name=f"{Bot.user.name} Webhook", avatar=avatar)
+    else: #
+        webhook = webhook[0]
+        await webhook.send(message, username=username, avatar_url=avatar_url)
