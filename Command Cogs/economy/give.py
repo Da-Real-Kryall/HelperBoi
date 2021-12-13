@@ -41,7 +41,7 @@ def setup(Bot):
                 recipient_name = await Bot.fetch_user(user_id)
                 recipient_name = recipient_name.name
 
-                await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to give {'all your' if amount == 'all' else amount} {value['display_name']}{'s' if amount != 1 else ''} to {recipient_name}?", colour=general_utils.Colours.yellow))
+                await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to give {'all your' if amount == 'all' else amount} {value['display_name']}{general_utils.item_plural(value, amount)} to {recipient_name}?", colour=general_utils.Colours.yellow))
                 
                 check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author and m.content.lower() in ["yes please", "yes", "ye", "yep", "yeah", "confirm", "affirmative", "true", "no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]
 
@@ -55,9 +55,9 @@ def setup(Bot):
                     database_utils.alter_items(ctx.author.id, "delta", {key: delta})
                     database_utils.alter_items(user_id, "delta", {key: -delta})
 
-                    gave_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"Gave {amount}x {value['emoji']} {value['display_name']} to {recipient_name}"))
-                    gave_embed.add_field(name=f"{ctx.author.name}:", value=f"{'+' if delta > -1 else ''}{delta} {value['emoji']} {value['display_name']}{value['plural'] if amount else ''}")
-                    gave_embed.add_field(name=f"{recipient_name}:", value=f"{'+' if -delta > -1 else ''}{-delta} {value['emoji']} {value['display_name']}{value['plural'] if amount else ''}")
+                    gave_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"Gave {amount} {value['display_name']}{general_utils.item_plural(value, amount)} to {recipient_name}."))
+                    gave_embed.add_field(name=f"{ctx.author.name}:", value=f"{'+' if delta > -1 else ''}{delta} {value['emoji']} {value['display_name']}")
+                    gave_embed.add_field(name=f"{recipient_name}:", value=f"{'+' if -delta > -1 else ''}{-delta} {value['emoji']} {value['display_name']}")
  
                     await ctx.send(embed=gave_embed)
                     return

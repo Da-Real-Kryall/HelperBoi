@@ -1,4 +1,6 @@
-import random, discord, datetime, django.utils.timezone, asyncio, aiohttp
+import random, discord, datetime, django.utils.timezone, asyncio, aiohttp, math
+
+invite_link = "https://discord.com/api/oauth2/authorize?client_id=849543878059098144&permissions=416578137154&scope=bot"
 
 #colours to be used in most embeds
 class Colours:
@@ -23,8 +25,14 @@ def represents_int(s):
     except ValueError:
         return False
 
+item_plural = lambda value, amount: value['plural'][1] if amount != 1 else value['plural'][0]
+
 #1st 2nd 3rd etc
 ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])
+
+def si_suffix(num): #2.4k 3.2M etc
+    magnitude = min([5, int(math.log(round(num, 1-len(str(num))), 1000))])
+    return str(num/1000**magnitude)+(['', 'k', 'M', 'B', 'T', 'Qd'][magnitude])
 
 #kryall's user id
 bot_owner_id = 479963507631194133
@@ -137,12 +145,12 @@ def num_to_words(num): #this code is not mine, it was taken from "https://www.qu
     
         return num_to_words((int)(num/pivot)) + ' ' + above_100[pivot] + ('' if num%pivot==0 else ' ' + num_to_words(num%pivot))
 
-async def send_via_webhook(ctx, Bot, message, username, avatar_url):
-    webhooks = await ctx.channel.webhooks()
+async def send_via_webhook(channel, Bot, message, username, avatar_url, files=[], embeds=[]):
+    webhooks = await channel.webhooks()
     webhook = [webhook for webhook in webhooks if webhook.name == f"{Bot.user.name} Webhook"]
     if len(webhook) == 0: #make webhook
         avatar = await (await aiohttp.ClientSession().get(str(Bot.user.avatar_url))).read()
-        await ctx.channel.create_webhook(name=f"{Bot.user.name} Webhook", avatar=avatar)
-    else: #
+        await channel.create_webhook(name=f"{Bot.user.name} Webhook", avatar=avatar)
+    else:
         webhook = webhook[0]
-        await webhook.send(message, username=username, avatar_url=avatar_url)
+        await webhook.send(message, username=username, avatar_url=avatar_url, files=files, embeds=embeds)

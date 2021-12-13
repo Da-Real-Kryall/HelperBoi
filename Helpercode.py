@@ -69,7 +69,7 @@ async def _help(ctx, command=None):
                 help_embed.add_field(name=categories[category], value='`'+('`, `'.join([str(command) for command in commandlist]))+'`', inline=True)
 
         #consider adding cube mcdude advert
-        help_embed.add_field(name="Notes:", inline=False, value=f"Use `{prefix}botinfo` for information about this bot, and `{prefix}privacy` for info regarding the info that is saved and used by {Bot.user.display_name}.\nAlso also, use `{prefix}suggest` if you have any ideas/suggestions for new features!")
+        help_embed.add_field(name="Notes:", inline=False, value=f"Use `{prefix}botinfo` for information about this bot, and `{prefix}privacy` for info regarding the info that is saved and used by {Bot.user.display_name}.\nAlso, use `{prefix}suggest` if you have any ideas/suggestions for new features!\nAlso also also, use `{prefix}invite` to get the invite link to add {Bot.user.name} to other servers.")
     
     elif command != None:
 
@@ -130,7 +130,7 @@ async def on_message(message):
                 help_embed.add_field(name=categories[category], value='`'+('`, `'.join([str(command) for command in commandlist]))+'`', inline=True)
         
         #consider adding cube mcdude advert
-        help_embed.add_field(name="Notes:", inline=False, value=f"Use `{prefix}botinfo` for information about this bot, and `{prefix}privacy` for info regarding the info that is saved and used by {Bot.user.display_name}.\nAlso also, use `{prefix}suggest` if you have any ideas/suggestions for new features!")
+        help_embed.add_field(name="Notes:", inline=False, value=f"Use `{prefix}botinfo` for information about this bot, and `{prefix}privacy` for info regarding the info that is saved and used by {Bot.user.display_name}.\nAlso, use `{prefix}suggest` if you have any ideas/suggestions for new features!\nAlso also also, use `{prefix}invite` to get the invite link to add {Bot.user.name} to other servers.")
 
         await message.channel.send(embed=help_embed)
    
@@ -143,7 +143,7 @@ async def on_guild_join(guild):
 @Bot.event
 async def on_command_error(ctx, error):
     if error.__class__ == commands.errors.NoPrivateMessage:
-        await ctx.send(embed=general_utils.error_embed(True, "This command can only be used in servers!"))
+        await ctx.send(embed=general_utils.error_embed(True, f"This command ('{ctx.command}')' can only be used in servers!"))
     elif (database_utils.fetch_setting("servers", ctx.guild.id, "cmd_not_found_errors") if ctx.guild != None else True) == True and type(error) == commands.errors.CommandNotFound: #ill probably remove this, it seems like a laggy check
         await ctx.send(embed=general_utils.error_embed(True, str(error)+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,10) == 3 else "")))
     elif type(error) != commands.errors.CommandNotFound:

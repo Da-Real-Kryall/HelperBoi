@@ -45,7 +45,7 @@ def setup(Bot):
                     await ctx.send(embed=general_utils.error_embed(False, f"You dont have enough money to buy that! You needed §{buy_price} to purchase this"+(f", despite having only §{user_balance}." if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else ".")))
                     return
 
-                await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to buy {amount if amount != 1 else 'a'} {value['display_name']}{value['plural'] if amount != 1 else ''} for §{buy_price}?", colour=general_utils.Colours.yellow))
+                await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to buy {amount} {value['display_name']}{general_utils.item_plural(value, amount)} for §{buy_price}?", colour=general_utils.Colours.yellow))
                 
                 check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author and m.content.lower() in ["yes please", "yes", "ye", "yep", "yeah", "confirm", "affirmative", "true", "no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]
 
@@ -59,8 +59,8 @@ def setup(Bot):
                     database_utils.alter_items(ctx.author.id, "delta", {key: amount})
                     database_utils.alter_balance(ctx.author.id, -buy_price)
 
-                    bought_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"Bought {amount}x {value['emoji']} {value['display_name']} from the {shops_json[value['purchasable']]['display_name']}"))
-                    bought_embed.description = f"{'+' if amount > -1 else ''}{amount} {value['emoji']} {value['display_name']}{value['plural'] if amount != 1 else ''}\n{'+' if -buy_price > -1 else ''}{-buy_price} <:Simolean:769845739043684353> Simoleon{'s' if buy_price != 1 else ''}"
+                    bought_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"Bought {amount} {value['display_name']}{general_utils.item_plural(value, amount)} from the {shops_json[value['purchasable']]['display_name']}"))
+                    bought_embed.description = f"{'+' if amount > -1 else ''}{amount} {value['emoji']} {value['display_name']}\n{'+' if -buy_price > -1 else ''}{-buy_price} <:Simolean:769845739043684353> Simoleon{'s' if buy_price != 1 else ''}"
                     bought_embed.colour = shops_json[value['purchasable']]['colour']
 
                     await ctx.send(embed=bought_embed)

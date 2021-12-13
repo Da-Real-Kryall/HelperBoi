@@ -71,7 +71,7 @@ def setup(Bot):
                 return
             elif item_json[key]["display_name"].lower() in list(items_recieving.keys()):
                 if int(value) > recipient_current_items[item_reference[key.lower()]]:
-                    await ctx.send(embed=general_utils.error_embed(False, f"You cant trade what the other person doesn't have!"+(f"\n You attempted to trade {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{item_json[item_reference[key.lower()]]['plural'] if int(value) != 1 else ''} despite them only having {value} in their inventory. " if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else "")))
+                    await ctx.send(embed=general_utils.error_embed(False, f"You cant trade what the other person doesn't have!"+(f"\n You attempted to trade {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite them only having {value} in their inventory. " if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else "")))
                     return
 
         author_current_items = database_utils.fetch_inventory(ctx.author.id)
@@ -91,7 +91,7 @@ def setup(Bot):
                 return
             elif item_json[key]["display_name"].lower() in list(items_giving.keys()):
                 if int(value) > author_current_items[item_reference[key.lower()]]:
-                    await ctx.send(embed=general_utils.error_embed(False, f"You cant trade what you dont have!"+(f"\n You attempted to give {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{item_json[item_reference[key.lower()]]['plural'] if int(value) != 1 else ''} despite only having {value} in your inventory. " if database_utils.fetch_setting("users", user_id, "economy_invisibility") == False else "")))
+                    await ctx.send(embed=general_utils.error_embed(False, f"You cant trade what you dont have!"+(f"\n You attempted to give {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite only having {value} in your inventory. " if database_utils.fetch_setting("users", user_id, "economy_invisibility") == False else "")))
                     return
 
         #check if both users have the items
@@ -102,11 +102,11 @@ def setup(Bot):
         for item, amount in items_giving.items():
             amount = int(amount)
             item = item_json[item_reference[item]]
-            author_getting += [f"{'+' if amount > -1 else ''}{amount} {item['emoji']} {item['display_name']}{item['plural'] if amount != 1 else ''}"]
+            author_getting += [f"{'+' if amount > -1 else ''}{amount} {item['emoji']} {item['display_name']}"]
         for item, amount in items_recieving.items():
             amount = int(amount)
             item = item_json[item_reference[item]]
-            author_getting += [f"{'+' if -amount > -1 else ''}{-amount} {item['emoji']} {item['display_name']}{item['plural'] if -amount != 1 else ''}"]
+            author_getting += [f"{'+' if -amount > -1 else ''}{-amount} {item['emoji']} {item['display_name']}"]
         confirm_embed.add_field(name=f"{ctx.author.name} Recieves:", value="\n".join(author_getting))
 
         recipient = await ctx.guild.fetch_member(user_id)
@@ -115,11 +115,11 @@ def setup(Bot):
         for item, amount in items_giving.items():
             amount = int(amount)
             item = item_json[item_reference[item]]
-            recipient_getting += [f"{'+' if -amount > -1 else ''}{-amount} {item['emoji']} {item['display_name']}{item['plural'] if -amount != 1 else ''}"]
+            recipient_getting += [f"{'+' if -amount > -1 else ''}{-amount} {item['emoji']} {item['display_name']}"]
         for item, amount in items_recieving.items():
             amount = int(amount)
             item = item_json[item_reference[item]]
-            recipient_getting += [f"{'+' if amount > -1 else ''}{amount} {item['emoji']} {item['display_name']}{item['plural'] if amount != 1 else ''}"]
+            recipient_getting += [f"{'+' if amount > -1 else ''}{amount} {item['emoji']} {item['display_name']}"]
         confirm_embed.add_field(name=f"{recipient.name} Recieves:", value="\n".join(recipient_getting))
         await ctx.send(embed=confirm_embed)
 

@@ -1,9 +1,26 @@
 {
     "crafting_recipes": {
-        "bananabread": [
-             "bread",
-             "banana"
-        ]
+        "bananabread": {
+            "items": {
+                "bread": 1,
+                "banana": 3
+            },
+            "unlisted": false
+        },
+        "pizza": {
+            "items": {
+                "tomato": 1,
+                "flatbread": 1,
+                "cheese": 1
+            },
+            "unlisted": false
+        },
+        "pizzacake": {
+            "items": {
+                "pizza": 10
+            },
+            "unlisted": false
+        }
     },
     "stores": {
         "grocer":{
@@ -15,6 +32,11 @@
             "display_name": "Bakery",
             "description": "A store that primarily makes and sells various pastries and breads.",
             "colour": 9733723
+        },
+        "pizzeria": {
+            "display_name": "Local Pizzeria",
+            "description": "A form of italian restaurant specialising in pizzas.",
+            "colour": 15615520
         }
     },
     "forage_data": {
@@ -24,6 +46,7 @@
             "fossil": 2,
             "quartz": 7,
             "mushroom": 12,
+            "tomato": 8,
             "NOTHING": 20
         },
         "name_choices": {
@@ -51,6 +74,14 @@
                 "a red toadstool",
                 "that stereotypical mushroom",
                 "a red and white mushroom"
+            ],
+            "tomato": [
+                "a wild cherry tomato",
+                "some tomatoes",
+                "some wild tomatoes",
+                "a wild ripe tomato",
+                "a ripe tomato",
+                "a fruiting tomato plant"
             ]
         },
         "messages": {

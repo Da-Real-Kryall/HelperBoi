@@ -14,7 +14,7 @@ def setup(Bot):
     async def _links(ctx):
         links = [
             "[Github Repository](https://github.com/Da-Real-Kryall/HelperBoiRewrite)",
-            "[Bot Invite](https://discord.com/api/oauth2/authorize?client_id=849543878059098144&permissions=278904302662&scope=bot)"
+            "[Bot Invite](https://discord.com/api/oauth2/authorize?client_id=849543878059098144&permissions=416578137154&scope=bot)"
         ]
         await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title="Links:", description="\n".join(links))))
     Bot.add_command(_links)

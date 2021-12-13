@@ -43,7 +43,7 @@ def setup(Bot):
             user = await Bot.fetch_user(user_id)
         
         #base embed
-        user_info_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"Info about {f'{statuses_dict[user.status[0]]} ' if type(user) == discord.Member else ''}{user.name}#{user.discriminator}:"))
+        user_info_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"Info about {f'{statuses_dict[user.status[0]]} ' if type(user) == discord.Member else ''}{user.name}#{user.discriminator}:   "))
         if user.bot:
             user_info_embed.title += f"{'<:CHECK:768779393509097484>' if user.public_flags.verified_bot else ''}<:B_:768779404888899605><:O_:768779415852417034><:T_:768779427487416341>"
         if type(user) == discord.Member:

@@ -21,45 +21,73 @@ def setup(Bot):
             await ctx.send(embed=general_utils.error_embed(False, "Please give a valid positive integer for message amount."))
 
         DestinationChannel = ctx.guild.get_channel(int(destination))
+
         messagelist = []
+        if ctx.guild.get_member(Bot.user.id).guild_permissions.manage_webhooks == False:
+            async for message in ctx.channel.history(limit=int(amount)-1): #send as embeds
+                if message.author.colour == discord.Colour(0x000000): #change colour if none is given
+                    authorcolour = discord.Colour(0xCBCBCB)
+                else:
+                    authorcolour = message.author.colour
 
-        async for message in ctx.channel.history(limit=int(amount)-1):
+                if message.author.bot: #change sent message if the message author was a bot
+                    embedtoappend = discord.Embed(timestamp=datetime.now(timezone.utc), title=message.author.name+'  <:B_:768779404888899605><:O_:768779415852417034><:T_:768779427487416341>                    ', description=message.content, colour=authorcolour)
+                else:
+                    embedtoappend = discord.Embed(timestamp=datetime.now(timezone.utc), title=message.author.name+'                           ', description=message.content, colour=authorcolour)
 
-            if message.author.colour == discord.Colour(0x000000): #change colour if none is given
-                authorcolour = discord.Colour(0xCBCBCB)
-            else:
-                authorcolour = message.author.colour
+                if len(message.embeds) >= 1: #idk if it was a webbhook
+                    embedtoappend.set_footer(text='(Message had '+str(len(message.embeds))+' embed, shown below)')
+                if len(message.embeds) != 0:
+                    for embed in message.embeds:
+                        messagelist.append(embed)
 
-            if message.author.bot: #change sent message if the message author was a bot
-                embedtoappend = discord.Embed(timestamp=datetime.now(timezone.utc), title=message.author.name+'  <:B_:768779404888899605><:O_:768779415852417034><:T_:768779427487416341>                    ', description=message.content, colour=authorcolour)
-            else:
-                embedtoappend = discord.Embed(timestamp=datetime.now(timezone.utc), title=message.author.name+'                           ', description=message.content, colour=authorcolour)
-            
-            if len(message.embeds) >= 1: #idk if it was a webbhook
-                embedtoappend.set_footer(text='(Message had '+str(len(message.embeds))+' embed, shown below)')
-            if len(message.embeds) != 0:
-                for embed in message.embeds:
-                    messagelist.append(embed)
-            
-            if message.is_system(): #deal with system messages, still need to get a sys_msg_dict
-                embedtoappend = discord.Embed(title=':wrench: '+message.type.name+'                           ', description=message.system_content, colour=discord.Colour(0x99aab5))
-                embedtoappend.set_footer(text='Event occured at: '+message.created_at.strftime('%A %d %B %Y'))
-            
-            messageforforloop = message #amazing var names
-            if len(message.attachments) != 0:
-                for attachment in message.attachments:
-                    messagelist.append(discord.Embed(title=messageforforloop.author.name+'                           ', description=attachment.url, colour=authorcolour))
-                    if len(messageforforloop.embeds) >= 1:
-                        embedtoappend.set_footer(text=str(messageforforloop.created_at.strftime('%A %d %B %Y'))+' (Message had '+str(len(messageforforloop.embeds))+' embed, shown below)')
+                if message.is_system(): #deal with system messages, still need to get a sys_msg_dict
+                    embedtoappend = discord.Embed(title=':wrench: '+message.type.name+'                           ', description=message.system_content, colour=discord.Colour(0x99aab5))
+                    embedtoappend.set_footer(text='Event occured at: '+message.created_at.strftime('%A %d %B %Y'))
+
+                messageforforloop = message #amazing var names
+                if len(message.attachments) != 0:
+                    for attachment in message.attachments:
+                        messagelist.append(discord.Embed(title=messageforforloop.author.name+'                           ', description=attachment.url, colour=authorcolour))
+                        if len(messageforforloop.embeds) >= 1:
+                            embedtoappend.set_footer(text=str(messageforforloop.created_at.strftime('%A %d %B %Y'))+' (Message had '+str(len(messageforforloop.embeds))+' embed, shown below)')
+                        else:
+                            embedtoappend.set_footer(text=str(messageforforloop.created_at.strftime('%A %d %B %Y')))
+                if embedtoappend.description != '':
+                    messagelist.append(embedtoappend)
+
+            for message in reversed(messagelist): #send messages
+                try:
+                    await DestinationChannel.send(embed=message)
+                except:
+                    await DestinationChannel.send(message)
+        else:
+            async with ctx.typing():
+                async for message in ctx.channel.history(limit=int(amount)-1): #send using webhooks
+                    msg_to_append = []
+                    if message.content != '':
+                        msg_to_append += [message.content] #0
                     else:
-                        embedtoappend.set_footer(text=str(messageforforloop.created_at.strftime('%A %d %B %Y')))
-            if embedtoappend.description != '':
-                messagelist.append(embedtoappend)
+                        msg_to_append += [None] #0
+                        
+                    files = []
+                    for attachment in message.attachments:
+                        file = await attachment.to_file()
+                        files += [file]
+                    msg_to_append += [files] #1
+                    
+                    embeds = []
+                    for embed in message.embeds:
+                        embeds += [embed]
+                    msg_to_append += [embeds] #2
 
-        for message in reversed(messagelist): #send messages
-            try:
-                await DestinationChannel.send(embed=message)
-            except:
-                await DestinationChannel.send(message)
-    
+                    msg_to_append += [message.author] #3
+                    
+                    messagelist += [msg_to_append]
+                    
+            for message in reversed(messagelist): #send messages
+                await general_utils.send_via_webhook(DestinationChannel, Bot, message[0], username=message[3].display_name, avatar_url=message[3].avatar_url, files=message[1], embeds=message[2])
+            await DestinationChannel.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Moved {amount} messages from #{ctx.channel.name}.")))
+            await ctx.channel.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Moved {amount} messages to #{DestinationChannel.name}.")))
+
     Bot.add_command(_movemessages)
