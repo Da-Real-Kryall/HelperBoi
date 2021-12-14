@@ -7,6 +7,10 @@
         "economy_invisibility": {
             "default": 0,
             "description": "This will control whether you will show up on things like leaderboards and net server statistics concerning your economic data."
+        },
+        "geoforecast_alert": {
+            "default": 0,
+            "description": "This setting controls wether the bot will attempt to alert you at 12:00 UTC when there is an upcoming Kp index above or equal to 5."
         }
     },
     "servers": {

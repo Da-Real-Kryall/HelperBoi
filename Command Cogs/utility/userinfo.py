@@ -43,7 +43,7 @@ def setup(Bot):
             user = await Bot.fetch_user(user_id)
         
         #base embed
-        user_info_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"Info about {f'{statuses_dict[user.status[0]]} ' if type(user) == discord.Member else ''}{user.name}#{user.discriminator}:   "))
+        user_info_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"About {user.name}#{user.discriminator}: {f'{statuses_dict[user.status[0]]} ' if type(user) == discord.Member else ''}"))
         if user.bot:
             user_info_embed.title += f"{'<:CHECK:768779393509097484>' if user.public_flags.verified_bot else ''}<:B_:768779404888899605><:O_:768779415852417034><:T_:768779427487416341>"
         if type(user) == discord.Member:
@@ -55,6 +55,8 @@ def setup(Bot):
         user_info_embed.set_thumbnail(url=user.avatar_url)
 
         user_info = {}
+        #account creation date
+        user_info.update({"Account created at:": f"<t:{int(user.created_at.timestamp())}:f> (<t:{int(user.created_at.timestamp())}:R>)"})
         
         #member only info (only works for users in the guild the message was sent in)
         if type(user) == discord.Member:
@@ -95,6 +97,9 @@ def setup(Bot):
                 
                 elif user.activity.type == discord.ActivityType.watching:
                     user_info.update({"Activity:": f"Watching {user.activity.name}."})
+                                    
+                elif user.activity.type == discord.ActivityType.streaming:
+                    user_info.update({"Activity:": f"Streaming {user.activity.name}."})
                     
             #time joined the server  
             user_info.update({"Server join date:": f"<t:{int(user.joined_at.timestamp())}:f> (<t:{int(user.joined_at.timestamp())}:R>)"})
@@ -121,8 +126,6 @@ def setup(Bot):
         #id
         user_info.update({"Id:": str(user.id)})
 
-        #account creation date
-        user_info.update({"Account created at:": f"<t:{int(user.created_at.timestamp())}:f> (<t:{int(user.created_at.timestamp())}:R>)"})
         
         #economy stuff
 
@@ -144,11 +147,11 @@ def setup(Bot):
             inventory_string = []
             for item, quantity in inv_data.items():
                 if quantity != 0:
-                    inventory_string += [f"{item_json[item]['emoji']} {item_json[item]['display_name']} x{quantity}"]
+                    inventory_string += [f"{item_json[item]['emoji']} x{quantity}"]
             if len(inventory_string) == 0:
                 user_info.update({"Inventory:": "Nothing :("})
             else:
-                user_info.update({"Inventory:": "\n".join(inventory_string)})
+                user_info.update({"Inventory:": ", ".join(inventory_string)})
         else: #add fields except <hidden> is their value
             user_info.update({"Level:": "<hidden>"})
             user_info.update({"Balance:": f"<hidden>"})

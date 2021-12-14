@@ -49,19 +49,24 @@ def init_main():
             prefix TEXT
         )''')
 
-    #cursor.execute('''SELECT guild_id, prefix FROM prefixes''')
-    #data = cursor.fetchall()
-    #data = {elm[0]:elm[1] for elm in data}
-    #print(data, "test")
-    #print(Bot.guilds)
-    #for guild in Bot.guilds:
-    #    print(guild.id)
-    #    if guild.id not in list(data.keys()):
-    #        print("tst")
-    #        cursor.execute('''INSERT into prefixes values (?,?)''', (guild.id, Bot.default_prefix))
-
     prefix_database.commit()
     prefix_database.close()
+
+    reminder_database = sqlite3.connect(f"Databases/misc/reminders.db")
+    cursor = reminder_database.cursor()
+    cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'reminders' ''')
+    if cursor.fetchone()[0] == 0:
+        cursor.execute('''CREATE TABLE reminders (
+            ID INTEGER PRIMARY KEY, 
+            content TEXT,
+            timestamp INTEGER,
+            author_id INTEGER,
+            guild_id INTEGER,
+            channel_id INTEGER
+        )''')
+
+    reminder_database.commit()
+    reminder_database.close()
 
 def init_user(user_id):  #inits a user's balance, inventory and preferences. try to make this efficient.
     
@@ -192,6 +197,16 @@ def init_server(server_id):
 
     server_database.close()
 
+def fetch_reminders(user:int=0):#returns the reminders that will occur within the hour, or all from the user if given
+    reminder_database = sqlite3.connect(f"Databases/misc/reminders.db")
+    cursor = reminder_database.cursor()
+    if user == 0:
+        cursor.execute('''SELECT ID, content, timestamp, author_id, guild_id, channel_id FROM reminders WHERE timestamp < ?''', (int(time.time()+3600),))
+        return cursor.fetchall()
+    else:
+        init_user(user)
+        cursor.execute('''SELECT ID, content, timestamp, author_id, guild_id, channel_id FROM reminders WHERE author_id = ?''', (user,))
+        return cursor.fetchall()
 
 def fetch_timedelta(user_id:int, entry:str):
     # returns how many seconds in the past that the timestamp represents.
@@ -295,6 +310,7 @@ def fetch_suggestions(mode:str, integer:int):
         
 
 def fetch_coolness(user_id):
+    #if type(user_id) == int: #assume user id is a user id
     init_user(user_id)
     user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
     user_cursor = user_database.cursor()
@@ -303,9 +319,15 @@ def fetch_coolness(user_id):
     coolness = user_cursor.fetchall()[0][0]
 
     user_database.close()
-
+    
     #return exp then level
     return (coolness, -(math.floor(((coolness/1.6)-coolness)/130)))
+    #elif type(user_id) == str and user_id == 'all': #person has given the string 'all', thus all user levels will be given.
+    #    userlist = 
+    #    print(userlist)
+    #    return userlist
+    #    print([filename.name[:-3] for filename in os.scandir("")])
+
 
 def fetch_inventory(user_id:int, all_items:bool=True, item:str=None):
     init_user(user_id)
@@ -454,6 +476,23 @@ def alter_items(user_id:int, mode:str, items:dict): #set, take, or overwrite to.
     #    user_cursor.execute(f'''SELECT quantity FROM inventory WHERE item_name = '{item}' ''')
     #    data = user_cursor.fetchall()
     #    return data[0][0]
+
+def remove_reminders(ids:list):#removes the reminders with the ids in the list
+    reminder_database = sqlite3.connect(f"Databases/misc/reminders.db")
+    cursor = reminder_database.cursor()
+    for primary_key in ids:
+        cursor.execute('''DELETE FROM reminders WHERE ID = ?''',(int(primary_key),))
+    reminder_database.commit()
+    reminder_database.close()
+
+def add_reminder(content:str, timestamp:int, author_id:int, guild_id:int, channel_id:int):
+    reminder_database = sqlite3.connect(f"Databases/misc/reminders.db")
+    cursor = reminder_database.cursor()
+    cursor.execute('''INSERT INTO reminders (content, timestamp, author_id, guild_id, channel_id) values (?,?,?,?,?)''',(content, timestamp, author_id, guild_id, channel_id))
+    reminder_database.commit()
+    reminder_database.close()
+    return cursor.lastrowid
+    #database_utils.insert_reminder(content, delta, message.author.id, message.guild.id, message.channel.id)
 
 def alter_prefix(guild_ids:list, mode:str, prefix:str):
 
