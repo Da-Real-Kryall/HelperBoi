@@ -22,7 +22,7 @@ def setup(Bot):
 
                 self.scroll_index = 0
                 
-                self.reminder_embeds = [general_utils.format_embed(ctx.author, discord.Embed(title="Reminders:", description="\n".join([f"` {'>' if _index == index else ' '} ` **#{_reminder[0]}**: set at <t:{_reminder[2]}:> (<t:{_reminder[2]}:R>)" for _index, _reminder in enumerate(reminders)]))) for index, reminder in enumerate(reminders)]
+                self.reminder_embeds = [general_utils.format_embed(ctx.author, discord.Embed(title="Reminders:", description="\n".join([f"` {'>' if _index == index else ' '} ` **#{_reminder[0]}**: Set for <t:{_reminder[2]}> (<t:{_reminder[2]}:R>)" for _index, _reminder in enumerate(reminders)]))) for index, reminder in enumerate(reminders)]
                 [self.reminder_embeds[index].add_field(name="Text:", value=reminder[1]) for index, reminder in enumerate(reminders)]
 
                 return await channel.send(embed=self.reminder_embeds[self.scroll_index])
@@ -47,15 +47,16 @@ def setup(Bot):
 
             @menus.button("\N{WASTEBASKET}\N{VARIATION SELECTOR-16}")
             async def on_trash(self, payload):
-                database_utils.remove_reminders([reminders[self.scroll_index][0]])
-                new_embed = self.reminder_embeds[self.scroll_index]
-                new_embed_desc = new_embed.description.split("\n")
-                new_embed_desc[self.scroll_index] = f"~~{new_embed_desc[self.scroll_index]}~~ (Deleted)"
-                new_embed.description = "\n".join(new_embed_desc)
-                new_embed.colour = general_utils.Colours.red
-                self.reminder_embeds[self.scroll_index] = new_embed
+                if self.reminder_embeds[self.scroll_index].colour.value != general_utils.Colours.red:
+                    database_utils.remove_reminders([reminders[self.scroll_index][0]])
+                    new_embed = self.reminder_embeds[self.scroll_index]
+                    new_embed_desc = new_embed.description.split("\n")
+                    new_embed_desc[self.scroll_index] = f"~~{new_embed_desc[self.scroll_index]}~~ (Deleted)"
+                    new_embed.description = "\n".join(new_embed_desc)
+                    new_embed.colour = general_utils.Colours.red
+                    self.reminder_embeds[self.scroll_index] = new_embed
 
-                await self.message.edit(embed=self.reminder_embeds[self.scroll_index])
+                    await self.message.edit(embed=self.reminder_embeds[self.scroll_index])
 
             @menus.button("\N{BLACK SQUARE FOR STOP}\N{VARIATION SELECTOR-16}")
             async def on_stop(self, payload):

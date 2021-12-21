@@ -17,32 +17,37 @@ def setup(Bot):
         
         args = args.split(" ")
         if general_utils.represents_int(args[-1]):
-            if int(args[-1]) < 1 and ctx.author.id != general_utils.bot_owner_id:
+            if int(args[-1]) < 1:# and ctx.author.id != general_utils.bot_owner_id:
                 await ctx.send(embed=error_embed)
                 return
             else:
                 amount = int(args[-1])
                 item_name = ' '.join(args[:-1])
-        else:
-            amount = 1
-            item_name = ' '.join(args)
-        
+        elif general_utils.represents_int(args[-1]) == False:
+            if args[-1] == 'all':
+                item_name = ' '.join(args[:-1])
+                amount = 'all'
+            else:
+                amount = 1
+                item_name = ' '.join(args)
+
         with open(os.getcwd()+"/Recources/json/items.json") as file:
             item_json = json.loads(file.read())
 
         for key, value in item_json.items():
             if item_name.lower() == value["display_name"].lower():
+                cur_items = database_utils.fetch_inventory(ctx.author.id, False, key)
                 if amount == 'all':
-                    delta = 0 - database_utils.fetch_inventory(ctx.author.id, False, key)
+                    delta = 0 - cur_items
                     amount = -delta
-                elif int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key) and ctx.author.id != general_utils.bot_owner_id:
+                elif int(amount) > cur_items:# and ctx.author.id != general_utils.bot_owner_id:
                     await ctx.send(embed=general_utils.error_embed(False, "You cant sell what you dont have!"))
                     return
                 else:
                     delta = 0 - int(amount)
                 sell_value = item_json[key]['value']*int(amount)
 
-                await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to sell {'all your' if amount == -delta else amount} {value['display_name']}{general_utils.item_plural(value, amount)} for §{sell_value}?", colour=general_utils.Colours.yellow))
+                await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to sell {'all your' if amount == cur_items else amount} {value['display_name']}{general_utils.item_plural(value, amount)} for §{sell_value}?", colour=general_utils.Colours.yellow))
                 
                 check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author and m.content.lower() in ["yes please", "yes", "ye", "yep", "yeah", "confirm", "affirmative", "true", "no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]
 
@@ -53,6 +58,9 @@ def setup(Bot):
                     return
                 
                 if msg.content.lower() in ["yes", "ye", "yep", "yeah", "confirm", "affirmative", "true"]:
+                    if int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key):# and ctx.author.id != general_utils.bot_owner_id:
+                        await ctx.send(embed=general_utils.error_embed(False, "You cant sell what you dont have!"))
+                        return
                     database_utils.alter_items(ctx.author.id, "delta", {key: delta})
                     database_utils.alter_balance(ctx.author.id, sell_value)
 

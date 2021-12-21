@@ -12,7 +12,7 @@ def setup(Bot):
     }})
     @commands.command(name="privacy")
     async def _privacy(ctx):
-        PrivacyEmbed = discord.Embed(title='My Respection Of Your Privacy:', description='I do not by any means intentionally save/log messages sent, although i will on the other hand log some command usage, this is so i can more easily track the errors and make the bot better faster!')
+        PrivacyEmbed = discord.Embed(title='My Respection Of Your Privacy:', description='I do not by any means intentionally save/log messages sent, and i do not save the names of users within their economy data; only their user ids, although i will on the other hand sometimes log command usage, this is to more easily track errors and improve the bot faster.')
         PrivacyEmbed.set_thumbnail(url=Bot.user.avatar_url)
         PrivacyEmbed = general_utils.format_embed(ctx.author, PrivacyEmbed)
 

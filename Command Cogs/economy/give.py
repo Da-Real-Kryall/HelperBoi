@@ -12,7 +12,7 @@ def setup(Bot):
     }})
     @commands.command(name="give")
     async def _give(ctx, user, amount, *, item_name):
-        error_embed = general_utils.error_embed(ctx.author, "Please give a valid positive integer or 'all' as the amount of items to give, followed by the name of the item(s) you wish to sell.")
+        error_embed = general_utils.error_embed(ctx.author, "Please give a valid positive integer or 'all' as the amount of items to give, followed by the name of the item(s).")
         if general_utils.represents_int(amount):
             if int(amount) < 1 and ctx.author.id != general_utils.bot_owner_id:
                 await ctx.send(embed=error_embed)
@@ -32,8 +32,8 @@ def setup(Bot):
             if item_name.lower() == value["display_name"].lower():
                 if amount == 'all':
                     delta = 0 - database_utils.fetch_inventory(ctx.author.id, False, key)
-                elif int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key) and ctx.author.id != general_utils.bot_owner_id:
-                    await ctx.send(embed=general_utils.error_embed(False, "You cant sell what you dont have!"))
+                elif int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key):# and ctx.author.id != general_utils.bot_owner_id:
+                    await ctx.send(embed=general_utils.error_embed(False, "You can't give what you dont have!"))
                     return
                 else:
                     delta = 0 - int(amount)
@@ -52,6 +52,9 @@ def setup(Bot):
                     return
                 
                 if msg.content.lower() in ["yes", "ye", "yep", "yeah", "confirm", "affirmative", "true"]:
+                    if int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key):# and ctx.author.id != general_utils.bot_owner_id:
+                        await ctx.send(embed=general_utils.error_embed(False, "You can't give what you dont have!"))
+                        return
                     database_utils.alter_items(ctx.author.id, "delta", {key: delta})
                     database_utils.alter_items(user_id, "delta", {key: -delta})
 

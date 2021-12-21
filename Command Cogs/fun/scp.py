@@ -1,4 +1,3 @@
-from typing import Container
 import discord, scpscraper, random, string, django.utils.timezone, datetime
 from discord.ext import commands
 from utils import general_utils

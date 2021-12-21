@@ -41,7 +41,7 @@ def setup(Bot):
         datacache['active']['reminders']['saved'] += [reminder[0]] #add id to list of reminders that have a threadfunc active
         guild = Bot.get_guild(reminder[4])
         channel = guild.get_channel(reminder[5])
-        embed = discord.Embed(title=reminder[1], description=f"(Set <t:{reminder[2]}:R>)", colour=general_utils.Colours.main)
+        embed = discord.Embed(title=reminder[1], colour=general_utils.Colours.main) #description=f"(Set <t:{reminder[2]}:R>)", #add "set at <date>" description on reminder embed
 
         await asyncio.sleep(int(reminder[2]-time.time()))
         await channel.send(f"<@!{reminder[3]}>, reminder:", embed=embed)
@@ -97,7 +97,7 @@ def setup(Bot):
                 datacache['passive'][value]['value'] = userlist
                 return userlist
             else:
-                return datacache[value]['value']
+                return datacache['passive'][value]['value']
             userlist = []
     Bot.request_global = _request_global
     #active updates, to implement geoforecast and reminders

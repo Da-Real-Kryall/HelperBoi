@@ -81,6 +81,11 @@ def setup(Bot):
 
                         #    await ctx.send(embed=sold_embed)
                         #    return
+                        
+                if int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key):# and ctx.author.id != general_utils.bot_owner_id:
+                    await ctx.send(embed=general_utils.error_embed(False, "You cant use what you dont have!"))
+                    return
+
                 if value['usability']['consumable']:
                     database_utils.alter_items(ctx.author.id, "delta", {key: delta})
 

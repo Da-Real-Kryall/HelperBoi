@@ -24,6 +24,10 @@ def setup(Bot):
         user_id = await general_utils.get_user_id(Bot, ctx, user, False)
         if user_id == None:
             return
+
+        if int(amount) > database_utils.fetch_balance(ctx.author.id):# and ctx.author.id != general_utils.bot_owner_id:
+            await ctx.send(embed=general_utils.error_embed(False, "You can't pay what you dont have!"))
+            return
             
         recipient_name = await Bot.fetch_user(user_id)
         recipient_name = recipient_name.name
@@ -41,10 +45,10 @@ def setup(Bot):
         if msg.content.lower() in ["no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]:
             await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Okie, {random.choice(['nevermind!', 'aborted!'])}")))
             return
-
+        cur_balance = database_utils.fetch_balance(ctx.author.id)
         if amount == 'all':
-            delta = 0 - database_utils.fetch_balance(ctx.author.id)
-        elif int(amount) > database_utils.fetch_balance(ctx.author.id) and ctx.author.id != general_utils.bot_owner_id:
+            delta = 0 - cur_balance
+        elif int(amount) > cur_balance:# and ctx.author.id != general_utils.bot_owner_id:
             await ctx.send(embed=general_utils.error_embed(False, "You can't pay what you dont have!"))
             return
         else:

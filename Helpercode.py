@@ -145,9 +145,9 @@ async def on_command_error(ctx, error):
     if error.__class__ == commands.errors.NoPrivateMessage:
         await ctx.send(embed=general_utils.error_embed(True, f"This command ('{ctx.command}')' can only be used in servers!"))
     elif (database_utils.fetch_setting("servers", ctx.guild.id, "cmd_not_found_errors") if ctx.guild != None else True) == True and type(error) == commands.errors.CommandNotFound: #ill probably remove this, it seems like a laggy check
-        await ctx.send(embed=general_utils.error_embed(True, str(error)+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,10) == 3 else "")))
+        await ctx.send(embed=general_utils.error_embed(True, str(error)+(random.choice([f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue.", f"\n\nDo `{Bot.command_prefix}help <command>` for info on its usage."]) if random.randint(1,7) == 3 else "")))
     elif type(error) != commands.errors.CommandNotFound:
-        await ctx.send(embed=general_utils.error_embed(True, str(error)+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,10) == 3 else "")))
+        await ctx.send(embed=general_utils.error_embed(True, str(error)+(random.choice([f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue.", f"\n\nDo `{Bot.command_prefix}help <command>` for info on its usage."]) if random.randint(1,7) == 3 else "")))
 
 @Bot.event
 async def on_connect(): 

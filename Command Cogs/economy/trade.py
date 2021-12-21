@@ -164,6 +164,18 @@ def setup(Bot):
 
         #excuse the hardcoding
         #applying the inventory changes for the trade
+
+        author_current_items = database_utils.fetch_inventory(ctx.author.id)
+        recipient_current_items = database_utils.fetch_inventory(user_id)
+        for key, value in items_giving.items():
+            if int(value) > author_current_items[item_reference[key.lower()]]:
+                await ctx.send(embed=general_utils.error_embed(False, f"You cant trade what you dont have!"+(f"\n You attempted to give {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite only having {value} in your inventory. " if database_utils.fetch_setting("users", user_id, "economy_invisibility") == False else "")))
+                return
+        for key, value in items_recieving.items():
+            if int(value) > recipient_current_items[item_reference[key.lower()]]:
+                await ctx.send(embed=general_utils.error_embed(False, f"You cant trade what the other person doesn't have!"+(f"\n You attempted to trade {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite them only having {value} in their inventory. " if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else "")))
+                return
+
         database_utils.alter_items(ctx.author.id, "delta", {item_reference[name]: -int(amount) for name, amount in items_giving.items()})
         database_utils.alter_items(ctx.author.id, "delta", {item_reference[name]: int(amount) for name, amount in items_recieving.items()})
         database_utils.alter_items(recipient.id, "delta", {item_reference[name]: -int(amount) for name, amount in items_recieving.items()})

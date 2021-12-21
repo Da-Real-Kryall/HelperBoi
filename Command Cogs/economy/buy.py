@@ -56,6 +56,9 @@ def setup(Bot):
                     return
                 
                 if msg.content.lower() in ["yes please", "yes", "ye", "yep", "yeah", "confirm", "affirmative", "true"]:
+                    if buy_price > database_utils.fetch_balance(ctx.author.id):# and ctx.author.id != general_utils.bot_owner_id:
+                        await ctx.send(embed=general_utils.error_embed(False, "Wait, you dont have enough money for that anymore!"))
+                        return
                     database_utils.alter_items(ctx.author.id, "delta", {key: amount})
                     database_utils.alter_balance(ctx.author.id, -buy_price)
 
