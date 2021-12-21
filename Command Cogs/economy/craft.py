@@ -52,6 +52,12 @@ def setup(Bot):
                         delta.update({k: -(v*amount)})
                     delta.update({key: amount})
 
+                #check if user has enough items
+                for item, quantity in delta.items():
+                    if quantity > current_inventory[item]:
+                        await ctx.send(embed=general_utils.error_embed(False, "You don't have enough items to craft this!"))
+                        return
+
                 confirm_embed = discord.Embed(title=f"Confirmation: Do you want to craft {amount} {value['display_name']}{general_utils.item_plural(value, amount)}?", colour=general_utils.Colours.yellow)
                 confirm_embed.add_field(name="Recipe:", value='\n'.join([f"{-v}x {item_json[k]['display_name']}" for k, v in delta.items() if item_json[k]['display_name'].lower() != item_name.lower()]))
                 await ctx.send(embed=confirm_embed )
@@ -66,7 +72,14 @@ def setup(Bot):
                 if msg.content.lower() in ["no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]:
                     await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Okie, {random.choice(['nevermind!', 'aborted!'])}")))
                     return
-                
+
+                current_inventory = database_utils.fetch_inventory(ctx.author.id)
+                #check if user has enough items
+                for item, quantity in delta.items():
+                    if quantity > current_inventory[item]:
+                        await ctx.send(embed=general_utils.error_embed(False, "You don't have enough items to craft this!"))
+                        return
+                        
                 database_utils.alter_items(ctx.author.id, "delta", delta)
                 craft_desc = []
                 for k, v in delta.items():
