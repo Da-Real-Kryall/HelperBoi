@@ -25,7 +25,7 @@ def represents_int(s):
     except ValueError:
         return False
 
-item_plural = lambda value, amount: value['plural'][1] if amount != 1 else value['plural'][0]
+item_plural = lambda value, amount: value['plural'][0] if amount == 1 else value['plural'][1]
 
 #1st 2nd 3rd etc
 ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])
@@ -103,7 +103,7 @@ async def get_user_id(Bot, ctx, text, check_all_users=False, lenient=False): #le
         else:
             return text
     elif len(user_ids) > 1 and lenient == False:
-        await ctx.send("Please say the number corresponding to whichever of the possible users you meant:\n"+'\n'.join([f"[{index}] \"{str(ctx.guild.get_member(value))}\"" for index, value in enumerate(list(user_ids.keys()))]))
+        await ctx.send(embed=discord.Embed(title="Please say the number corresponding to whichever of the possible users you meant:", description='\n'.join([f"**[{index}]** \"{str(ctx.guild.get_member(value))}\"" for index, value in enumerate(list(user_ids.keys()))]), colour=Colours.main))
         
         check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author
         try:

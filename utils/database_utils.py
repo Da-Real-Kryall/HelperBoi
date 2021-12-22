@@ -68,6 +68,26 @@ def init_main():
     reminder_database.commit()
     reminder_database.close()
 
+    cah_database = sqlite3.connect(f"Databases/misc/cards_against_humanity.db")
+    cursor = cah_database.cursor()
+    cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'white' ''')
+    if cursor.fetchone()[0] == 0:
+        cursor.execute('''CREATE TABLE white (
+            ID INTEGER PRIMARY KEY, 
+            content TEXT,
+            author_id INTEGER
+        )''')
+    cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'black' ''')
+    if cursor.fetchone()[0] == 0:
+        cursor.execute('''CREATE TABLE black (
+            ID INTEGER PRIMARY KEY, 
+            content TEXT,
+            author_id INTEGER
+        )''')
+
+    cah_database.commit()
+    cah_database.close()
+
 def init_user(user_id):  #inits a user's balance, inventory and preferences. try to make this efficient.
     
     user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
@@ -225,6 +245,20 @@ def fetch_timedelta(user_id:int, entry:str):
     user_database.close()
 
     return int(time.time())-data
+
+def fetch_cards(mode, amount:int): #SELECT * FROM table WHERE id IN (SELECT id FROM table ORDER BY RANDOM() LIMIT x)
+    if mode not in ["white", "black"]:
+        raise ValueError("please pick either white or black as the mode argument for fetch_cards")
+
+    cah_database = sqlite3.connect(f"Databases/misc/cards_against_humanity.db")
+    cursor = cah_database.cursor()
+    
+    cursor.execute(f'''SELECT * FROM {mode} WHERE ID IN (SELECT ID FROM {mode} ORDER BY RANDOM() LIMIT ?)''', (amount,))
+    return_id = cursor.fetchall()
+    cah_database.close()
+    
+    return return_id
+    
 
 def fetch_balance(user_id:int):
     init_user(user_id)
@@ -556,6 +590,23 @@ def alter_setting(group:str,id:int,setting:str,value:int=0,todefault:bool=False)
 
     database.commit()
     database.close()
+
+def alter_cards(mode, changes:dict): #SELECT * FROM table WHERE id IN (SELECT id FROM table ORDER BY RANDOM() LIMIT x)
+    if mode not in ["white", "black"]:
+        raise ValueError("please pick either white or black as the mode argument for fetch_cards")
+
+    cah_database = sqlite3.connect(f"Databases/misc/cards_against_humanity.db")
+    cursor = cah_database.cursor()
+    insert_ids = {}
+    for primary_key in changes["delete"]:
+        cursor.execute(f'''DELETE FROM {mode} WHERE ID = ?''',(int(primary_key),))
+    for value in changes["insert"]: #(content, author_id)
+        cursor.execute(f'''INSERT into {mode} (content, author_id) values (?,?)''', (value[0], value[1]))
+        insert_ids.update({cursor.lastrowid: value[0]})
+    #cursor.execute('''SELECT * FROM ? WHERE ID IN (SELECT ID FROM ? ORDER BY RANDOM() LIMIT ?)''', (mode, mode, amount))
+    cah_database.commit()
+    cah_database.close()
+    return insert_ids
 
 def alter_bugreports(changes:dict):#mode:str,ids:list,contents:str):
     #dict with "delete" and "insert" items, delete having [primary_key,], insert having {user_id:content,}

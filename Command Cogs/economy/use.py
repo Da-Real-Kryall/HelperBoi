@@ -59,7 +59,7 @@ def setup(Bot):
                     return
 
                 if value['usability']['confirmation']:
-                    await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to use {'all your' if amount == -delta else amount} {value['display_name']}{general_utils.item_plural(value, amount)}? {'They' if int(amount) != 1 else 'It'} will {'not' if not value['usability']['consumable'] else ''} be consumed.", colour=general_utils.Colours.yellow))
+                    await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to use {'all your' if amount == -delta else amount} {value['display_name']}{general_utils.item_plural(value, int(amount))}? {'They' if int(amount) != 1 else 'It'} will {'not' if not value['usability']['consumable'] else ''} be consumed.", colour=general_utils.Colours.yellow))
                     
                     check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author and m.content.lower() in ["yes please", "yes", "ye", "yep", "yeah", "confirm", "affirmative", "true", "no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]
                     
@@ -108,7 +108,7 @@ def setup(Bot):
                             "from the strain",
                             "from stress",
                         ]
-                        break_title = random.choice(break_messages_a).replace('&', f"{value['emoji']} {value['display_name']}")+random.choice(break_messages_b)+random.choice(["...", "!"]) #these chance calls could probably be optimised
+                        break_title = random.choice(break_messages_a).replace('&', f"{value['emoji']} {value['display_name']} ")+random.choice(break_messages_b)+random.choice(["...", "!"]) #these chance calls could probably be optimised
                         if random.randint(1,2) == 1:
                             break_title = break_title.capitalize()
                         break_desc = f"-1 {value['emoji']} {value['display_name']}"
