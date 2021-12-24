@@ -116,7 +116,7 @@ async def _test(ctx):
 @Bot.event
 async def on_message(message):
 
-    if Bot.user in message.mentions and len(message.content.split(" ")) == 1:
+    if message.content in [f"<@!{Bot.user.id}>", f"<@{Bot.user.id}>"]:
         prefix = await Bot.get_prefix(message)
         help_embed = discord.Embed(title=f"**{Bot.user.display_name}'s Commands & Info**", description=f"The command prefix is `{prefix}`, so `{prefix}command` is generally how commands are used. Also use `{prefix}help [command]` for info on its usage.")
         

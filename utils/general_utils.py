@@ -1,4 +1,5 @@
 import random, discord, datetime, django.utils.timezone, asyncio, aiohttp, math
+from utils import database_utils
 
 invite_link = "https://discord.com/api/oauth2/authorize?client_id=849543878059098144&permissions=416578137154&scope=bot"
 
@@ -154,3 +155,15 @@ async def send_via_webhook(channel, Bot, message, username, avatar_url, files=[]
     else:
         webhook = webhook[0]
         await webhook.send(message, username=username, avatar_url=avatar_url, files=files, embeds=embeds)
+
+exp_to_level = lambda exp: -(((exp/1.6)-exp)/130)
+
+async def level_check(delta, cur_amount, channel, author):
+    if database_utils.fetch_setting("users", author.id, "level_up_alert"):
+        level = int(exp_to_level(cur_amount))
+        newlevel = int(exp_to_level(cur_amount+delta))
+        #print(level, newlevel)
+        if newlevel > level:
+            await channel.send(f"{':tada: ' if random.randint(1,3) == 3 else ''}{author.name}, your coolness is now level {newlevel}. :sunglasses:")
+        elif newlevel < level:
+            await channel.send(f"{':confused: ' if random.randint(1,3) == 3 else ''}{author.name}, your coolness has decreased to level {newlevel}...")

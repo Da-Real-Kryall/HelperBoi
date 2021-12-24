@@ -29,8 +29,10 @@ async def eat_mushroom(ctx, Bot, amount):
     embed = general_utils.format_embed(ctx.author, discord.Embed(title=embed_title, description=embed_description), "red")
 
     await ctx.send(embed=embed)
+    giveamount = random.randint(-10, -1)*amount
+    cur_amount = database_utils.alter_coolness(ctx.author.id, giveamount)[0]
+    await general_utils.level_check(giveamount, cur_amount, ctx.channel, ctx.author)
 
-    database_utils.alter_coolness(ctx.author.id, random.randint(-10, -1)*amount)
 
 async def eat_bread(ctx, Bot, amount):
     if amount == 1:
@@ -189,9 +191,12 @@ async def poke_other(ctx, Bot, amount):
     poke_embed = discord.Embed(title=poke_title, description=poke_desc)
     poke_embed = general_utils.format_embed(ctx.author, poke_embed, "wood")
     await ctx.send(embed=poke_embed)
-
-    database_utils.alter_coolness(user_id, -random.randint(3,50))
-    database_utils.alter_coolness(ctx.author.id, -random.randint(3,50))
+    giveamount = -random.randint(3,50)
+    cur_amount = database_utils.alter_coolness(ctx.author.id, giveamount)[0]
+    await general_utils.level_check(giveamount, cur_amount, ctx.channel, ctx.author)
+    giveamount = -random.randint(3,50)
+    cur_amount = database_utils.alter_coolness(user_id, giveamount)[0]
+    await general_utils.level_check(giveamount, cur_amount, ctx.channel, user)
 
 async def throw_at_other(ctx, Bot, amount):
     item_name = random.choice(['small rock', 'pebble'])
@@ -212,7 +217,9 @@ async def throw_at_other(ctx, Bot, amount):
     throw_desc = f"That wasnt very cool, you "
     if random.randint(1,2) == 1:
         throw_desc += f"and {user.display_name if ctx.author != user else 'yourself'} lost some :sunglasses: coolness!"
-        database_utils.alter_coolness(user_id, -random.randint(80, 140))
+        giveamount = -random.randint(80, 140)
+        cur_amount = database_utils.alter_coolness(user_id, giveamount)[0]
+        await general_utils.level_check(giveamount, cur_amount, ctx.channel, user)
     else:
         throw_title += " Thankfully, it misses..."
         throw_desc += "lost some :sunglasses: coolness!"
@@ -221,7 +228,9 @@ async def throw_at_other(ctx, Bot, amount):
     throw_embed = general_utils.format_embed(ctx.author, throw_embed, "silver")
     await ctx.send(embed=throw_embed)
 
-    database_utils.alter_coolness(ctx.author.id, -random.randint(80, 140))
+    giveamount = -random.randint(80, 140)
+    cur_amount = database_utils.alter_coolness(ctx.author.id, giveamount)[0]
+    await general_utils.level_check(giveamount, cur_amount, ctx.channel, ctx.author)
 
 
 #bind the functions to their respective names, there is very likely a better way to do this.

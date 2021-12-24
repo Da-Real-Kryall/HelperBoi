@@ -24,9 +24,8 @@
         "type":"Material",
         "usability": {
             "function": "throw_at_other",
-            "consumable": 0,
-            "confirmation": 1,
-            "break_chance": 0.1
+            "consumable": 1,
+            "confirmation": 1
         }
     },
     "stick": {
@@ -41,7 +40,7 @@
             "function": "poke_other",
             "consumable": 0,
             "confirmation": 0,
-            "break_chance": 0.2
+            "break_chance": 0.7
         }
     },
     "log": {

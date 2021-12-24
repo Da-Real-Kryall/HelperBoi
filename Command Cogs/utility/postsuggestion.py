@@ -41,7 +41,9 @@ def setup(Bot):
             giveamount = random.randint(2,4)
             result_embed.description = f"Have §{giveamount} as thanks!"
             database_utils.alter_balance(ctx.author.id, giveamount)
-            database_utils.alter_coolness(ctx.author.id, random.randint(10,25))
+            giveamount = random.randint(10,25)
+            cur_amount = database_utils.alter_coolness(ctx.author.id, giveamount)[0]
+            await general_utils.level_check(giveamount, cur_amount, ctx.channel, ctx.author)
 
         await ctx.send(embed=general_utils.format_embed(ctx.author, result_embed, "green"))
 
