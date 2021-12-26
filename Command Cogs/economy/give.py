@@ -52,9 +52,10 @@ def setup(Bot):
                     return
                 
                 if msg.content.lower() in ["yes", "ye", "yep", "yeah", "confirm", "affirmative", "true"]:
-                    if int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key):# and ctx.author.id != general_utils.bot_owner_id:
-                        await ctx.send(embed=general_utils.error_embed(False, "You can't give what you dont have!"))
-                        return
+                    if amount != 'all':
+                        if int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key):# and ctx.author.id != general_utils.bot_owner_id:
+                            await ctx.send(embed=general_utils.error_embed(False, "You can't give what you dont have!"))
+                            return
                     database_utils.alter_items(ctx.author.id, "delta", {key: delta})
                     database_utils.alter_items(user_id, "delta", {key: -delta})
 

@@ -26,7 +26,7 @@ def represents_int(s):
     except ValueError:
         return False
 
-item_plural = lambda value, amount: value['plural'][0] if amount == 1 else value['plural'][1]
+item_plural = lambda value, amount: value['plural'][1] if amount != 1 or amount == 'all' else value['plural'][0]
 
 #1st 2nd 3rd etc
 ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])

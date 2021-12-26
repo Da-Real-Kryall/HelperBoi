@@ -47,7 +47,7 @@ def setup(Bot):
                     delta = 0 - int(amount)
                 sell_value = item_json[key]['value']*int(amount)
 
-                await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to sell {'all your' if amount == cur_items else amount} {value['display_name']}{general_utils.item_plural(value, amount)} for §{sell_value}?", colour=general_utils.Colours.yellow))
+                await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to sell {'all your' if amount == cur_items else amount} {value['display_name']}{general_utils.item_plural(value, 2 if amount == cur_items else amount)} for §{sell_value}?", colour=general_utils.Colours.yellow))
                 
                 check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author and m.content.lower() in ["yes please", "yes", "ye", "yep", "yeah", "confirm", "affirmative", "true", "no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]
 
