@@ -1,169 +1,69 @@
-import discord, random, asyncio
+import discord, random, asyncio, os, json
 from utils import general_utils, database_utils
 #functions that are used in the use command.
 
-async def eat_mushroom(ctx, Bot, amount):
-    if amount == 1:
-        embed_title = "You eat a :mushroom: toadstool, you feel :nauseated_face: nauseous..."
-    elif amount > 1 and amount < 1000000000:
-        embed_title = f"You eat {general_utils.num_to_words(amount)} :bread: bread loaves, you feel :nauseated_face: nauseous..."
-    else:
-        embed_title = "You eat a lot of :bread: bread loaves, you feel VERY :nauseated_face: nauseous..."
+#async def eat_mushroom(ctx, Bot, amount):
+#    if amount == 1:
+#        embed_title = "You eat a :mushroom: toadstool, you feel :nauseated_face: nauseous..."
+#    elif amount > 1 and amount < 1000000000:
+#        embed_title = f"You eat {general_utils.num_to_words(amount)} :bread: bread loaves, you feel :nauseated_face: nauseous..."
+#    else:
+#        embed_title = "You eat a lot of :bread: bread loaves, you feel VERY :nauseated_face: nauseous..."
+#
+#    embed = discord.Embed(title=embed_title)
+#
+#    if amount > 150 and random.randint(1,3) == 1:
+#        embed.description = "do you have a death wish!?"
+#    elif random.randint(1,6) == 3:
+#        embed.description = 'why would you eat this?'
+#
+#    embed = general_utils.format_embed(ctx.author, embed, "yellow")
+#
+#    await ctx.send(embed=embed)
+#
+#    await asyncio.sleep(random.randint(1,4))
+#    
+#    embed_title = f"You :face_vomiting: {random.choice(['threw up', 'vomited'])}!"
+#    embed_description = "That was not very cool... (lost some :sunglasses: coolness!)"
+#
+#    embed = general_utils.format_embed(ctx.author, discord.Embed(title=embed_title, description=embed_description), "red")
+#
+#    await ctx.send(embed=embed)
+#    giveamount = random.randint(-10, -1)*amount
+#    cur_amount = database_utils.alter_coolness(ctx.author.id, giveamount)[0]
+#    await general_utils.level_check(giveamount, cur_amount, ctx.channel, ctx.author)
 
-    embed = discord.Embed(title=embed_title)
+reference = {
+    "food": {},
+    "other": {}
+}
 
-    if amount > 150 and random.randint(1,3) == 1:
-        embed.description = "do you have a death wish!?"
-    elif random.randint(1,6) == 3:
-        embed.description = 'why would you eat this?'
-
-    embed = general_utils.format_embed(ctx.author, embed, "yellow")
-
-    await ctx.send(embed=embed)
-
-    await asyncio.sleep(random.randint(1,4))
-    
-    embed_title = f"You :face_vomiting: {random.choice(['threw up', 'vomited'])}!"
-    embed_description = "That was not very cool... (lost some :sunglasses: coolness!)"
-
-    embed = general_utils.format_embed(ctx.author, discord.Embed(title=embed_title, description=embed_description), "red")
-
-    await ctx.send(embed=embed)
-    giveamount = random.randint(-10, -1)*amount
-    cur_amount = database_utils.alter_coolness(ctx.author.id, giveamount)[0]
-    await general_utils.level_check(giveamount, cur_amount, ctx.channel, ctx.author)
-
-
-async def eat_bread(ctx, Bot, amount):
-    if amount == 1:
-        embed_title = "You eat a :bread: bread loaf."
-    elif amount > 1 and amount < 1000000000:
-        embed_title = f"You eat {general_utils.num_to_words(amount)} :bread: bread loaves."
-    else:
-        embed_title = "You eat a lot of :bread: bread loaves."
-
-    embed = discord.Embed(title=embed_title)
-
-    if amount > 150 and random.randint(1,4) == 1:
-        embed.description = "jeez calm down"
-    elif random.randint(1,6) == 3:
-        embed.description = random.choice(['nom nom', 'yum!', 'om nom nom', '\*burp\*'])
-
-    embed = general_utils.format_embed(ctx.author, embed, "bread")
-
-    await ctx.send(embed=embed)
-
-async def eat_baguette(ctx, Bot, amount):
-    if amount == 1:
-        embed_title = "You eat a :french_bread: baguette."
-    elif amount > 1 and amount < 1000000000:
-        embed_title = f"You eat {general_utils.num_to_words(amount)} :french_bread: baguettes."
-    else:
-        embed_title = "You eat a lot of :french_bread: baguettes."
-
-    embed = discord.Embed(title=embed_title)
-
-    if amount > 150 and random.randint(1,4) == 1:
-        embed.description = "jeez calm down"
-    elif random.randint(1,6) == 3:
-        embed.description = random.choice(['\*crunch\*', 'nom nom', 'yum!', 'om nom nom', '\*burp\*'])
-
-    embed = general_utils.format_embed(ctx.author, embed, "bread")
-
-    await ctx.send(embed=embed)
-
-async def eat_flatbread(ctx, Bot, amount):
-    if amount == 1:
-        embed_title = "You eat a :flatbread: piece of flatbread."
-    elif amount > 1 and amount < 1000000000:
-        embed_title = f"You eat {general_utils.num_to_words(amount)} :flatbread: pieces of flatbread."
-    else:
-        embed_title = "You eat a lot of :flatbread: pieces of flatbread."
-
-    embed = discord.Embed(title=embed_title)
-
-    if amount > 150 and random.randint(1,4) == 1:
-        embed.description = "jeez calm down"
-    elif random.randint(1,6) == 3:
-        embed.description = random.choice(['nom nom', 'yum!', 'om nom nom', '\*burp\*'])
-
-    embed = general_utils.format_embed(ctx.author, embed, "bread")
-
-    await ctx.send(embed=embed)
-
-async def eat_biscuit(ctx, Bot, amount):
-    if amount == 1:
-        embed_title = "You eat a :cookie: cookie."
-    elif amount > 1 and amount < 1000000000:
-        embed_title = f"You eat {general_utils.num_to_words(amount)} :cookie: cookies."
-    else:
-        embed_title = "You eat a lot of :cookie: cookies."
-
-    embed = discord.Embed(title=embed_title)
-
-    if amount > 150 and random.randint(1,4) == 1:
-        embed.description = "jeez calm down"
-    elif random.randint(1,6) == 3:
-        embed.description = random.choice(['nom nom', 'yum!', 'om nom nom', '\*burp\*'])
-
-    embed = general_utils.format_embed(ctx.author, embed, "bread")
-
-    await ctx.send(embed=embed)
-
-async def eat_banana_bread(ctx, Bot, amount):
-    if amount == 1:
-        embed_title = "You eat a <:bananabread:776722921338961956> loaf of banana bread."
-    elif amount > 1 and amount < 1000000000:
-        embed_title = f"You eat {general_utils.num_to_words(amount)} <:bananabread:776722921338961956> loaves of banana bread."
-    else:
-        embed_title = "You eat a lot of <:bananabread:776722921338961956> loaves of banana bread."
-
-    embed = discord.Embed(title=embed_title)
-
-    if amount > 150 and random.randint(1,4) == 1:
-        embed.description = "jeez calm down"
-    elif random.randint(1,6) == 3:
-        embed.description = random.choice(['nom nom', 'yum!', 'om nom nom', '\*burp\*'])
-
-    embed = general_utils.format_embed(ctx.author, embed, "yellow")
-
-    await ctx.send(embed=embed)
-
-async def eat_banana(ctx, Bot, amount):
-    if amount == 1:
-        embed_title = "You eat a :banana: banana."
-    elif amount > 1 and amount < 1000000000:
-        embed_title = f"You eat {general_utils.num_to_words(amount)} :banana: bananas."
-    else:
-        embed_title = "You eat a lot of :banana: bananas."
-
-    embed = discord.Embed(title=embed_title)
-
-    if amount > 150 and random.randint(1,4) == 1:
-        embed.description = "thats a lot of potassium"
-    elif random.randint(1,6) == 3:
-        embed.description = random.choice(['nom nom', 'yum!', 'om nom nom', '\*burp\*'])
-
-    embed = general_utils.format_embed(ctx.author, embed, "yellow")
-
-    await ctx.send(embed=embed)
-
-async def eat_apple(ctx, Bot, amount):
-    if amount == 1:
-        embed_title = "You eat an :apple: apple."
-    elif amount > 1 and amount < 1000000000:
-        embed_title = f"You eat {general_utils.num_to_words(amount)} :apple: apples."
-    else:
-        embed_title = "You eat a lot of :apple: apples."
-
-    embed = discord.Embed(title=embed_title)
-
-    if amount > 150 and random.randint(1,4) == 1:
-        embed.description = "this many apples a day will keep you away!"
-    elif random.randint(1,6) == 3:
-        embed.description = random.choice(['nom nom', 'yum!', 'om nom nom', '\*burp\*'])
-
-    embed = general_utils.format_embed(ctx.author, embed, "yellow")
+def create_eat_function(upper_bound:int=1000000000, colour:str="main", chance_event:list=[0.0, lambda: None], excess:list=[0.0, float("inf"), []], item_name:str="item_name"):
+    with open(os.getcwd()+"/Recources/json/items.json") as file:
+        item_json = json.loads(file.read())
+    item = item_json[item_name]
+    async def use_function(message, amount): #excess is [chance, upper_bound, [possible messages]]
+        embed_description = None
+        if amount == 1:
+            embed_title = f"You eat a{'n' if item['display_name'][0].lower() in ['a', 'e', 'i', 'o', 'u'] else ''} {item['emoji']} {general_utils.item_plural(item, 1)}."
+        elif amount > 1 and amount < upper_bound:
+            embed_title = f"You eat {amount} {item['emoji']} {general_utils.item_plural(item, amount)}"
+        else:
+            embed_title = f"You eat a lot of {item['emoji']} {general_utils.item_plural(item, amount)}"
+            if random.random() < excess[0]:
+                embed_description = random.choice(excess[2])
+        if amount > excess[1]:
+            embed_description = random.choice(excess[2])
+        embed = discord.Embed(title=embed_title)
+        if embed_description != None:
+            embed.description=embed_description
+        elif random.random() < 0.5:
+            embed.description = random.choice(['\*crunch\*', 'yum!', 'om nom nom', '\*burp\*']) #default messages
+        embed = general_utils.format_embed(message.author, embed, colour)
+        if random.random() < chance_event[0]:
+            await chance_event[1](message, amount)
+        await message.channel.send(embed=embed)
+    reference["food"].update({f"eat_{item_name}": use_function})
 
 async def sample_func(ctx, Bot, amount): 
     embed = discord.Embed(title="<sample use response>", description="+1000 <:Simolean:769845739043684353> Simoleons")
@@ -232,18 +132,87 @@ async def throw_at_other(ctx, Bot, amount):
     cur_amount = database_utils.alter_coolness(ctx.author.id, giveamount)[0]
     await general_utils.level_check(giveamount, cur_amount, ctx.channel, ctx.author)
 
+async def equip_starsticker(ctx, Bot, amount):
+    if amount == 1:
+        embed_title = "You put on a golden :star: starsticker."
+    else:
+        embed_title = f"You put on {amount} golden :star: starstickers."
+    embed_description = f"You feel quite {random.choice(['dapper', 'cool', 'good about yourself'])}, your coolness has increased a little!"
+    give_amount = sum([random.randint(1, 25)]*amount)
+    cur_amount, delta = database_utils.alter_coolness(ctx.author.id, give_amount)
+    await general_utils.level_check(give_amount, cur_amount, ctx.channel, ctx.author)
+    await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=embed_title, description=embed_description), "yellow"))
+    
+async def equip_sunglasses(ctx, Bot, amount):
+    if amount == 1:
+        embed_title = "You put on a pair of :dark_sunglasses: sunglasses."
+    else:
+        embed_title = f"You put on {amount} pairs of :dark_sunglasses: sunglasses."
+    embed_description = f"You feel quite {random.choice(['dapper', 'cool', 'good about yourself'])}, your coolness has increased!"
+    give_amount = sum([random.randint(1, 60)]*amount)
+    cur_amount, delta = database_utils.alter_coolness(ctx.author.id, give_amount)
+    await general_utils.level_check(give_amount, cur_amount, ctx.channel, ctx.author)
+    await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=embed_title, description=embed_description), "charcoal"))
 
-#bind the functions to their respective names, there is very likely a better way to do this.
-reference = {
-    "eat_mushroom": eat_mushroom,
-    "eat_bread": eat_bread,
-    "eat_baguette": eat_baguette,
-    "eat_flatbread": eat_flatbread,
-    "eat_biscuit": eat_biscuit,
-    "eat_banana_bread": eat_banana_bread,
-    "eat_banana": eat_banana,
-    "eat_apple": eat_apple,
+async def shake_eightball(ctx, Bot, amount):
+    message = await ctx.send(embed=discord.Embed(title="You shake the magic 8-ball vigorously...", description="A message is appearing in the window...", colour=general_utils.Colours.indigo))
+    await asyncio.sleep(random.randint(2, 7))
+    responses = [
+        "Yes.",
+        "No.",
+        "bruh no",
+        "obviously yes",
+        "i'd say 1.5",
+        "i cannot be certain",
+        "reception bad try again later",
+        "yes'nt",
+        "certainly",
+        "(the little internal die with the answers landed on an edge)",
+        "yes, of course",
+        "my sources say no."
+    ]
+    await message.edit(embed=general_utils.format_embed(ctx.author, discord.Embed(title="The 8-ball has given its response:", description=f"\"{random.choice(responses)}\""), "cobalt"))
+    #await ctx.send(embed=embed)
+
+async def lsd_effect(message):
+    if random.random() < 0.5:
+        pass#do lsd effect
+    else: #you throw up the mushroom
+        await asyncio.sleep(random.randint(1,4))
+
+        embed_title = f"You :face_vomiting: {random.choice(['threw up', 'vomited'])}{random.choice(['!', '...'])}"
+        embed_description = "That was not very cool..."
+
+        embed = general_utils.format_embed(message.channel.author, discord.Embed(title=embed_title, description=embed_description), "red")
+
+        await message.channel.send(embed=embed)
+        giveamount = random.randint(-120, -1)
+        cur_amount = database_utils.alter_coolness(message.author.id, giveamount)[0]
+        await general_utils.level_check(giveamount, cur_amount, message.channel, message.author)
+
+eat_functions_data = [
+    {"colour":"yellow", "excess":[0.8, 50, ["Thats a lotta potassium..."]], "item_name":"banana"},
+    {"colour":"red", "excess":[0.9, 100, ["This many apples a day will keep you away!"]], "item_name":"apple"},
+    {"colour": "bread", "excess": [0.5, 175, ["jeez calm down"]], "item_name":"bread"},
+    {"colour": "bread", "excess": [0.5, 175, ["jeez calm down"]], "item_name":"baguette"},
+    {"colour": "bread", "excess": [0.5, 175, ["jeez calm down"]], "item_name":"flatbread"},
+    {"colour": "yellow", "excess": [0.8, 50, ["jeez calm down"]], "item_name":"bananabread"},
+    {"colour": "bread", "excess": [0.9, 50, ["thats a lotta calories"]], "item_name":"biscuit"},
+    {"colour": "yellow", "excess": [0.9, 50, ["hope you arent lactose intolerant"]], "item_name":"cheese"},
+    {"colour": "red", "excess": [0.9, 100, ["\*munchy munch\*"]], "item_name":"tomato"},
+    {"colour": "red", "excess": [0.9, 50, ["thats a lotta calories"]], "item_name":"pizza"},
+    {"colour": "bread", "excess": [1, 10, ["how many individual pizza slices was that?", "expensive meal..."]], "item_name":"pizzacake"},
+    {"colour": "red", "excess": [0.6, 1, ["why would you eat this?"]], "chance_event": [1.1, lsd_effect], "item_name":"mushroom"}
+]
+
+for func_data in eat_functions_data:
+    create_eat_function(**func_data)
+
+reference["other"].update({
     "sample_func": sample_func,
     "poke_other": poke_other,
     "throw_at_other": throw_at_other,
-}
+    "equip_starsticker": equip_starsticker,
+    "equip_sunglasses": equip_sunglasses,
+    "shake_eightball": shake_eightball
+})

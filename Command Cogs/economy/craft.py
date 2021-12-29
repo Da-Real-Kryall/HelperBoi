@@ -58,7 +58,7 @@ def setup(Bot):
                         await ctx.send(embed=general_utils.error_embed(False, "You don't have enough items to craft this!"))
                         return
 
-                confirm_embed = discord.Embed(title=f"Confirmation: Do you want to craft {amount} {value['display_name']}{general_utils.item_plural(value, amount)}?", colour=general_utils.Colours.yellow)
+                confirm_embed = discord.Embed(title=f"Confirmation: Do you want to craft {amount} {general_utils.item_plural(value, amount)}?", colour=general_utils.Colours.yellow)
                 confirm_embed.add_field(name="Recipe:", value='\n'.join([f"{-v}x {item_json[k]['display_name']}" for k, v in delta.items() if item_json[k]['display_name'].lower() != item_name.lower()]))
                 await ctx.send(embed=confirm_embed )
                 check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author and m.content.lower() in ["yes please", "yes", "ye", "yep", "yeah", "confirm", "affirmative", "true", "no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]
@@ -85,7 +85,7 @@ def setup(Bot):
                 for k, v in delta.items():
                     craft_desc += [f"{'+' if v > -1 else ''}{v} {item_json[k]['emoji']} {item_json[k]['display_name']}"]
                 craft_desc = '\n'.join(craft_desc)
-                crafted_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"You crafted {amount} {value['display_name']}{general_utils.item_plural(value, amount)}.", description=craft_desc), "green")
+                crafted_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"You crafted {amount} {general_utils.item_plural(value, amount)}.", description=craft_desc), "green")
                 await ctx.send(embed=crafted_embed)
                 return
 

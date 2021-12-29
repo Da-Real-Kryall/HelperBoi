@@ -14,10 +14,12 @@ class Colours:
     bread = 0xF0BF6A
     wood = 0x663300
     silver = 0xE2E2E2
+    cobalt = 0x0047ab
+    indigo = 0x4B0082
 
 #utils file for functions used repeatadly across command files.
 def error_embed(apologise:bool, message:str):
-    return discord.Embed(timestamp=datetime.datetime.now(django.utils.timezone.utc), colour=Colours.main, title=("Sorry!" if apologise else "Hey!") if random.randint(1, 15) != 1 else ("Sorey!" if apologise else "Hay!"), description=message+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,10) == 3 else ""))
+    return discord.Embed(timestamp=datetime.datetime.now(django.utils.timezone.utc), colour=Colours.main, title=("Sorry!" if apologise else "Hey!") if random.randint(1, 15) != 1 else ("Sorey!" if apologise else "Hay!"), description=message+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,10) == 3 and apologise == True else ""))
 
 def represents_int(s):
     try: 
@@ -26,7 +28,7 @@ def represents_int(s):
     except ValueError:
         return False
 
-item_plural = lambda value, amount: value['plural'][0] if amount == 1 else value['plural'][1]
+item_plural = lambda value, amount: ((value['plural'][1] if amount != 1 or amount == 'all' else value['plural'][0]).replace("%", value["display_name"]))
 
 #1st 2nd 3rd etc
 ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])

@@ -37,6 +37,11 @@
             "display_name": "Local Pizzeria",
             "description": "A form of italian restaurant specialising in pizzas.",
             "colour": 15615520
+        },
+        "dollar store": {
+            "display_name": "Dollar store",
+            "description": "A small store selling a wide range of cheap items close to but not always exactly §1 in price as the name might suggest.",
+            "colour": 5199485
         }
     },
     "forage_data": {

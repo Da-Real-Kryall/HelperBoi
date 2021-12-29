@@ -4,14 +4,14 @@ from utils import general_utils, database_utils, use_functions
 
 def setup(Bot):
 
-    Bot.command_info.update({"use":{
-        "aliases":["use"],
+    Bot.command_info.update({"eat":{
+        "aliases":["eat"],
         "syntax":"<item> [amount]",
-        "usage":"Lets you use an item. If the item is consumable, you can use multiple at once.",
+        "usage":"Lets you eat food items.",
         "category":"economy"
     }})
-    @commands.command(name="use")
-    async def _use(ctx, *, args):
+    @commands.command(name="eat")
+    async def _eat(ctx, *, args):
 
         error_embed = general_utils.error_embed(ctx.author, "Please provide a valid item name, followed by either a valid positive integer or 'all', as the amount, if applicable.")
         
@@ -41,12 +41,8 @@ def setup(Bot):
 
         for key, value in item_json.items():
             if item_name.lower() == value["display_name"].lower():
-                if value['usability'] == None or value['type'] == "Food":
-                    await ctx.send(embed=general_utils.error_embed(False, "That item isnt usable!"))
-                    return
-                     
-                if amount != '1' and value["usability"]["consumable"] == 0:
-                    await ctx.send(embed=general_utils.error_embed(False, "You don't need to give an amount other than '1' when using nonconsumable items, you can only use one at a time."))
+                if value['usability'] == None:
+                    await ctx.send(embed=general_utils.error_embed(False, "That item isnt edible! (or at least you shouldnt be eating it)"))
                     return
 
                 cur_item_amount = database_utils.fetch_inventory(ctx.author.id, False, key)
@@ -60,11 +56,11 @@ def setup(Bot):
                     delta = -int(amount)
                     amount = int(amount)
                 if int(amount) > cur_item_amount and cur_item_amount > -1:# and ctx.author.id != general_utils.bot_owner_id:
-                    await ctx.send(embed=general_utils.error_embed(False, "You cant use what you dont have!"))
+                    await ctx.send(embed=general_utils.error_embed(False, "You cant eat what you dont have!"))
                     return
 
                 if value['usability']['confirmation']:
-                    await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to use {'all your' if amount == cur_item_amount else amount} {general_utils.item_plural(value, 2 if amount == cur_item_amount else amount)}? {'They' if amount == cur_item_amount or amount != 1 else 'It'} will {'not ' if not value['usability']['consumable'] else ''}be consumed.", colour=general_utils.Colours.yellow))
+                    await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to eat {'all your' if amount == cur_item_amount else amount} {general_utils.item_plural(value, 2 if amount == cur_item_amount else amount)}?", colour=general_utils.Colours.yellow))
                     
                     check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author and m.content.lower() in ["yes please", "yes", "ye", "yep", "yeah", "confirm", "affirmative", "true", "no", "nope", "no thanks", "nevermind", "denied", "false", "nevermind..."]
                     
@@ -89,7 +85,7 @@ def setup(Bot):
                         
                 cur_item_amount = database_utils.fetch_inventory(ctx.author.id, False, key)
                 if int(amount) > cur_item_amount and cur_item_amount > -1:# and ctx.author.id != general_utils.bot_owner_id:
-                    await ctx.send(embed=general_utils.error_embed(False, "You cant use what you dont have!"))
+                    await ctx.send(embed=general_utils.error_embed(False, "You cant eat what you dont have!"))
                     return
 
                 if value['usability']['consumable']:
@@ -97,31 +93,10 @@ def setup(Bot):
 
                 try:
                     print(use_functions.reference)
-                    await use_functions.reference["other"][value['usability']['function']](ctx=ctx, Bot=Bot, amount=int(amount))
+                    await use_functions.reference["food"][value['usability']['function']](message=ctx.message, amount=int(amount))
                 except RuntimeError:
                     return
-
-                if value['usability']['consumable'] == 0:
-                    if random.random() < value['usability']['break_chance']:
-                        #i should probably move these title options to a json file, not sure if its worth it tho
-                        break_messages_a = [
-                            "your & snapped in half",
-                            "the & imploded before your eyes",
-                            "the & broke",
-                            "your & broke apart",
-                            "the & crumbled to dust"
-                        ]
-                        break_messages_b = [
-                            "from the strain",
-                            "from stress",
-                        ]
-                        break_title = random.choice(break_messages_a).replace('&', f"{value['emoji']} {value['display_name']}")+' '+random.choice(break_messages_b)+random.choice(["...", "!"]) #these chance calls could probably be optimised
-                        if random.randint(1,2) == 1:
-                            break_title = break_title.capitalize()
-                        break_desc = f"-1 {value['emoji']} {value['display_name']}"
-                        break_embed = general_utils.format_embed(ctx.author, discord.Embed(title=break_title, description=break_desc), "red")
-                        await ctx.send(embed=break_embed)
                 return
         await ctx.send(embed=general_utils.error_embed(False, f"{item_name} isnt a valid item!"))
 
-    Bot.add_command(_use)
+    Bot.add_command(_eat)

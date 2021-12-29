@@ -5,6 +5,9 @@ token.txt
 __pycache__
 .vscode
 
+#uneccesary file created whilst using mac, stores some file attributes like custom icons
+.DS_Store
+
 #database files: (these will be created automatically, so it is fine to just remove them from the repo)
 *.db
 
