@@ -41,7 +41,7 @@ def setup(Bot):
 
         for key, value in item_json.items():
             if item_name.lower() == value["display_name"].lower():
-                if value['usability'] == None:
+                if value['usability'] == None or value["type"] != "Food":
                     await ctx.send(embed=general_utils.error_embed(False, "That item isnt edible! (or at least you shouldnt be eating it)"))
                     return
 
