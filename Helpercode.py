@@ -1,4 +1,4 @@
-import discord, os, asyncio, string, random
+import discord, os, asyncio, string, random, lavalink
 from django.utils import timezone
 from datetime import datetime
 from dotenv import load_dotenv
@@ -165,6 +165,10 @@ async def on_connect():
     if unsynced_guilds != []:
         prefixes = database_utils.fetch_prefixes()
     Bot.prefix_cache = prefixes
+
+    #lavalink thing
+    Bot.lavalink = lavalink.Client(Bot.user.id)
+    Bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'au', 'default-node')
 
     print("I'm ready!")
     await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f" {str(len(Bot.guilds))} server{'s' if len(Bot.guilds) > 1 else ''} | @{str(Bot.user.name)} for help."))

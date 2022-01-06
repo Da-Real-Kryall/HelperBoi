@@ -158,7 +158,8 @@ async def send_via_webhook(channel, Bot, message, username, avatar_url, files=[]
         webhook = webhook[0]
         await webhook.send(message, username=username, avatar_url=avatar_url, files=files, embeds=embeds)
 
-exp_to_level = lambda exp: -(((exp/1.6)-exp)/130)
+exp_to_level = lambda exp: exp*(0.6/208)#-(((exp/1.6)-exp)/130)
+level_to_exp = lambda exp: exp/(0.6/208)#-(((exp/1.6)-exp)/130)
 
 async def level_check(delta, cur_amount, channel, author):
     if database_utils.fetch_setting("users", author.id, "level_up_alert"):

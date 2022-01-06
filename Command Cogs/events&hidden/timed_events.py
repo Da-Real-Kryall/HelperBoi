@@ -62,8 +62,10 @@ def setup(Bot):
                         try:
                             user = await Bot.fetch_user(userid)
                         except:
-                            user = None
+                            continue
                         if user != None:
+                            if user.bot == True:
+                                continue
                             username = user.name
                         else:
                             username = "Unknown :("
@@ -84,8 +86,10 @@ def setup(Bot):
                         try:
                             user = await Bot.fetch_user(userid)
                         except:
-                            user = None
+                            continue
                         if user != None:
+                            if user.bot == True:
+                                continue
                             username = user.name
                         else:
                             username = "Unknown :("

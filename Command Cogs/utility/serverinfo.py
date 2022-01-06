@@ -93,13 +93,15 @@ def setup(Bot):
         #total boops
         total_boops = 0
         for user in ctx.guild.members:
-            total_boops += database_utils.fetch_boops(user.id)
+            if user.bot == False:
+                total_boops += database_utils.fetch_boops(user.id)
         guild_info_embed.add_field(name="Total boops:", value=f"{general_utils.num_to_words(total_boops).capitalize() } boop{'s' if total_boops != 1 else ''}")
         
         #net worth
         net_worth = 0
         for user in ctx.guild.members:
-            net_worth += database_utils.fetch_balance(user.id)
+            if user.bot == False:
+                net_worth += database_utils.fetch_balance(user.id)
         guild_info_embed.add_field(name="Server Net Worth:", value=f"§{net_worth}")
         guild_info_embed = general_utils.format_embed(ctx.author, guild_info_embed)
 

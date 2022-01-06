@@ -21,8 +21,9 @@ def setup(Bot):
         elif isglobal == '' and ctx.guild != None:
             res_title = "Richest Bois!"
             for user in ctx.guild.members:
-                if database_utils.fetch_setting("users", user.id, "economy_invisibility") == False:
-                    userlist += [[f"{user.display_name[:24]}{' '*(24-len(user.display_name))}", database_utils.fetch_balance(user.id)]] # *detabase...{user.discriminator}
+                if user.bot == False:
+                    if database_utils.fetch_setting("users", user.id, "economy_invisibility") == False:
+                        userlist += [[f"{user.display_name[:24]}{' '*(24-len(user.display_name))}", database_utils.fetch_balance(user.id)]] # *detabase...{user.discriminator}
             userlist.sort(key = lambda l: l[1])
             userlist = list(reversed(userlist))
             userlist = userlist[:10]

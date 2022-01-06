@@ -3,7 +3,7 @@ from discord.ext import commands
 
 def setup(Bot):
     Bot.command_info.update({"destroy":{
-        "aliases":["destroy"],
+        "aliases":["destroy", "shutdown"],
         "syntax":"",
         "usage":"Stops the bot, only for the bot owner!",
         "category":"utility"

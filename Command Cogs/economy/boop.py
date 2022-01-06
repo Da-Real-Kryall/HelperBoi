@@ -15,8 +15,11 @@ def setup(Bot):
         user_id = await general_utils.get_user_id(Bot, ctx, user, True)
         if user_id == None:
             return
-        database_utils.alter_boops(user_id, 1)
         user = await Bot.fetch_user(user_id)
+        if user.bot:
+            await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+            return
+        database_utils.alter_boops(user_id, 1)
         await ctx.send(f"Booped {user.name}!")
     
     Bot.add_command(_boop)

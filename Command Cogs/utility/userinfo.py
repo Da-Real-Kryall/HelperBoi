@@ -130,32 +130,33 @@ def setup(Bot):
         #economy stuff
 
         #boops
-        user_info.update({"Boops:": f"{general_utils.num_to_words(database_utils.fetch_boops(user_id))} boop{'s' if database_utils.fetch_boops(user_id) != 1 else ''}"})
-        if database_utils.fetch_setting("users", user_id, "economy_invisibility") == False or ctx.author.id == user_id:
-            with open(os.getcwd()+"/Recources/json/items.json") as file:
-                item_json = json.loads(file.read())
-
-            #coolness
-            level = database_utils.fetch_coolness(user_id)[1]
-            user_info.update({"Level:": f"Coolness level {level} :{'sunglasses' if level >= 0 else 'confused'}:"})
-        
-            #balance
-            user_info.update({"Balance:": f"§{database_utils.fetch_balance(user_id)}"})
-
-            #inventory
-            inv_data = database_utils.fetch_inventory(user_id, True)
-            inventory_string = []
-            for item, quantity in inv_data.items():
-                if quantity != 0:
-                    inventory_string += [f"{item_json[item]['emoji']} x{quantity}"]
-            if len(inventory_string) == 0:
-                user_info.update({"Inventory:": "Nothing :("})
-            else:
-                user_info.update({"Inventory:": ", ".join(inventory_string)})
-        else: #add fields except <hidden> is their value
-            user_info.update({"Level:": "<hidden>"})
-            user_info.update({"Balance:": f"<hidden>"})
-            user_info.update({"Inventory:": "<hidden>"})
+        if user.bot == False:
+            user_info.update({"Boops:": f"{general_utils.num_to_words(database_utils.fetch_boops(user_id))} boop{'s' if database_utils.fetch_boops(user_id) != 1 else ''}"})
+            if database_utils.fetch_setting("users", user_id, "economy_invisibility") == False or ctx.author.id == user_id:
+                with open(os.getcwd()+"/Recources/json/items.json") as file:
+                    item_json = json.loads(file.read())
+    
+                #coolness
+                level = database_utils.fetch_coolness(user_id)[1]
+                user_info.update({"Level:": f"Coolness level {level} :{'sunglasses' if level >= 0 else 'confused'}:"})
+            
+                #balance
+                user_info.update({"Balance:": f"§{database_utils.fetch_balance(user_id)}"})
+    
+                #inventory
+                inv_data = database_utils.fetch_inventory(user_id, True)
+                inventory_string = []
+                for item, quantity in inv_data.items():
+                    if quantity != 0:
+                        inventory_string += [f"{item_json[item]['emoji']} x{quantity}"]
+                if len(inventory_string) == 0:
+                    user_info.update({"Inventory:": "Nothing :("})
+                else:
+                    user_info.update({"Inventory:": ", ".join(inventory_string)})
+            else: #add fields except <hidden> is their value
+                user_info.update({"Level:": "<hidden>"})
+                user_info.update({"Balance:": f"<hidden>"})
+                user_info.update({"Inventory:": "<hidden>"})
         
 
         for key, value in user_info.items():

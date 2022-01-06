@@ -24,6 +24,10 @@ def setup(Bot):
         user_id = await general_utils.get_user_id(Bot, ctx, user, False)
         if user_id == None:
             return
+        user = await Bot.fetch_user(user_id)
+        if user.bot:
+            await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+            return
 
         if int(amount) > database_utils.fetch_balance(ctx.author.id):# and ctx.author.id != general_utils.bot_owner_id:
             await ctx.send(embed=general_utils.error_embed(False, "You can't pay what you dont have!"))

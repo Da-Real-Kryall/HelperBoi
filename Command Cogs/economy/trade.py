@@ -21,6 +21,10 @@ def setup(Bot):
         user_id = await general_utils.get_user_id(Bot, ctx, user, False)
         if user_id == None:
             return
+        user = await Bot.fetch_user(user_id)
+        if user.bot:
+            await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+            return
         recipient = await ctx.guild.fetch_member(user_id)
 
         items_giving = {}

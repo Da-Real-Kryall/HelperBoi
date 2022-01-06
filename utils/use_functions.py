@@ -1,37 +1,6 @@
 import discord, random, asyncio, os, json
 from utils import general_utils, database_utils
-#functions that are used in the use command.
-
-#async def eat_mushroom(ctx, Bot, amount):
-#    if amount == 1:
-#        embed_title = "You eat a :mushroom: toadstool, you feel :nauseated_face: nauseous..."
-#    elif amount > 1 and amount < 1000000000:
-#        embed_title = f"You eat {general_utils.num_to_words(amount)} :bread: bread loaves, you feel :nauseated_face: nauseous..."
-#    else:
-#        embed_title = "You eat a lot of :bread: bread loaves, you feel VERY :nauseated_face: nauseous..."
-#
-#    embed = discord.Embed(title=embed_title)
-#
-#    if amount > 150 and random.randint(1,3) == 1:
-#        embed.description = "do you have a death wish!?"
-#    elif random.randint(1,6) == 3:
-#        embed.description = 'why would you eat this?'
-#
-#    embed = general_utils.format_embed(ctx.author, embed, "yellow")
-#
-#    await ctx.send(embed=embed)
-#
-#    await asyncio.sleep(random.randint(1,4))
-#    
-#    embed_title = f"You :face_vomiting: {random.choice(['threw up', 'vomited'])}!"
-#    embed_description = "That was not very cool... (lost some :sunglasses: coolness!)"
-#
-#    embed = general_utils.format_embed(ctx.author, discord.Embed(title=embed_title, description=embed_description), "red")
-#
-#    await ctx.send(embed=embed)
-#    giveamount = random.randint(-10, -1)*amount
-#    cur_amount = database_utils.alter_coolness(ctx.author.id, giveamount)[0]
-#    await general_utils.level_check(giveamount, cur_amount, ctx.channel, ctx.author)
+#functions that are used in the use and eat commands.
 
 reference = {
     "food": {},
@@ -85,6 +54,9 @@ async def poke_other(ctx, Bot, amount):
         raise RuntimeError
 
     user = ctx.guild.get_member(user_id)
+    if user.bot:
+        await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+        return
     poke_title = f"You poke {user.display_name if ctx.author != user else 'yourself'} with the stick!"
     poke_desc = f"That wasnt very cool, you and {user.display_name if ctx.author != user else 'yourself'} lost some :sunglasses: coolness!"
 
@@ -113,6 +85,9 @@ async def throw_at_other(ctx, Bot, amount):
         raise RuntimeError
 
     user = ctx.guild.get_member(user_id)
+    if user.bot:
+        await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+        return
     throw_title = f"You throw the {item_name} at {user.display_name if ctx.author != user else 'yourself'}!"
     throw_desc = f"That wasnt very cool, you "
     if random.randint(1,2) == 1:

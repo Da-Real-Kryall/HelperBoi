@@ -427,7 +427,7 @@ def fetch_setting(group:str, id:int,setting:str):
         database.close()
         return int(fetched_setting[0][0])
 
-def omit_data(user_id:int, table:str, drop:bool=False, obliterate:bool=False):
+def omit_data(user_id:int=0, table:str="none", drop:bool=False, obliterate:bool=False):
     init_user(user_id)
 
     user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
@@ -435,11 +435,13 @@ def omit_data(user_id:int, table:str, drop:bool=False, obliterate:bool=False):
 
     if obliterate == False:
         user_cursor.execute(f'''{'DROP' if drop else 'DELETE from'} ?;''', (str(table),))
+        user_database.commit()
+        user_database.close()
     else: #boom!
-        os.remove(f'Recources/users/{user_id}.db')
+        user_database.commit()
+        user_database.close()
+        os.remove(f'Databases/users/{user_id}.db')
 
-    user_database.commit()
-    user_database.close()
     #remove user from balance or inventory databases, or both
 
 def refresh_cooldown(user_id:int, entry:str):
