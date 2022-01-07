@@ -23,7 +23,7 @@ A rewrite of Helperboi; put simply a general purpose discord bot.
 
 ~~You dont because its a bad idea to try run it~~
 
-# Its fairly simple, after downloading the thing you do the following:
+### Its fairly simple, after downloading the thing you do the following:
 
 Change the contents of the token.txt file to the token of the bot account you want to run helperboi on.
 
