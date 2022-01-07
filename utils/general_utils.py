@@ -24,8 +24,10 @@ def error_embed(apologise:bool, message:str):
 def represents_int(s):
     try: 
         int(s)
+        print('e')
         return True
     except ValueError:
+        print('e')
         return False
 
 item_plural = lambda value, amount: ((value['plural'][1] if amount != 1 or amount == 'all' else value['plural'][0]).replace("%", value["display_name"]))
@@ -170,3 +172,5 @@ async def level_check(delta, cur_amount, channel, author):
             await channel.send(f"{':tada: ' if random.randint(1,3) == 3 else ''}{author.name}, your coolness is now level {newlevel}. :sunglasses:")
         elif newlevel < level:
             await channel.send(f"{':confused: ' if random.randint(1,3) == 3 else ''}{author.name}, your coolness has decreased to level {newlevel}...")
+
+strf_timedelta = lambda delta: ', '.join(f"{v}{k}" for k, v in ((" Minutes", delta//60), (" Seconds", delta%60)) if v != 0)

@@ -13,7 +13,19 @@ def setup(Bot): #this was taken straight from the lavalink quickstart, the site 
             # To save on resources, we can tell the bot to disconnect from the voicechannel.
             guild_id = int(event.player.guild_id)
             guild = Bot.get_guild(guild_id)
+            channel = guild.get_channel(Bot.lavalink.player_manager.get(guild_id).fetch("text_channel"))
+            await channel.send(embed=discord.Embed(title=f"No more songs in the queue, ending the session.", colour=general_utils.Colours.red))
+            #print(dir(event))
+            #print(event)
             await guild.voice_client.disconnect(force=True)
+        if isinstance(event, lavalink.events.TrackStartEvent):
+            guild_id = int(event.player.guild_id)
+            guild = Bot.get_guild(guild_id)
+            channel = guild.get_channel(Bot.lavalink.player_manager.get(guild_id).fetch("text_channel"))
+            embed_desc = f"[{event.player.current.title}](https://youtu.be/{event.player.current.identifier})"#\n\nDuration is {general_utils.strf_timedelta(int(event.player.current.duration/1000))}."
+            trackstart_embed = discord.Embed(title=f"Now playing:", description=embed_desc, colour=general_utils.Colours.red)
+            trackstart_embed.set_thumbnail(url=f"https://img.youtube.com/vi/{event.player.current.identifier}/default.jpg")
+            await channel.send(embed=trackstart_embed)
     lavalink.add_event_hook(track_hook)
 
     class LavalinkVoiceClient(discord.VoiceClient):
@@ -51,8 +63,10 @@ def setup(Bot): #this was taken straight from the lavalink quickstart, the site 
                     }
             await self.lavalink.voice_update_handler(lavalink_data)
 
-        async def connect(self, *, timeout: float, reconnect: bool) -> None:
-            self.lavalink.player_manager.create(guild_id=self.channel.guild.id)
+        async def connect(self, *, timeout: float, reconnect: bool) -> None: #if stuff doesnt work in edge cases this is probably the culprit
+            #player = self.lavalink.player_manager.create(guild_id=self.channel.guild.id)
+            #player.store("text_channel", self.channel.id)
+            print(self, dict(locals()), "e")
             await self.channel.guild.change_voice_state(channel=self.channel)
 
         async def disconnect(self, *, force: bool) -> None:
@@ -65,18 +79,20 @@ def setup(Bot): #this was taken straight from the lavalink quickstart, the site 
 
     async def _ensure_voice(ctx):
         player = Bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
+        player.store("text_channel", ctx.channel.id)
         if not ctx.author.voice or not ctx.author.voice.channel:
             await ctx.send(embed=general_utils.error_embed(False, 'Please join a voicechannel first.'))
-            return
+            return False
         if not player.is_connected:
             permissions = ctx.author.voice.channel.permissions_for(ctx.me)
             if not permissions.connect or not permissions.speak:  # Check user limit too?
                 await ctx.send(embed=general_utils.error_embed(False, 'I\'m missing the `connect` and `speak` permissions required to play songs...'))
-                return
+                return False
             player.store('channel', ctx.channel.id)
             await ctx.author.voice.channel.connect(cls=LavalinkVoiceClient)
         else:
             if int(player.channel_id) != ctx.author.voice.channel.id:
                 await ctx.send(embed=general_utils.error_embed(False, 'You need to be in my voicechannel to do this command.'))
-                return
+                return False
+        return True
     Bot.ensure_voice = _ensure_voice

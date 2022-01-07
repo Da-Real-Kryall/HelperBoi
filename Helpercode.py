@@ -38,7 +38,7 @@ categories = {
     "utility":"Utility/Moderation Commands:",
     "fun":"Fun Commands:",
     "economy":"Economy Commands:",
-    "voice":"Voice Channel Commands: (W.I.P)",
+    "voice":"Voice Channel Commands:",
     "cah":"Cards-Against-Humanity Commands:"
 }
 

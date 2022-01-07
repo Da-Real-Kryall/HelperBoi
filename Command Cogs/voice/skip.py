@@ -12,16 +12,14 @@ def setup(Bot):
     }})
     @commands.command(name="skip")
     async def _skip(ctx):
-        await Bot.ensure_voice(ctx)
+        if not await Bot.ensure_voice(ctx):
+            return
         player = Bot.lavalink.player_manager.get(ctx.guild.id)
-        await player.skip()
         skipped_embed=discord.Embed(colour=general_utils.Colours.red)
+        await player.skip()
         if player.current != None:
-            embed_title = f"Skipped the current song."
-            skipped_embed.description = f'[{player.current.title}](https://youtu.be/{player.current.identifier})'
+            skipped_embed.title = f"Skipped the current song, now playing:"
+            skipped_embed.description = f"[{player.current.title}](https://youtu.be/{player.current.identifier})\n\nDuration is {general_utils.strf_timedelta(int(player.current.duration/1000))}."
             skipped_embed.set_thumbnail(url=f"https://img.youtube.com/vi/{player.current.identifier}/default.jpg")
-        else:
-            embed_title = "Skipped the last song in the queue, ending the session."
-        skipped_embed.title = embed_title
-        await ctx.send(embed=skipped_embed)
+            await ctx.send(embed=skipped_embed)
     Bot.add_command(_skip)

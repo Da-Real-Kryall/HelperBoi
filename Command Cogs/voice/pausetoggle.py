@@ -12,7 +12,8 @@ def setup(Bot):
     }})
     @commands.command(name="pausetoggle", aliases=["pause"])
     async def _pausetoggle(ctx):
-        await Bot.ensure_voice(ctx)
+        if not await Bot.ensure_voice(ctx):
+            return
         player = Bot.lavalink.player_manager.get(ctx.guild.id)
         if player.paused == False:
             await player.set_pause(True)

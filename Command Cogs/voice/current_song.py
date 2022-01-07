@@ -17,11 +17,13 @@ def setup(Bot):
         if not player.is_connected:
             await ctx.send(embed=discord.Embed(title="Not connected to a voice channel.", colour=general_utils.Colours.red))
             return
+        current_embed = discord.Embed(colour=general_utils.Colours.red)
         if player.current != None:
-            embed_title = f"Currently playing {player.current.title}"
+            current_embed.title = f"Currently playing:" #add progress bar
+            current_embed.description = f"[{player.current.title}](https://youtu.be/{player.current.identifier})\n\nDuration is {general_utils.strf_timedelta(int(player.current.duration/1000))}.\n{general_utils.strf_timedelta(int(player.position/1000))} through. ({round(player.position/player.current.duration*100, 1)}%)"
+            current_embed.set_thumbnail(url=f"https://img.youtube.com/vi/{player.current.identifier}/default.jpg")
         else:
-            embed_title = "No songs are being played."
-        current_embed = discord.Embed(title=embed_title, colour=general_utils.Colours.red)
+            current_embed.title = "No songs are being played."
         await ctx.send(embed=current_embed)
 
     Bot.add_command(_current_song)

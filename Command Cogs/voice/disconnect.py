@@ -19,7 +19,8 @@ def setup(Bot):
             await ctx.send(embed=discord.Embed(title="Not connected to a voice channel.", colour=general_utils.Colours.red))
             return
 
-        await Bot.ensure_voice(ctx)
+        if not await Bot.ensure_voice(ctx):
+            return
 
         if not ctx.author.voice or (player.is_connected and ctx.author.voice.channel.id != int(player.channel_id)):
             await ctx.send(embed=general_utils.error_embed(True, "You arent connected to my voice channel!"))

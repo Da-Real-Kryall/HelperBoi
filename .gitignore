@@ -14,3 +14,6 @@ __pycache__
 #info only needed for development
 ideas.txt
 todo.txt
+
+#log files, arent needed and can contain sensitive info probably
+*.log*

@@ -14,7 +14,8 @@ def setup(Bot):
     async def _connect(ctx):
         guilds = [client for client in Bot.voice_clients if client.guild.id == ctx.guild.id]
         if len(guilds) == 0:
-            await Bot.ensure_voice(ctx)
+            if not await Bot.ensure_voice(ctx):
+                return
             await ctx.send(embed=discord.Embed(title=f"Joined #{ctx.author.voice.channel.name}.", colour=general_utils.Colours.red))
         else:
             await ctx.send(embed=discord.Embed(title=f"Already connected to #{ctx.author.voice.channel.name}.", colour=general_utils.Colours.red))

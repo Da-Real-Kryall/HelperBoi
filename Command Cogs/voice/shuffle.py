@@ -12,7 +12,8 @@ def setup(Bot):
     }})
     @commands.command(name="shuffle")
     async def _shuffle(ctx):
-        await Bot.ensure_voice(ctx)
+        if not await Bot.ensure_voice(ctx):
+            return
         player = Bot.lavalink.player_manager.get(ctx.guild.id)
         player.set_shuffle(not player.shuffle)
         if player.shuffle:
