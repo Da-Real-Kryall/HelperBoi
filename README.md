@@ -35,7 +35,7 @@ Then, you do the following shell commands:
 2. `source ./bot_env/bin/activate`
   Activate the virtual environment,
   
-3. `java -jar ./lavalink/Lavalink.jar` (in a seperate terminal window also cd'd into the project dir)
+3. `java -jar ./Lavalink.jar` (in a seperate terminal window also cd'd into the project dir)
   Activate the lavalink server for music streaming,
 
 4. `python3 Helpercode.py`
