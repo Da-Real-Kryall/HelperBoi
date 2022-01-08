@@ -44,7 +44,7 @@ bot_owner_id = 479963507631194133
 
 #by default, add timestamp, colour and footer to embed.
 def format_embed(author:discord.Message.author, embed:discord.Embed, colour:str="main", footer:bool=True,timestamp:bool=True):
-    if embed.colour == discord.Embed.Empty:
+    if embed.colour == discord.Embed.Empty and colour != "none":
         if hasattr(Colours, colour):
             embed.colour = getattr(Colours, colour)
     if footer == True and embed.footer != discord.Embed.Empty:
