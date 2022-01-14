@@ -67,7 +67,7 @@ def setup(Bot): #this was taken straight from the lavalink quickstart, the site 
             #player = self.lavalink.player_manager.create(guild_id=self.channel.guild.id)
             #player.store("text_channel", self.channel.id)
             print(self, dict(locals()), "e")
-            await self.channel.guild.change_voice_state(channel=self.channel)
+            await self.channel.guild.change_voice_state(channel=self.channel, self_deaf=True)
 
         async def disconnect(self, *, force: bool) -> None:
             player = self.lavalink.player_manager.get(self.channel.guild.id)
