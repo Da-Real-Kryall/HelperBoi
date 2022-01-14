@@ -68,10 +68,13 @@ def init_main():
     reminder_database.commit()
     reminder_database.close()
 
+    created_cah_db = False #if this is true then i populate the database with the default cards
+
     cah_database = sqlite3.connect(f"Databases/misc/cards_against_humanity.db")
     cursor = cah_database.cursor()
     cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'white' ''')
     if cursor.fetchone()[0] == 0:
+        created_cah_db = True
         cursor.execute('''CREATE TABLE white (
             ID INTEGER PRIMARY KEY, 
             content TEXT,
@@ -79,11 +82,26 @@ def init_main():
         )''')
     cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'black' ''')
     if cursor.fetchone()[0] == 0:
+        created_cah_db = True
         cursor.execute('''CREATE TABLE black (
             ID INTEGER PRIMARY KEY, 
             content TEXT,
             author_id INTEGER
         )''')
+
+    if created_cah_db:
+        with open("Recources/plaintext/cards_data.txt") as file:
+            file_data = file.read()
+        file_data = file_data.split("\n")
+        mode = "black"
+        for line in file_data:
+            if line == "<WHITE>":
+                mode = "white"
+                continue
+            if mode == 'white':
+                cursor.execute('''INSERT into white values (?,?)''', (line, 849543878059098144))
+            elif mode == "black":
+                cursor.execute('''INSERT into black values (?,?)''', (line, 849543878059098144))
 
     cah_database.commit()
     cah_database.close()
