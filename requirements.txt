@@ -16,9 +16,12 @@ gTTS==2.2.3
 idna==3.3
 importlib-metadata==4.10.0
 iniconfig==1.1.1
+lavalink==3.1.5
 lxml==4.7.1
 multidict==5.2.0
+numpy==1.21.5
 packaging==21.3
+Pillow==9.0.0
 pluggy==1.0.0
 py==1.11.0
 pycparser==2.21
@@ -34,7 +37,7 @@ soupsieve==2.3.1
 sqlparse==0.4.2
 toml==0.10.2
 tqdm==4.62.3
-typing-extensions==4.0.1
+typing_extensions==4.0.1
 urllib3==1.26.7
 yarl==1.7.2
 zipp==3.6.0
