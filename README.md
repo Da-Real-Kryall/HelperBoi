@@ -20,25 +20,29 @@ A rewrite of Helperboi; put simply a general purpose discord bot.
 * "and much, much more!"
 
 ## How to run this monstrosity:
-
 ~~You dont because its a bad idea to try run it~~
-
 ### Its fairly simple, after downloading the thing you do the following:
 
 Change the contents of the token.txt file to the token of the bot account you want to run helperboi on.
 
-Then, you do the following shell commands:
+Then, you do the following shell commands: (its assumed you already have pip and virtualenv)
 
 1. `cd /path/to/directory/of/HelperBoiRewrite/`
   You cd into the project directory,
 
-2. `source ./bot_env/bin/activate`
+2. `virtualenv bot_env`
+  Create the virtual environment to dump packages into.
+
+3. `source ./bot_env/bin/activate`
   Activate the virtual environment,
   
-3. `java -jar ./Lavalink.jar` (in a seperate terminal window also cd'd into the project dir)
+4. `pip install -r requirements.txt`
+  Install the project dependencies into the bot_env virtual environment
+  
+5. `java -jar ./Lavalink.jar` (in a seperate terminal window also cd'd into the project dir)
   Activate the lavalink server for music streaming,
 
-4. `python3 Helpercode.py`
+6. `python3 Helpercode.py`
   Run the actual bot file.
   
 All database files should be created automatically, and internal caches should follow suit, even once deleted, provided you restart the bot.
