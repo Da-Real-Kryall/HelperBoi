@@ -10,9 +10,11 @@ def setup(Bot):
     with open(os.getcwd()+"/Recources/json/dad_jokes.json") as file:
         dad_jokes_json = json.loads(file.read())
 
+
     @Bot.listen()
     async def on_message(message):
-        if message.author.bot == False and message.guild != None:
+        prefix = await Bot.command_prefix(Bot, message)
+        if message.author.bot == False and message.guild != None and message.content.startswith(prefix) == False:
             if database_utils.fetch_setting("servers", message.guild.id, "dad_jokes") == 1:
 
                 #try the hi hungry im dad

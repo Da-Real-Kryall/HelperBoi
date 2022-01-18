@@ -19,7 +19,10 @@ def setup(Bot):
         #await ctx.send(f"Game started with id {key}")
         try:
             await Bot.cah.run_cah_game(ctx.author.id)
-        except Bot.cah.errors.NotInGame:
+        except Bot.cah.errors.NotEnoughPlayers:
+            await ctx.send(embed=general_utils.error_embed(False, f"Sorry, but you'll need friends to play this, cah games need to have at least 2 players to start."))
+            return
+        except Bot.cah.errors.NotInAGame:
             await ctx.send(embed=general_utils.error_embed(False, f"You arent in a game yet!"))
             return
         except Bot.cah.errors.NotGameOwner:

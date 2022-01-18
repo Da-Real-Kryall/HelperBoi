@@ -19,7 +19,7 @@ class Colours:
 
 #utils file for functions used repeatadly across command files.
 def error_embed(apologise:bool, message:str):
-    return discord.Embed(timestamp=datetime.datetime.now(django.utils.timezone.utc), colour=Colours.main, title=("Sorry!" if apologise else "Hey!") if random.randint(1, 15) != 1 else ("Sorey!" if apologise else "Hay!"), description=message+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,10) == 3 and apologise == True else ""))
+    return discord.Embed(timestamp=datetime.datetime.now(django.utils.timezone.utc), colour=Colours.main, title=("Sorry!" if apologise else "Hey!") if random.randint(1, 15) != 1 else ("Sorey!" if apologise else "Hay!"), description=message+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,10) == 3 and apologise == True else (f"\n\nUse `<prefix>help <command>` for info on its usage." if random.randint(1,10) == 3 else "")))
 
 def represents_int(s):
     try: 

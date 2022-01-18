@@ -143,12 +143,18 @@ async def on_guild_join(guild):
 @Bot.event
 async def on_command_error(ctx, error):
     if error.__class__ == commands.errors.NoPrivateMessage:
-        await ctx.send(embed=general_utils.error_embed(True, f"This command ('{ctx.command}')' can only be used in servers!"))
-    elif (database_utils.fetch_setting("servers", ctx.guild.id, "cmd_not_found_errors") if ctx.guild != None else True) == True and type(error) == commands.errors.CommandNotFound: #ill probably remove this, it seems like a laggy check
-        await ctx.send(embed=general_utils.error_embed(True, str(error)+(random.choice([f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue.", f"\n\nDo `{Bot.command_prefix}help <command>` for info on its usage."]) if random.randint(1,7) == 3 else "")))
-    elif type(error) != commands.errors.CommandNotFound:
-        await ctx.send(embed=general_utils.error_embed(True, str(error)+(random.choice([f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue.", f"\n\nDo `{Bot.command_prefix}help <command>` for info on its usage."]) if random.randint(1,7) == 3 else "")))
-
+        await ctx.send(embed=general_utils.error_embed(True, f"This command (`{ctx.command}`) can only be used in servers!"))
+    elif type(error) == commands.errors.CommandNotFound and (isinstance(ctx.channel, discord.channel.DMChannel) == False or database_utils.fetch_setting("servers", ctx.guild.id, "cmd_not_found_errors") == True) :
+        await ctx.send(embed=general_utils.error_embed(True, f"`{error.args[0].split(' ')[1][1:-1]}` doesn't seem to be a valid command."))
+    elif type(error) == commands.errors.MissingRequiredArgument:
+        args = [e.split(" ")[0] for e in error.args]
+        if len(args) == 1:
+            await ctx.send(embed=general_utils.error_embed(False, f"`{args[0]}` is a required argument that is missing."))
+        else:
+            await ctx.send(embed=general_utils.error_embed(False, f"`{', '.join(args)}` are required arguments that are missing."))
+    else:
+        await ctx.send(embed=general_utils.error_embed(True, f"{error}"))
+        
 @Bot.event
 async def on_connect(): 
     #init prefix cache

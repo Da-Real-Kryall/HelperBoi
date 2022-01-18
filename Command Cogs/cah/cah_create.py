@@ -17,6 +17,6 @@ def setup(Bot):
         except Bot.cah.errors.AlreadyInGame:
             await ctx.send(embed=general_utils.error_embed(False, f"You are already in a game! use the `cah_leave` command to leave your curent game."))
             return
-        await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Game created with id {key}.", description="Wait for others to join, then use the `cah_start` command to start the game."), "charcoal"))
+        await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Game created with the key `{key}`.", description=f"Wait for others to join with `{await Bot.command_prefix(Bot, ctx.message)}cah_join {key}`, then use the `cah_start` command to start the game."), "charcoal"))
 
     Bot.add_command(_cah_create)

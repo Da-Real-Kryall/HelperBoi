@@ -12,6 +12,7 @@ def setup(Bot):
     }})
     @commands.command(name="cah_join")
     async def _cah_join(ctx, key):
+        key = key.upper()
         try:
             await Bot.cah.join_cah_game(ctx.author.id, key)
         except Bot.cah.errors.AlreadyInGame:
@@ -20,6 +21,10 @@ def setup(Bot):
         except Bot.cah.errors.NotValidKey:
             await ctx.send(embed=general_utils.error_embed(True, f"That doesnt seem to be a valid key/key corresponding to a currently active cah game."))
             return
+        except Bot.cah.errors.PlayerNotMessagable:
+            await ctx.send(embed=general_utils.error_embed(True, f"You appear to have disabled messages from {Bot.user.name}, please enable them before joining."))
+            return
+
             
         joined_embed = general_utils.format_embed(ctx.author, discord.Embed(title="You have joined a game!"), "charcoal")
         
