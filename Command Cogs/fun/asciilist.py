@@ -18,6 +18,6 @@ def setup(Bot):
             if general_utils.represents_int(num):
                 await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title="`"+chr(int(num))+"`"), timestamp=False))
             else:
-                await ctx.send(embed=general_utils.error_embed(False, "You need to either leave the args blank or specify an integer."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You need to either leave the args blank or specify an integer."))
 
     Bot.add_command(_asciilist)

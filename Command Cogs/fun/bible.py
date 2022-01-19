@@ -36,7 +36,7 @@ def setup(Bot):
             desc_text = desc_text[:4093]+'...'
 
         if desc_text == '':
-            await ctx.send(embed=general_utils.error_embed(False, "It seems you entered an invalid book, verse, chapter or translation, try something different."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "It seems you entered an invalid book, verse, chapter or translation, try something different."))
             return
 
         bible_embed = general_utils.format_embed(ctx.author, discord.Embed(url=url, title=f"{book.lower().capitalize()} {chapter_verse} ({translation} translation)", description=desc_text))

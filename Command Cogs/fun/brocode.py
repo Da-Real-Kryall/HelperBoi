@@ -15,14 +15,14 @@ def setup(Bot):
     async def _brocode(ctx, number=''):
 
         if not general_utils.represents_int(number) and number != '':
-            await ctx.send(embed=general_utils.error_embed(False, "Please give a valid number between 1 and 22, or leave blank for a random number."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Please give a valid number between 1 and 22, or leave blank for a random number."))
             return
 
         if number == '':
             number = str(random.randint(1,22))
 
         if int(number) < 1 or int(number) > 22:
-            await ctx.send(embed=general_utils.error_embed(False, "Please give a valid number between 1 and 22, or leave blank for a random number."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Please give a valid number between 1 and 22, or leave blank for a random number."))
             return
 
         with open(os.getcwd()+"/Recources/json/brocode_rules.json") as file:

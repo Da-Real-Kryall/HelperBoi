@@ -19,7 +19,7 @@ def setup(Bot):
             await ctx.send(embed=discord.Embed(title=f"The current volume is {player.volume}%", colour=general_utils.Colours.red))
             return
         elif general_utils.represents_int(volume) == False:
-            await ctx.send(general_utils.error_embed(False, f"The volume specified is not a valid number"))
+            await ctx.send(general_utils.error_embed(Bot, ctx, False, f"The volume specified is not a valid number"))
             return
         else:
             is_relative = False
@@ -31,7 +31,7 @@ def setup(Bot):
                 destination = int(volume)
             volume_embed=discord.Embed(colour=general_utils.Colours.red)
             if destination > 1000:
-                await ctx.send(embed=general_utils.error_embed(False, "Please spare our eardrums, the volume is capped at a rather generous 1000%."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Please spare our eardrums, the volume is capped at a rather generous 1000%."))
                 return
             if destination == player.volume:
                 volume_embed.title = f"Volume wasn't changed, it is already {destination}%."

@@ -18,7 +18,7 @@ def setup(Bot):
         await ctx.message.delete()
 
         if general_utils.represents_int(amount) == False or int(amount) < 1:
-            await ctx.send(embed=general_utils.error_embed(False, "Please give a valid positive integer for message amount."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Please give a valid positive integer for message amount."))
 
         DestinationChannel = ctx.guild.get_channel(int(destination))
 
@@ -86,7 +86,7 @@ def setup(Bot):
                     messagelist += [msg_to_append]
                     
             for message in reversed(messagelist): #send messages
-                await general_utils.send_via_webhook(DestinationChannel, Bot, message[0], username=message[3].display_name, avatar_url=message[3].avatar_url, files=message[1], embeds=message[2])
+                await general_utils.send_via_webhook(DestinationChannel, Bot, message[0], username=message[3].display_name, avatar_url=message[3].avatar.url, files=message[1], embeds=message[2])
             await DestinationChannel.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Moved {amount} messages from #{ctx.channel.name}.")))
             await ctx.channel.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Moved {amount} messages to #{DestinationChannel.name}.")))
 

@@ -303,5 +303,88 @@
             "confirmation": 0,
             "break_chance": 0.01
         }
+    },
+    "fidgetspinner": {
+        "display_name": "Fidget spinner",
+        "plural": ["%", "%s"],
+        "emoji": "<:Spinner:771187921460920320>",
+        "description": "A fidget toy that can spin on a small bearing when held by its center, for the user's entertainment. That is its only function.",
+        "value": 800,
+        "purchasable": "dollar store",
+        "type": "Tool",
+        "usability": {
+            "function": "spin_spinner",
+            "consumable": 0,
+            "confirmation": 0,
+            "break_chance": 0.005
+        }
+    },
+    "fortunecookie": {
+        "display_name": "Fortune cookie",
+        "plural": ["%", "%s"],
+        "emoji": ":fortune_cookie:",
+        "description": "An edible cookie that when broken apart will reveal a \"fortune\"; a small note containing usually some prediction of good luck.",
+        "value": 120,
+        "purchasable": "pizzeria",
+        "type": "Food",
+        "usability": {
+            "function": "eat_fortunecookie",
+            "consumable": 1,
+            "confirmation": 0
+        }
+    },
+    "diamond": {
+        "display_name": "Diamond",
+        "plural": ["%", "%s"],
+        "emoji": ":gem:",
+        "description": "A very hard allotrope of carbon, formed under extreme pressure and heat over long periods of time. Very rare and thus very valuable.",
+        "value": 5000,
+        "purchasable": null,
+        "type": "Collectible",
+        "usability": {
+            "function": "admire_diamond",
+            "consumable": 0,
+            "confirmation": 0,
+            "break_chance": 0
+        }
+    },
+    "megaphone": {
+        "display_name": "Megaphone",
+        "plural": ["%", "%s"],
+        "emoji": ":mega:",
+        "description": "A hanheld conical plastic tool capable of amplifying one's voice.",
+        "value": 250,
+        "purchasable": "dollar store",
+        "type": "Tool",
+        "usability": {
+            "function": "use_megaphone",
+            "consumable": 0,
+            "confirmation": 0,
+            "break_chance": 0.005
+        }
+    },
+    "calculator": {
+        "display_name": "Calculator",
+        "plural": ["%", "%s"],
+        "emoji": ":fax:",
+        "description": "A cheap solar powered handheld calculator. (CURRENTLY WIP, PURCHASABLE BUT NOT USABLE)",
+        "value": 400,
+        "purchasable": "dollar store",
+        "type": "Tool",
+        "usability": null
+    },
+    "doughnut": {
+        "display_name": "Doughnut",
+        "plural": ["%", "%s"],
+        "emoji": ":doughnut:",
+        "description":"Sugar dense pastry taurus.",
+        "value": 125,
+        "purchasable": "baker",
+        "type":"Food",
+        "usability": {
+            "function": "eat_doughnut",
+            "consumable": 1,
+            "confirmation": 0
+        }
     }
 }

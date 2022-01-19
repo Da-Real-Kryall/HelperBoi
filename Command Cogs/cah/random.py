@@ -4,14 +4,14 @@ from utils import general_utils, database_utils
 
 def setup(Bot):
 
-    Bot.command_info.update({"cah_random":{
-        "aliases":["cah_random", "rand"],
+    Bot.command_info.update({"random":{
+        "aliases":["random", "rand"],
         "syntax":"[forced black card]",
         "usage":"Returns a random combination of the currently uploaded white and black cards",
         "category":"cah"
     }})
-    @commands.command(name="cah_random", aliases=["rand"])
-    async def _cah_random(ctx, *, black_card=''):
+    @commands.command(name="random", aliases=["rand"])
+    async def _random(ctx, *, black_card=''):
         if black_card == '':
             black_card = database_utils.fetch_cards("black", 1)[0][1]
         num_white_cards = black_card.count("_")
@@ -23,10 +23,10 @@ def setup(Bot):
             black_card += ' **'+database_utils.fetch_cards("white", 1)[0][1]+"**."
         card_embed = discord.Embed(title="Random CAH combo:", description=black_card)
         card_embed = general_utils.format_embed(ctx.author, card_embed)
-        card_embed.colour = discord.Colour.random()
+        card_embed.colour = general_utils.Colours.charcoal#discord.Colour.random()
         await ctx.send(embed=card_embed)
 
         #e,n='E'*5,'\n'
         #await ctx.send(embed=discord.Embed(title=((e*3+n)*2+(e+n)*2)*2+(e*3+n)*2,colour=general_utils.Colours.main))
 
-    Bot.add_command(_cah_random)
+    Bot.add_command(_random)

@@ -11,7 +11,7 @@ load_dotenv()
 stop_event = asyncio.Event()
 loop = asyncio.get_event_loop()
 
-async def get_pre(Bot, message):
+def get_pre(Bot, message):
     if message.guild != None:
         return Bot.prefix_cache[message.guild.id]
     return Bot.default_prefix
@@ -59,7 +59,7 @@ async def _help(ctx, command=None):
         prefix = await Bot.get_prefix(ctx)
         help_embed = discord.Embed(title=f"**{Bot.user.display_name}'s Commands & Info**", colour=general_utils.Colours.main, description=f"The command prefix is `{prefix}`, so `{prefix}command` is generally how commands are used. Also use `{prefix}help [command]` for info on its usage.", timestamp=datetime.now(timezone.utc))
         
-        help_embed.set_footer(text=f'Requested by {ctx.author.display_name}', icon_url=ctx.author.avatar_url)
+        help_embed.set_footer(text=f'Requested by {ctx.author.display_name}', icon_url=ctx.author.avatar.url)
         for category in categories:
             commandlist = []
             for command in list(Bot.commands):
@@ -143,17 +143,17 @@ async def on_guild_join(guild):
 @Bot.event
 async def on_command_error(ctx, error):
     if error.__class__ == commands.errors.NoPrivateMessage:
-        await ctx.send(embed=general_utils.error_embed(True, f"This command (`{ctx.command}`) can only be used in servers!"))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, f"This command (`{ctx.command}`) can only be used in servers!"))
     elif type(error) == commands.errors.CommandNotFound and (isinstance(ctx.channel, discord.channel.DMChannel) == False or database_utils.fetch_setting("servers", ctx.guild.id, "cmd_not_found_errors") == True) :
-        await ctx.send(embed=general_utils.error_embed(True, f"`{error.args[0].split(' ')[1][1:-1]}` doesn't seem to be a valid command."))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, f"`{error.args[0].split(' ')[1][1:-1]}` doesn't seem to be a valid command."))
     elif type(error) == commands.errors.MissingRequiredArgument:
         args = [e.split(" ")[0] for e in error.args]
         if len(args) == 1:
-            await ctx.send(embed=general_utils.error_embed(False, f"`{args[0]}` is a required argument that is missing."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"`{args[0]}` is a required argument that is missing."))
         else:
-            await ctx.send(embed=general_utils.error_embed(False, f"`{', '.join(args)}` are required arguments that are missing."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"`{', '.join(args)}` are required arguments that are missing."))
     else:
-        await ctx.send(embed=general_utils.error_embed(True, f"{error}"))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, f"{error}"))
         
 @Bot.event
 async def on_connect(): 

@@ -23,11 +23,11 @@ def setup(Bot):
         timedelta = database_utils.fetch_timedelta(ctx.author.id, "postsuggestion")
 
         if timedelta < cooldowns_json["postsuggestion"]:
-            await ctx.send(embed=general_utils.error_embed(False, f"Please wait {cooldowns_json['postsuggestion']-timedelta} more second{'s' if cooldowns_json['postsuggestion']-timedelta > 1 else ''} and try again. Sorry, this cooldown is just to help prevent abuse of the command."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"Please wait {cooldowns_json['postsuggestion']-timedelta} more second{'s' if cooldowns_json['postsuggestion']-timedelta > 1 else ''} and try again. Sorry, this cooldown is just to help prevent abuse of the command."))
             return
 
         elif len(text) > 2048:
-            await ctx.send(embed=general_utils.error_embed(True, f"The length of your suggestion ({len(text)} characters) can't exceed 2^11 characters, please shorten it and try again (the cooldown has not been refreshed)."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, f"The length of your suggestion ({len(text)} characters) can't exceed 2^11 characters, please shorten it and try again (the cooldown has not been refreshed)."))
             return
 
         database_utils.refresh_cooldown(ctx.author.id, "postsuggestion")

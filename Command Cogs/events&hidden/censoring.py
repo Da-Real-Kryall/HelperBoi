@@ -40,4 +40,4 @@ def setup(Bot):
 
                 if content != message.content:
                     await message.delete()
-                    await general_utils.send_via_webhook(message.channel, Bot, content, message.author.name, message.author.avatar_url)
+                    await general_utils.send_via_webhook(message.channel, Bot, content, message.author.name, message.author.avatar.url)

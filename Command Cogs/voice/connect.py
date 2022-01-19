@@ -5,12 +5,12 @@ from utils import general_utils
 def setup(Bot):
 
     Bot.command_info.update({"connect":{
-        "aliases":["connect", "join"],
+        "aliases":["connect", "joinvoice"],
         "syntax":"",
         "usage":"Connects the bot to the current voice channel.",
         "category":"voice"
     }})
-    @commands.command(name="connect", aliases=["join"])
+    @commands.command(name="connect", aliases=["joinvoice"])
     async def _connect(ctx):
         guilds = [client for client in Bot.voice_clients if client.guild.id == ctx.guild.id]
         if len(guilds) == 0:

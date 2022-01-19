@@ -16,10 +16,11 @@ class Colours:
     silver = 0xE2E2E2
     cobalt = 0x0047ab
     indigo = 0x4B0082
+    blue = 0x2298D3
 
 #utils file for functions used repeatadly across command files.
-def error_embed(apologise:bool, message:str):
-    return discord.Embed(timestamp=datetime.datetime.now(django.utils.timezone.utc), colour=Colours.main, title=("Sorry!" if apologise else "Hey!") if random.randint(1, 15) != 1 else ("Sorey!" if apologise else "Hay!"), description=message+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,10) == 3 and apologise == True else (f"\n\nUse `<prefix>help <command>` for info on its usage." if random.randint(1,10) == 3 else "")))
+def error_embed(Bot, ctx, apologise:bool, message:str):
+    return discord.Embed(timestamp=datetime.datetime.now(django.utils.timezone.utc), colour=Colours.main, title=("Sorry!" if apologise else "Hey!") if random.randint(1, 15) != 1 else ("Sorey!" if apologise else "Hay!"), description=message+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,7) == 3 and apologise == True else (f"\n\nUse `{Bot.command_prefix(Bot, ctx.message)}help <command>` for info on its usage." if random.randint(1,5) == 3 else "")))
 
 def represents_int(s):
     try: 
@@ -48,7 +49,7 @@ def format_embed(author:discord.Message.author, embed:discord.Embed, colour:str=
         if hasattr(Colours, colour):
             embed.colour = getattr(Colours, colour)
     if footer == True and embed.footer != discord.Embed.Empty:
-        embed.set_footer(text=f'Requested by {author.display_name}', icon_url=author.avatar_url)
+        embed.set_footer(text=f'Requested by {author.display_name}', icon_url=author.avatar.url)
     if embed.timestamp == discord.Embed.Empty and timestamp == True:
         embed.timestamp = datetime.datetime.now(django.utils.timezone.utc)
     return embed
@@ -103,7 +104,7 @@ async def get_user_id(Bot, ctx, text, check_all_users=False, lenient=False): #le
                     user_ids.update({user.id: user.name})
     if len(user_ids) == 0:
         if lenient==False:
-            await ctx.send(embed=error_embed(True, "No users were found."))
+            await ctx.send(embed=error_embed(Bot, ctx, True, "No users were found."))
             return None
         else:
             return text
@@ -122,10 +123,10 @@ async def get_user_id(Bot, ctx, text, check_all_users=False, lenient=False): #le
             if int(msg.content) < len(id_list):
                 user_id = [value for value in list(user_ids.keys())][int(msg.content)]
             else:
-                await ctx.send(embed=error_embed(False, "Please pick a number that was listed."))
+                await ctx.send(embed=error_embed(Bot, ctx, False, "Please pick a number that was listed."))
                 return None
         else:
-            await ctx.send(embed=error_embed(False, "Please pick a number that was listed."))
+            await ctx.send(embed=error_embed(Bot, ctx, False, "Please pick a number that was listed."))
             return None
     else:
         user_id = int(list(user_ids.keys())[0])
@@ -154,7 +155,7 @@ async def send_via_webhook(channel, Bot, message, username, avatar_url, files=[]
     webhooks = await channel.webhooks()
     webhook = [webhook for webhook in webhooks if webhook.name == f"{Bot.user.name} Webhook"]
     if len(webhook) == 0: #make webhook
-        avatar = await (await aiohttp.ClientSession().get(str(Bot.user.avatar_url))).read()
+        avatar = await (await aiohttp.ClientSession().get(str(Bot.user.avatar.url))).read()
         await channel.create_webhook(name=f"{Bot.user.name} Webhook", avatar=avatar)
     else:
         webhook = webhook[0]

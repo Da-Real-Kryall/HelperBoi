@@ -13,7 +13,7 @@ def setup(Bot):
 
     @Bot.listen()
     async def on_message(message):
-        prefix = await Bot.command_prefix(Bot, message)
+        prefix = Bot.command_prefix(Bot, message)
         if message.author.bot == False and message.guild != None and message.content.startswith(prefix) == False:
             if database_utils.fetch_setting("servers", message.guild.id, "dad_jokes") == 1:
 

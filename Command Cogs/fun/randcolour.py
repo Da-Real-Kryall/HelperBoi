@@ -13,13 +13,13 @@ def setup(Bot):
     @commands.command(name="randcolour", aliases=['randcolor', 'rcol'])
     async def _randcolour(ctx, amount='1', mode='normal'):
         if mode not in ['normal', 'greyscale', 'vibrant']:
-            await ctx.send(embed=general_utils.error_embed(False, "Mode must be either 'normal', 'greyscale', 'vibrant', or nothing to imply the former."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Mode must be either 'normal', 'greyscale', 'vibrant', or nothing to imply the former."))
             return
         if general_utils.represents_int(amount) == False:
-            await ctx.send(embed=general_utils.error_embed(False, f"{amount} is not a valid number!"))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"{amount} is not a valid number!"))
             return
         elif int(amount) not in range(1,11):
-            await ctx.send(embed=general_utils.error_embed(False, f"{amount} must be a valid positive integer below or equal to 10."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"{amount} must be a valid positive integer below or equal to 10."))
             return
         amount = int(amount)
         colour_embeds = []
@@ -41,7 +41,7 @@ def setup(Bot):
         else:
             bot_name = Bot.user.name
         if ctx.guild != None:
-            await general_utils.send_via_webhook(ctx.channel, Bot, '', bot_name, Bot.user.avatar_url, [], colour_embeds)
+            await general_utils.send_via_webhook(ctx.channel, Bot, '', bot_name, Bot.user.avatar.url, [], colour_embeds)
         else:
             await ctx.send(embed=colour_embeds[0])
     Bot.add_command(_randcolour)

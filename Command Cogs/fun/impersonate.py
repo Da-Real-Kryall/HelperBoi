@@ -35,6 +35,6 @@ def setup(Bot):
         for embed in ctx.message.embeds:
             embeds += [embed]
 
-        await general_utils.send_via_webhook(ctx.channel, Bot, message=content, username=username, avatar_url=user.avatar_url, files=files, embeds=embeds)
+        await general_utils.send_via_webhook(ctx.channel, Bot, message=content, username=username, avatar_url=user.avatar.url, files=files, embeds=embeds)
 
     Bot.add_command(_impersonate)

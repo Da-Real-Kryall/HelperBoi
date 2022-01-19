@@ -17,11 +17,11 @@ def setup(Bot):
             return
 
         if database_utils.fetch_setting("users", user_id, "economy_invisibility") == True and ctx.author.id != user_id:
-            await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
             return
         user = await Bot.fetch_user(user_id)
         if user.bot:
-            await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
             return
 
         balance = database_utils.fetch_balance(user_id)

@@ -15,14 +15,14 @@ def setup(Bot):
     async def _change_prefix(ctx, *, prefix):
 
         if prefix[0] != '`' or prefix[-1] != '`':
-            await ctx.send(embed=general_utils.error_embed(False, "Please put the new prefix in `graves`"))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Please put the new prefix in `graves`"))
             return
         
-        old_prefix = str(await Bot.get_prefix(ctx))
+        old_prefix = str(Bot.get_prefix(ctx))
 
         database_utils.alter_prefix([ctx.guild.id], "update", prefix[1:-1])
         Bot.prefix_cache[ctx.guild.id] = prefix[1:-1]
 
-        await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"My prefix in this server has been changed from `{old_prefix}` to `{await Bot.get_prefix(ctx)}`.")))
+        await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"My prefix in this server has been changed from `{old_prefix}` to `{Bot.get_prefix(ctx)}`.")))
         
     Bot.add_command(_change_prefix)

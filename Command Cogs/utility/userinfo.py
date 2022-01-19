@@ -52,7 +52,7 @@ def setup(Bot):
             #user_info_embed.title += f" {statuses_dict[user.status[0]]}"
 
         #embed icon
-        user_info_embed.set_thumbnail(url=user.avatar_url)
+        user_info_embed.set_thumbnail(url=user.avatar.url)
 
         user_info = {}
         #account creation date

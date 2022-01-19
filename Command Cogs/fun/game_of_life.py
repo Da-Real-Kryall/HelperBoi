@@ -15,33 +15,33 @@ def setup(Bot):
     async def _game_of_life(ctx, board_size="50x50", num_iterations="30"):
         async with ctx.typing(): #i could likely shorten this.
             if '*' in board_size:
-                await ctx.send(embed=general_utils.error_embed(False, "The board size you gave is invalid, make sure to give `<width>x<height>` and not `<width>*<height>`."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "The board size you gave is invalid, make sure to give `<width>x<height>` and not `<width>*<height>`."))
                 return
             elif 'x' not in board_size:
-                await ctx.send(embed=general_utils.error_embed(False, "The board size you gave is invalid, make sure you give it as `<width>x<height>` without spaces between x and width/height."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "The board size you gave is invalid, make sure you give it as `<width>x<height>` without spaces between x and width/height."))
                 return
             size = board_size.split('x')
             if len(size) != 2:
-                await ctx.send(embed=general_utils.error_embed(False, "The board size you gave is invalid, make sure to give it as `<width>x<height>`.\n(eg `20x30`)"))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "The board size you gave is invalid, make sure to give it as `<width>x<height>`.\n(eg `20x30`)"))
                 return
             elif sum([general_utils.represents_int(x) for x in size]) != 2:
-                await ctx.send(embed=general_utils.error_embed(False, "The board size you gave is invalid, make sure to make both width and height valid integers."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "The board size you gave is invalid, make sure to make both width and height valid integers."))
                 return
             elif sum([int(x)>0 for x in size])!=2:
-                await ctx.send(embed=general_utils.error_embed(False, "The board size you gave is invalid, make sure to make both width and height positive integers."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "The board size you gave is invalid, make sure to make both width and height positive integers."))
                 return
             elif sum([int(x)<=50 for x in size])!=2:
-                await ctx.send(embed=general_utils.error_embed(False, "The board size you gave is larger than the maximum of 50x50."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "The board size you gave is larger than the maximum of 50x50."))
                 return
             size = (int(size[0]),int(size[1]))
             if not general_utils.represents_int(num_iterations):
-                await ctx.send(embed=general_utils.error_embed(False, "Your given number of iterations was not a valid integer, please ensure it is one."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Your given number of iterations was not a valid integer, please ensure it is one."))
                 return
             elif int(num_iterations) < 0:
-                await ctx.send(embed=general_utils.error_embed(False, "Your given number of iterations was negative, be sure to make the number of iterations a positive integer."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Your given number of iterations was negative, be sure to make the number of iterations a positive integer."))
                 return
             elif int(num_iterations) > 80:
-                await ctx.send(embed=general_utils.error_embed(False, "Your given number of iterations should be less than or equal to 80."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Your given number of iterations should be less than or equal to 80."))
                 return
             numiters = int(num_iterations)
 
@@ -85,7 +85,7 @@ def setup(Bot):
             try:
                 await ctx.send(file=temp_file,embed=embed)
             except discord.errors.HTTPException:
-                await ctx.send(embed=general_utils.error_embed(True, "The final simulation seems to be too large to send, try specifying a lesser iteration number or smaller board."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "The final simulation seems to be too large to send, try specifying a lesser iteration number or smaller board."))
             time.sleep(0.4)
             os.unlink(tmp_file.name)
     Bot.add_command(_game_of_life)

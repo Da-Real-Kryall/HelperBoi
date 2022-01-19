@@ -12,7 +12,7 @@ def setup(Bot):
     }})
     @commands.command(name="give")
     async def _give(ctx, user, amount, *, item_name):
-        error_embed = general_utils.error_embed(ctx.author, "Please give a valid positive integer or 'all' as the amount of items to give, followed by the name of the item(s).")
+        error_embed = general_utils.error_embed(Bot, ctx, False, "Please give a valid positive integer or 'all' as the amount of items to give, followed by the name of the item(s).")
         if general_utils.represents_int(amount):
             if int(amount) < 1 and ctx.author.id != general_utils.bot_owner_id:
                 await ctx.send(embed=error_embed)
@@ -26,7 +26,7 @@ def setup(Bot):
             return
         user = await Bot.fetch_user(user_id)
         if user.bot:
-            await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
             return
 
         with open(os.getcwd()+"/Recources/json/items.json") as file:
@@ -37,7 +37,7 @@ def setup(Bot):
                 if amount == 'all':
                     delta = 0 - database_utils.fetch_inventory(ctx.author.id, False, key)
                 elif int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key):# and ctx.author.id != general_utils.bot_owner_id:
-                    await ctx.send(embed=general_utils.error_embed(False, "You can't give what you dont have!"))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You can't give what you dont have!"))
                     return
                 else:
                     delta = 0 - int(amount)
@@ -58,7 +58,7 @@ def setup(Bot):
                 if msg.content.lower() in ["yes", "ye", "yep", "yeah", "confirm", "affirmative", "true"]:
                     if amount != 'all':
                         if int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key):# and ctx.author.id != general_utils.bot_owner_id:
-                            await ctx.send(embed=general_utils.error_embed(False, "You can't give what you dont have!"))
+                            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You can't give what you dont have!"))
                             return
                     database_utils.alter_items(ctx.author.id, "delta", {key: delta})
                     database_utils.alter_items(user_id, "delta", {key: -delta})
@@ -73,6 +73,6 @@ def setup(Bot):
                     await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Okie, {random.choice(['nevermind!', 'aborted!'])}")))
                     return
 
-        await ctx.send(embed=general_utils.error_embed(False, f"{item_name} isnt a valid item!"))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"{item_name} isnt a valid item!"))
 
     Bot.add_command(_give)

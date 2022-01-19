@@ -13,7 +13,7 @@ def setup(Bot):
     @commands.command(name="use")
     async def _use(ctx, *, args):
 
-        error_embed = general_utils.error_embed(ctx.author, "Please provide a valid item name, followed by either a valid positive integer or 'all', as the amount, if applicable.")
+        error_embed = general_utils.error_embed(Bot, ctx, ctx.author, "Please provide a valid item name, followed by either a valid positive integer or 'all', as the amount, if applicable.")
         
         args = args.split(" ")
         amount = ''
@@ -42,17 +42,17 @@ def setup(Bot):
         for key, value in item_json.items():
             if item_name.lower() == value["display_name"].lower():
                 if value['usability'] == None or value['type'] == "Food":
-                    await ctx.send(embed=general_utils.error_embed(False, "That item isnt usable!"))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "That item isnt usable!"))
                     return
                      
                 if amount != '1' and value["usability"]["consumable"] == 0:
-                    await ctx.send(embed=general_utils.error_embed(False, "You don't need to give an amount other than '1' when using nonconsumable items, you can only use one at a time."))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You don't need to give an amount other than '1' when using nonconsumable items, you can only use one at a time."))
                     return
 
                 cur_item_amount = database_utils.fetch_inventory(ctx.author.id, False, key)
                 if amount == 'all':
                     if cur_item_amount == 0:
-                        await ctx.send(embed=general_utils.error_embed(False, "You dont have any of that item!"))
+                        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You dont have any of that item!"))
                         return
                     delta = 0 - database_utils.fetch_inventory(ctx.author.id, False, key)
                     amount = -delta
@@ -60,7 +60,7 @@ def setup(Bot):
                     delta = -int(amount)
                     amount = int(amount)
                 if int(amount) > cur_item_amount and cur_item_amount > -1:# and ctx.author.id != general_utils.bot_owner_id:
-                    await ctx.send(embed=general_utils.error_embed(False, "You cant use what you dont have!"))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You cant use what you dont have!"))
                     return
 
                 if value['usability']['confirmation']:
@@ -89,14 +89,14 @@ def setup(Bot):
                         
                 cur_item_amount = database_utils.fetch_inventory(ctx.author.id, False, key)
                 if int(amount) > cur_item_amount and cur_item_amount > -1:# and ctx.author.id != general_utils.bot_owner_id:
-                    await ctx.send(embed=general_utils.error_embed(False, "You cant use what you dont have!"))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You cant use what you dont have!"))
                     return
 
                 if value['usability']['consumable']:
                     database_utils.alter_items(ctx.author.id, "delta", {key: delta})
 
                 try:
-                    print(use_functions.reference)
+                    #print(use_functions.reference)
                     await use_functions.reference["other"][value['usability']['function']](ctx=ctx, Bot=Bot, amount=int(amount))
                 except RuntimeError:
                     return
@@ -122,6 +122,6 @@ def setup(Bot):
                         break_embed = general_utils.format_embed(ctx.author, discord.Embed(title=break_title, description=break_desc), "red")
                         await ctx.send(embed=break_embed)
                 return
-        await ctx.send(embed=general_utils.error_embed(False, f"{item_name} isnt a valid item!"))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"{item_name} isnt a valid item!"))
 
     Bot.add_command(_use)

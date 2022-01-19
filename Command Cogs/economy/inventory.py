@@ -17,11 +17,11 @@ def setup(Bot):
             return
         user = await Bot.fetch_user(user_id)
         if user.bot:
-            await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
             return
         
         if database_utils.fetch_setting("users", user_id, "economy_invisibility") == True and ctx.author.id != user_id:
-            await ctx.send(embed=general_utils.error_embed(True, "This person has activated their economic invisibility; only they can view their inventory."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "This person has activated their economic invisibility; only they can view their inventory."))
             return
 
         inv_embed = general_utils.format_embed(ctx.author, discord.Embed(title=f"{ctx.guild.get_member(user_id).display_name}'s Inventory:"))

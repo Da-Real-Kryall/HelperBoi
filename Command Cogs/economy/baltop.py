@@ -28,7 +28,7 @@ def setup(Bot):
             userlist = list(reversed(userlist))
             userlist = userlist[:10]
         else: #invalid isglobal arg, error and return
-            await ctx.send(embed=general_utils.error_embed(False, "Please either give 'global' as the isglobal arg OR leave it blank, for the global leaderboard or the serverwide one respectively."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Please either give 'global' as the isglobal arg OR leave it blank, for the global leaderboard or the serverwide one respectively."))
             return
         res_desc = []
         for index, member in enumerate(userlist):

@@ -23,7 +23,7 @@ def setup(Bot):
             return
         user = await Bot.fetch_user(user_id)
         if user.bot:
-            await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
             return
         recipient = await ctx.guild.fetch_member(user_id)
 
@@ -234,11 +234,11 @@ def setup(Bot):
         #        return
         #    elif item_json[key]["display_name"].lower() in list(items_recieving.keys()):
         #        if int(value) > recipient_current_items[item_reference[key.lower()]]:
-        #            await ctx.send(embed=general_utils.error_embed(False, f"You cant trade what the other person doesn't have!"+(f"\n You attempted to trade {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite them only having {value} in their inventory. " if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else "")))
+        #            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"You cant trade what the other person doesn't have!"+(f"\n You attempted to trade {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite them only having {value} in their inventory. " if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else "")))
         #            return
         #    elif key.lower() in ["simoleons", "coins", "coin", "simoleon"]:
         #        if value > 1:
-        #            await ctx.send(embed=general_utils.error_embed(False, f"You cant trade money the other person doesn't have!"+(f"\n You attempted to trade §{value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite them only having {value} in their inventory. " if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else "")))
+        #            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"You cant trade money the other person doesn't have!"+(f"\n You attempted to trade §{value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite them only having {value} in their inventory. " if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else "")))
         #            return
         #author_current_items = database_utils.fetch_inventory(ctx.author.id)
         #author_current_balance = database_utils.fetch_balance(ctx.author.id)
@@ -258,7 +258,7 @@ def setup(Bot):
         #        return
         #    elif item_json[key]["display_name"].lower() in list(items_giving.keys()):
         #        if int(value) > author_current_items[item_reference[key.lower()]]:
-        #            await ctx.send(embed=general_utils.error_embed(False, f"You cant trade what you dont have!"+(f"\n You attempted to give {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite only having {value} in your inventory. " if database_utils.fetch_setting("users", user_id, "economy_invisibility") == False else "")))
+        #            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"You cant trade what you dont have!"+(f"\n You attempted to give {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite only having {value} in your inventory. " if database_utils.fetch_setting("users", user_id, "economy_invisibility") == False else "")))
         #            return
 #
         ##check if both users have the items
@@ -301,11 +301,11 @@ def setup(Bot):
         #recipient_current_items = database_utils.fetch_inventory(user_id)
         #for key, value in items_giving.items():
         #    if int(value) > author_current_items[item_reference[key.lower()]]:
-        #        await ctx.send(embed=general_utils.error_embed(False, f"You cant trade what you dont have!"+(f"\n You attempted to give {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite only having {value} in your inventory. " if database_utils.fetch_setting("users", user_id, "economy_invisibility") == False else "")))
+        #        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"You cant trade what you dont have!"+(f"\n You attempted to give {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite only having {value} in your inventory. " if database_utils.fetch_setting("users", user_id, "economy_invisibility") == False else "")))
         #        return
         #for key, value in items_recieving.items():
         #    if int(value) > recipient_current_items[item_reference[key.lower()]]:
-        #        await ctx.send(embed=general_utils.error_embed(False, f"You cant trade what the other person doesn't have!"+(f"\n You attempted to trade {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite them only having {value} in their inventory. " if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else "")))
+        #        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"You cant trade what the other person doesn't have!"+(f"\n You attempted to trade {value} {item_json[item_reference[key.lower()]]['emoji']} {item_json[item_reference[key.lower()]]['display_name']}{general_utils.item_plural(item_json[item_reference[key.lower()]], value)} despite them only having {value} in their inventory. " if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else "")))
         #        return
 #
         #database_utils.alter_items(ctx.author.id, "delta", {item_reference[name]: -int(amount) for name, amount in items_giving.items()})

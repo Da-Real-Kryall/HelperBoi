@@ -19,13 +19,13 @@ def setup(Bot):
     async def _fetch_bugreports(ctx, mode, integer='1'):
         
         if not general_utils.represents_int(integer):
-            await ctx.send(embed=general_utils.error_embed(False, "Please pick a valid positive integer as the 'integer' argument"))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Please pick a valid positive integer as the 'integer' argument"))
             return
 
         integer = int(integer)
 
         if mode not in ["all", "primary_key", "user", "latest"]:
-            await ctx.send(embed=general_utils.error_embed(False, "Please pick either 'all', 'primary_key', 'user' or 'latest' for the mode argument."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Please pick either 'all', 'primary_key', 'user' or 'latest' for the mode argument."))
             return
 
         reports = database_utils.fetch_bugreports(mode,integer)

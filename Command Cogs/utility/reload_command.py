@@ -29,7 +29,7 @@ def setup(Bot):
         try:
             command = Bot.get_command(command)
         except:
-            await ctx.send(embed=general_utils.error_embed(False, 'Please specify a command to reload'))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, 'Please specify a command to reload'))
             return
 
         if command == None:
@@ -39,9 +39,9 @@ def setup(Bot):
                     Bot.reload_extension(command_dict[str(given_command_string)])
                     await ctx.send(embed=discord.Embed(title=f"Successfully Reloaded the \"{given_command_string}\" extension.", colour=discord.Colour(0x09df17)))
                 except:
-                    await ctx.send(embed=general_utils.error_embed(True, 'It seems there was an error when reloading the command/extension.'))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, 'It seems there was an error when reloading the command/extension.'))
             else:
-                await ctx.send(embed=general_utils.error_embed(True, 'That doesnt seem to be an existing command or extension!'))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, 'That doesnt seem to be an existing command or extension!'))
         
         elif command != None:
             try:

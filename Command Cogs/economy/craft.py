@@ -13,7 +13,7 @@ def setup(Bot):
     @commands.command(name="craft")
     async def _craft(ctx, *, args):
 
-        error_embed = general_utils.error_embed(ctx.author, "Please provide a valid item name, followed by a valid positive integer if you wish to craft more than one item, or 'all' if you want to craft as many as you possibly can.")
+        error_embed = general_utils.error_embed(Bot, ctx, ctx.guild.id, ctx.author, "Please provide a valid item name, followed by a valid positive integer if you wish to craft more than one item, or 'all' if you want to craft as many as you possibly can.")
         
         args = args.split(" ")
         if general_utils.represents_int(args[-1]):
@@ -37,7 +37,7 @@ def setup(Bot):
         for key, value in item_json.items():
             if item_name.lower() == value["display_name"].lower():
                 if key not in misc_economy_json["crafting_recipes"].keys():
-                    await ctx.send(embed=general_utils.error_embed(True, "That item isnt craftable."))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, ctx.guild.id, True, "That item isnt craftable."))
                     return
                 current_inventory = database_utils.fetch_inventory(ctx.author.id, True)
                 if amount == 'all':
@@ -55,7 +55,7 @@ def setup(Bot):
                 #check if user has enough items
                 for item, quantity in delta.items():
                     if quantity > current_inventory[item]:
-                        await ctx.send(embed=general_utils.error_embed(False, "You don't have enough items to craft this!"))
+                        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You don't have enough items to craft this!"))
                         return
 
                 confirm_embed = discord.Embed(title=f"Confirmation: Do you want to craft {amount} {general_utils.item_plural(value, amount)}?", colour=general_utils.Colours.yellow)
@@ -77,7 +77,7 @@ def setup(Bot):
                 #check if user has enough items
                 for item, quantity in delta.items():
                     if quantity > current_inventory[item]:
-                        await ctx.send(embed=general_utils.error_embed(False, "You don't have enough items to craft this!"))
+                        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You don't have enough items to craft this!"))
                         return
                         
                 database_utils.alter_items(ctx.author.id, "delta", delta)
@@ -89,6 +89,6 @@ def setup(Bot):
                 await ctx.send(embed=crafted_embed)
                 return
 
-        await ctx.send(embed=general_utils.error_embed(False, f"{item_name} isnt a valid item!"))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"{item_name} isnt a valid item!"))
 
     Bot.add_command(_craft)

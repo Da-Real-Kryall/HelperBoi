@@ -81,18 +81,18 @@ def setup(Bot): #this was taken straight from the lavalink quickstart, the site 
         player = Bot.lavalink.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
         player.store("text_channel", ctx.channel.id)
         if not ctx.author.voice or not ctx.author.voice.channel:
-            await ctx.send(embed=general_utils.error_embed(False, 'Please join a voicechannel first.'))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, 'Please join a voicechannel first.'))
             return False
         if not player.is_connected:
             permissions = ctx.author.voice.channel.permissions_for(ctx.me)
             if not permissions.connect or not permissions.speak:  # Check user limit too?
-                await ctx.send(embed=general_utils.error_embed(False, 'I\'m missing the `connect` and `speak` permissions required to play songs...'))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, 'I\'m missing the `connect` and `speak` permissions required to play songs...'))
                 return False
             player.store('channel', ctx.channel.id)
             await ctx.author.voice.channel.connect(cls=LavalinkVoiceClient)
         else:
             if int(player.channel_id) != ctx.author.voice.channel.id:
-                await ctx.send(embed=general_utils.error_embed(False, 'You need to be in my voicechannel to do this command.'))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, 'You need to be in my voicechannel to do this command.'))
                 return False
         return True
     Bot.ensure_voice = _ensure_voice

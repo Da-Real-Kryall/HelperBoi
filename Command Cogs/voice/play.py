@@ -25,7 +25,7 @@ def setup(Bot):
         results = await player.node.get_tracks(query)
 
         if not results or not results['tracks']:
-            await ctx.send(embed=general_utils.error_embed(True, "No songs were found!"))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "No songs were found!"))
             return
         track = results['tracks'][0]
         embed_title = 'Song added to queue:'

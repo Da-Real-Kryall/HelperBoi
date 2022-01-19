@@ -117,10 +117,14 @@ def init_user(user_id):  #inits a user's balance, inventory and preferences. try
         user_cursor.execute('''CREATE TABLE single_values (
             balance INTEGER, 
             coolness INTEGER,
-            boops INTEGER
+            boops INTEGER,
+            permission_level INTEGER,
+            blocked INTEGER
         )''')
         user_cursor.execute('''INSERT into single_values values (
             100,
+            0,
+            0,
             0,
             0
         )''')

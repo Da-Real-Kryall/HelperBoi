@@ -1,5 +1,7 @@
-import discord, random, asyncio, os, json
+import discord, random, asyncio, os, json, tempfile
+from pydub import AudioSegment
 from utils import general_utils, database_utils
+from gtts import gTTS
 #functions that are used in the use and eat commands.
 
 reference = {
@@ -50,12 +52,12 @@ async def poke_other(ctx, Bot, amount):
         raise RuntimeError #error to call when function didnt do anything, so the item isnt consumed 
     user_id = await general_utils.get_user_id(Bot, ctx, msg.content, False)
     if user_id == None:
-        #await ctx.send(embed=general_utils.error_embed(False, "That doesnt seem to be a valid user."))
+        #await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "That doesnt seem to be a valid user."))
         raise RuntimeError
 
     user = ctx.guild.get_member(user_id)
     if user.bot:
-        await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
         return
     poke_title = f"You poke {user.display_name if ctx.author != user else 'yourself'} with the stick!"
     poke_desc = f"That wasnt very cool, you and {user.display_name if ctx.author != user else 'yourself'} lost some :sunglasses: coolness!"
@@ -81,12 +83,12 @@ async def throw_at_other(ctx, Bot, amount):
         raise RuntimeError #error to call when function didnt do anything, so the item isnt consumed 
     user_id = await general_utils.get_user_id(Bot, ctx, msg.content, False)
     if user_id == None:
-        #await ctx.send(embed=general_utils.error_embed(False, "That doesnt seem to be a valid user."))
+        #await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "That doesnt seem to be a valid user."))
         raise RuntimeError
 
     user = ctx.guild.get_member(user_id)
     if user.bot:
-        await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
         return
     throw_title = f"You throw the {item_name} at {user.display_name if ctx.author != user else 'yourself'}!"
     throw_desc = f"That wasnt very cool, you "
@@ -165,6 +167,58 @@ async def lsd_effect(message):
         cur_amount = database_utils.alter_coolness(message.author.id, giveamount)[0]
         await general_utils.level_check(giveamount, cur_amount, message.channel, message.author)
 
+async def use_megaphone(ctx, Bot, amount):
+    await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"What do you shout into the megaphone?"), "blue", False))
+    check = lambda m: m.channel == ctx.message.channel and m.author == ctx.message.author
+    try:
+        msg = await Bot.wait_for('message', timeout=15.0, check=check)
+    except asyncio.TimeoutError:
+        await ctx.send("nevermind...")
+        raise RuntimeError #error to call when function didnt do anything, so the item isnt consumed 
+    tld_list = [
+        "com.au",
+        "co.uk",
+        "com",
+        "ca",
+        "co.in",
+        "ie",
+        "co.za",
+        "fr",
+        "com.br",
+        "pt",
+        "com.mx",
+        "es"
+    ]
+    if msg.content == "" or msg.content == None:
+        msg.content = "AAAAAAAAAAAA"
+    tts = gTTS(text = msg.content, tld=random.choice(tld_list))
+    tmp_file=tempfile.NamedTemporaryFile(delete=True, suffix=".mp3")
+    tts.save(tmp_file.name)
+    song = AudioSegment.from_mp3(tmp_file.name)
+    (song + 100).export(tmp_file.name, format="mp3")
+    embed = discord.Embed(title="You shout into the :mega: megaphone...", colour=general_utils.Colours.blue)
+    await ctx.send(embed=embed, file=discord.File(tmp_file.name))
+    tmp_file.close()
+
+async def admire_diamond(ctx, Bot, amount):
+    await ctx.send(embed=discord.Embed(title="You admire the diamond...", description="In response it seems to generate a stereotypical twinkling sound effect...", colour=general_utils.Colours.main), file=discord.File("Recources/sounds/Twinkle Twinkle.mp3"))
+
+async def spin_spinner(ctx, Bot, amount):
+    embed = discord.Embed(title="You spin the spinner...")
+    msg = await ctx.send(embed=embed, content="<a:spinner:771233636333912124>")
+    embed.title = "You spun the spinner."
+    duration = random.randint(1, 40)
+    embed.set_footer(text=f"It spun for {duration} second(s)")
+    await asyncio.sleep(duration)
+    await msg.edit(embed=embed, content= "<:Spinner:771187921460920320>")
+
+async def eat_fortunecookie(ctx, Bot, amount):
+    with open(os.getcwd()+"/Recources/json/misc_economy.json") as file:
+        fortunes = json.loads(file.read())["fortunes"]
+    embed = discord.Embed(title=f"You open and eat {amount} fortune cookies, here are their fortunes:", colour=general_utils.Colours.bread)
+    embed.description = "\n".join([random.choice(fortunes) for g in range(min(amount, 10))])+("\n..."*int(amount > 10))
+    await ctx.send(embed=embed)
+
 eat_functions_data = [
     {"colour":"yellow", "excess":[0.8, 50, ["Thats a lotta potassium..."]], "item_name":"banana"},
     {"colour":"red", "excess":[0.9, 100, ["This many apples a day will keep you away!"]], "item_name":"apple"},
@@ -173,11 +227,13 @@ eat_functions_data = [
     {"colour": "bread", "excess": [0.5, 175, ["jeez calm down"]], "item_name":"flatbread"},
     {"colour": "yellow", "excess": [0.8, 50, ["jeez calm down"]], "item_name":"bananabread"},
     {"colour": "bread", "excess": [0.9, 50, ["thats a lotta calories"]], "item_name":"biscuit"},
+    {"colour": "bread", "excess": [0.9, 50, ["mmm, calories...", "I hope you dough-nut get a heart attack after this!"]], "item_name":"doughnut"},
     {"colour": "yellow", "excess": [0.9, 50, ["hope you arent lactose intolerant"]], "item_name":"cheese"},
     {"colour": "red", "excess": [0.9, 100, ["\*munchy munch\*"]], "item_name":"tomato"},
     {"colour": "red", "excess": [0.9, 50, ["thats a lotta calories"]], "item_name":"pizza"},
     {"colour": "bread", "excess": [1, 10, ["how many individual pizza slices was that?", "expensive meal..."]], "item_name":"pizzacake"},
-    {"colour": "red", "excess": [0.6, 1, ["why would you eat this?"]], "chance_event": [1.1, lsd_effect], "item_name":"mushroom"}
+    {"colour": "red", "excess": [0.6, 1, ["why would you eat this?"]], "chance_event": [1.1, lsd_effect], "item_name":"mushroom"},
+    {"colour": "bread", "excess": [1, 10, ["You just scarfed both the cookie and the fortune.. you need to `use` it to read the message!", "Let's hope all those fortunes you ate are biodegradable..."]], "item_name":"fortunecookie"},
 ]
 
 for func_data in eat_functions_data:
@@ -189,5 +245,9 @@ reference["other"].update({
     "throw_at_other": throw_at_other,
     "equip_starsticker": equip_starsticker,
     "equip_sunglasses": equip_sunglasses,
-    "shake_eightball": shake_eightball
+    "shake_eightball": shake_eightball,
+    "eat_fortunecookie": eat_fortunecookie,
+    "spin_spinner": spin_spinner,
+    "use_megaphone": use_megaphone,
+    "admire_diamond": admire_diamond
 })

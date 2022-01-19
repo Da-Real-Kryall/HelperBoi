@@ -15,7 +15,7 @@ def setup(Bot):
     @commands.command(name="purge", aliases=["bulkdelete"])
     async def _purge(ctx, num_messages):
         if general_utils.represents_int(num_messages) == False or (int(num_messages) > 100):
-            await ctx.send(embed=general_utils.error_embed(True, "Please give a valid integer below 101."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "Please give a valid integer below 101."))
             return
 
         await ctx.channel.purge(limit=int(num_messages))

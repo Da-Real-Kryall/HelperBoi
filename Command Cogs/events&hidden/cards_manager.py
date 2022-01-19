@@ -149,9 +149,9 @@ def setup(Bot):
             """
             result = black
             for white in whites:
-                result = result.replace("_", f"` `__**{white}**__` `", 1)
+                result = result.replace("_", f"`__**`{white}`**__`", 1)
             
-            result = f"`{result}`"
+            result = f"`{result}`".replace("``", "")
             return result
 
         def get_cah_info(self, userid):
@@ -190,9 +190,8 @@ def setup(Bot):
                 owner = Bot.get_user(owner_id)
                 players = [Bot.get_user(userid) for userid in game["members"]]
                 #print(players, owner)
-                czar = random.choice(players)
 
-                cur_black_card = database_utils.fetch_cards("black", 1)[0][1]
+                cur_black_card = database_utils.fetch_cards("black", 1)[0][1] #"Bleh bleh _ blehidy bleh _."#
                 if cur_black_card.count("_") == 0:
                     cur_black_card = cur_black_card+" _"
                 #print(cur_black_card, czar)
@@ -201,22 +200,20 @@ def setup(Bot):
                 #print(1)
                 await asyncio.sleep(2)
                 round_num = sum([self.current_cah_sessions[GameKey]["members"][player.id]["points"] for player in players])+1
-                for player in players:
-                    await player.send(embed=general_utils.format_embed(player, discord.Embed(title=f"Round {round_num} has started!"), "charcoal", False))
                 pointlist = [(self.current_cah_sessions[GameKey]["members"][player.id]["points"], player) for player in players]
                 pointlist.sort(reverse=True, key=lambda x: x[0])
-
                 leaderboard = "\n".join([f" - {item[1].name}, {item[0]} point{'' if item[0] == 1 else 's'}{' **(Owner)**' if game['owner'] == item[1].id else ''}" for item in pointlist])
-
-                #make it send leaderboard every 5 rounds
-
+                #if round_num%5 == 0:
+                #    leaderboard_embed = discord.Embed(title="Current leaderboard:", description=leaderboard)
+                czar = players[round_num%len(players)]
+                
+                for player in players:
+                    embed = general_utils.format_embed(player, discord.Embed(title=f"Round {round_num} has started"+(", current leaderboard:" if round_num%5 == 0 else "!")), "charcoal", False)
+                    if round_num%5 == 0:
+                        embed.description = leaderboard
+                    await player.send(embed=embed)
+                
                 await asyncio.sleep(5)
-                #pointlist.sort(reverse=True, key=lambda x: x[0])
-                ##print(3)
-                #for player in players:
-                #    embed = discord.Embed(title="Current leaderboard:", description="\n".join([f" - {item[1].name} ({item[0]} point{'' if item[0] == 1 else 's'}){'  **(You)**' if player == item[1] else ''}" for item in pointlist]))
-                #    await player.send(embed=embed)
-                #print(4)
 
                 embed = discord.Embed(title="You are the card czar!", description=f"This is your black card:\n`{cur_black_card}`\n\nYour friends are currently choosing their white card(s), hang tight...", colour=general_utils.Colours.charcoal)
                 await czar.send(embed=embed)
@@ -263,10 +260,18 @@ def setup(Bot):
                             await msg.author.send("One of the numbers you gave didnt have a corresponding card! please try again.")
                             did_error = True
                             break
-                        if did_error:
+                        elif response.count(number) != 1:
+                            await msg.author.send(f"You gave {number} twice! you can only specify a card once, please try again.")
+                            did_error = True
                             break
 
+                        
+                        if did_error:
+                            break
+                        
+                        
                         response[index] = self.current_cah_sessions[GameKey]["members"][msg.author.id]["cards"][number]
+                        self.current_cah_sessions[GameKey]["members"][msg.author.id]["cards"][number] = database_utils.fetch_cards("white", 1)[0][1]
 
                         print(cur_black_card, response)
                         await msgs[msg.author.id].edit(embed=general_utils.format_embed(msg.author, discord.Embed(title="This is your chosen combo:", description=self.combine_cards(black=cur_black_card, whites=response)), "charcoal", False, False))
@@ -274,7 +279,7 @@ def setup(Bot):
                     print(response)
                     picked_card = [response, msg.author]
                     #embed = discord.Embed(title=f"({len(picked_cards)}/{len(players)-1})")
-                    #embed.set_author(icon_url=msg.author.avatar_url, name=f"{msg.author} has chosen their card!")
+                    #embed.set_author(icon_url=msg.author.avatar.url, name=f"{msg.author} has chosen their card!")
                     #await czar.send(embed=embed)
                     #await owner.send(f"{msg.author}: {picked_card[0]}")
 
@@ -289,7 +294,7 @@ def setup(Bot):
                 embed = discord.Embed(title="Send the number of the funniest card combination!")#, description=f"The black card is:\n`{cur_black_card}`")
                 await czar.send(embed=embed)
 
-                check = lambda m: m.channel.id == czar.dm_channel.id and general_utils.represents_int(m.content) == True and int(m.content) <= len(picked_cards)
+                check = lambda m: m.channel.id == czar.dm_channel.id and general_utils.represents_int(m.content) == True and int(m.content) < len(picked_cards)
 
                 try:
                     msg = await Bot.wait_for('message', timeout=3600.0, check=check)
@@ -301,7 +306,7 @@ def setup(Bot):
 
 
                 winning_card = picked_cards[int(msg.content)]
-                print(cur_black_card, winning_card[0])
+                #print(cur_black_card, winning_card[0])
                 winning_combo = self.combine_cards(black=cur_black_card, whites=winning_card[0]) 
 
                 self.current_cah_sessions[GameKey]["members"][winning_card[1].id]["points"] += 1

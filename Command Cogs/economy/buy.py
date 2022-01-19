@@ -13,7 +13,7 @@ def setup(Bot):
     @commands.command(name="buy", aliases=["purchase"])
     async def _buy(ctx, *, args):
 
-        error_embed = general_utils.error_embed(ctx.author, "Please provide a valid item name, followed by a valid positive integer if you wish to buy more than one item.")
+        error_embed = general_utils.error_embed(Bot, ctx, False, "Please provide a valid item name, followed by a valid positive integer if you wish to buy more than one item.")
         
         args = args.split(" ")
         if general_utils.represents_int(args[-1]):
@@ -36,13 +36,13 @@ def setup(Bot):
         for key, value in item_json.items():
             if item_name.lower() == value["display_name"].lower():
                 if value["purchasable"] == None:
-                    await ctx.send(embed=general_utils.error_embed(False, f"That item isn't purchasable!"))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"That item isn't purchasable!"))
                     return
 
                 buy_price = amount*value["value"] #heh value[value]
                 user_balance = database_utils.fetch_balance(ctx.author.id)
                 if buy_price > user_balance:
-                    await ctx.send(embed=general_utils.error_embed(False, f"You dont have enough money to buy that! You needed §{buy_price} to purchase this"+(f", despite having only §{user_balance}." if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else ".")))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"You dont have enough money to buy that! You needed §{buy_price} to purchase this"+(f", despite having only §{user_balance}." if database_utils.fetch_setting("users", ctx.author.id, "economy_invisibility") == False else ".")))
                     return
 
                 await ctx.send(embed=discord.Embed(title=f"Confirmation: Do you want to buy {amount} {general_utils.item_plural(value, amount)} for §{buy_price}?", colour=general_utils.Colours.yellow))
@@ -57,7 +57,7 @@ def setup(Bot):
                 
                 if msg.content.lower() in ["yes please", "yes", "ye", "yep", "yeah", "confirm", "affirmative", "true"]:
                     if buy_price > database_utils.fetch_balance(ctx.author.id):# and ctx.author.id != general_utils.bot_owner_id:
-                        await ctx.send(embed=general_utils.error_embed(False, "Wait, you dont have enough money for that anymore!"))
+                        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Wait, you dont have enough money for that anymore!"))
                         return
                     database_utils.alter_items(ctx.author.id, "delta", {key: amount})
                     database_utils.alter_balance(ctx.author.id, -buy_price)
@@ -72,6 +72,6 @@ def setup(Bot):
                     await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Okie, {random.choice(['nevermind!', 'aborted!'])}")))
                     return
 
-        await ctx.send(embed=general_utils.error_embed(False, f"{item_name} isnt a valid item!"))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"{item_name} isnt a valid item!"))
 
     Bot.add_command(_buy)

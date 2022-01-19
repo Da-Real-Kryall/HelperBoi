@@ -13,7 +13,7 @@ def setup(Bot):
     @commands.command(name="eat")
     async def _eat(ctx, *, args):
 
-        error_embed = general_utils.error_embed(ctx.author, "Please provide a valid item name, followed by either a valid positive integer or 'all', as the amount, if applicable.")
+        error_embed = general_utils.error_embed(Bot, ctx, ctx.author, "Please provide a valid item name, followed by either a valid positive integer or 'all', as the amount, if applicable.")
         
         args = args.split(" ")
         amount = ''
@@ -42,13 +42,13 @@ def setup(Bot):
         for key, value in item_json.items():
             if item_name.lower() == value["display_name"].lower():
                 if value['usability'] == None or value["type"] != "Food":
-                    await ctx.send(embed=general_utils.error_embed(False, "That item isnt edible! (or at least you shouldnt be eating it)"))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "That item isnt edible! (or at least you shouldnt be eating it)"))
                     return
 
                 cur_item_amount = database_utils.fetch_inventory(ctx.author.id, False, key)
                 if amount == 'all':
                     if cur_item_amount == 0:
-                        await ctx.send(embed=general_utils.error_embed(False, "You dont have any of that item!"))
+                        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You dont have any of that item!"))
                         return
                     delta = 0 - database_utils.fetch_inventory(ctx.author.id, False, key)
                     amount = -delta
@@ -56,7 +56,7 @@ def setup(Bot):
                     delta = -int(amount)
                     amount = int(amount)
                 if int(amount) > cur_item_amount and cur_item_amount > -1:# and ctx.author.id != general_utils.bot_owner_id:
-                    await ctx.send(embed=general_utils.error_embed(False, "You cant eat what you dont have!"))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You cant eat what you dont have!"))
                     return
 
                 if value['usability']['confirmation']:
@@ -85,7 +85,7 @@ def setup(Bot):
                         
                 cur_item_amount = database_utils.fetch_inventory(ctx.author.id, False, key)
                 if int(amount) > cur_item_amount and cur_item_amount > -1:# and ctx.author.id != general_utils.bot_owner_id:
-                    await ctx.send(embed=general_utils.error_embed(False, "You cant eat what you dont have!"))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You cant eat what you dont have!"))
                     return
 
                 if value['usability']['consumable']:
@@ -97,6 +97,6 @@ def setup(Bot):
                 except RuntimeError:
                     return
                 return
-        await ctx.send(embed=general_utils.error_embed(False, f"{item_name} isnt a valid item!"))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"{item_name} isnt a valid item!"))
 
     Bot.add_command(_eat)

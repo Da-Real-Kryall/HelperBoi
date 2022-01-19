@@ -22,6 +22,24 @@
             "unlisted": false
         }
     },
+    "fortunes": [
+        "The fortune you seek is in another cookie.",
+        "A closed mouth gathers no feet.",
+        "A conclusion is simply the place where you got tired of thinking.",
+        "You will buy a new pair of pants.",
+        "You will die alone and poorly dressed.",
+        "Run.",
+        "No snowflake in an avalanch ever feels responsible.",
+        "About time you broke me out.",
+        "Don't be afraid to take that big step.",
+        "Your heart will skip a beat.",
+        "Help! I'm being held prisoner in a Chinese bakery!",
+        "You don't have to be faster than the bear, you just have to be faster than the slowest guy running from it.",
+        "Enjoy yourself while you can.",
+        "You are not illiterate.",
+        "The water will be wet today.",
+        "You are now 120 simouleans poorer."
+    ],
     "stores": {
         "grocer":{
             "display_name": "Grocery Store",
@@ -52,9 +70,15 @@
             "quartz": 7,
             "mushroom": 12,
             "tomato": 8,
+            "diamond": 0.01,
             "NOTHING": 20
         },
         "name_choices": {
+            "diamond": [
+                "a friccing heccing diamond",
+                "a heccing friccing diamond",
+                "a 12 carat diamond"
+            ],
             "stick": [
                 "a very straight stick",
                 "a twig",

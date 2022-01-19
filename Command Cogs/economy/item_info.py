@@ -29,6 +29,6 @@ def setup(Bot):
                 await ctx.send(embed=item_info_embed)
                 return
         
-        await ctx.send(embed=general_utils.error_embed(True, f"\"{item_input}\" doesn't seem to be a valid item."))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, f"\"{item_input}\" doesn't seem to be a valid item."))
 
     Bot.add_command(_item_info)

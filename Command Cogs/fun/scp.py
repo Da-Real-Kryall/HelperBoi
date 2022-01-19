@@ -22,7 +22,7 @@ def setup(Bot):
             do_error = True
 
         if do_error:
-            error_embed = general_utils.error_embed(True, "You need to give an integer in the range of 1-6100 or leave the args blank!")
+            error_embed = general_utils.error_embed(Bot, ctx, True, "You need to give an integer in the range of 1-6100 or leave the args blank!")
             await ctx.send(embed=error_embed)
             return
 

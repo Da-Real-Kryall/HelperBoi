@@ -23,7 +23,7 @@ def setup(Bot):
             return
 
         if not ctx.author.voice or (player.is_connected and ctx.author.voice.channel.id != int(player.channel_id)):
-            await ctx.send(embed=general_utils.error_embed(True, "You arent connected to my voice channel!"))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "You arent connected to my voice channel!"))
             return
 
         player.queue.clear()

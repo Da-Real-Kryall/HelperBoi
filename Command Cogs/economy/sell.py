@@ -13,7 +13,7 @@ def setup(Bot):
     @commands.command(name="sell")
     async def _sell(ctx, *, args):
 
-        error_embed = general_utils.error_embed(ctx.author, "Please provide a valid item name, followed by a valid positive integer if you wish to sell more than one item.")
+        error_embed = general_utils.error_embed(Bot, ctx, ctx.author, "Please provide a valid item name, followed by a valid positive integer if you wish to sell more than one item.")
         
         args = args.split(" ")
         if general_utils.represents_int(args[-1]):
@@ -41,7 +41,7 @@ def setup(Bot):
                     delta = 0 - cur_items
                     amount = -delta
                 elif int(amount) > cur_items:# and ctx.author.id != general_utils.bot_owner_id:
-                    await ctx.send(embed=general_utils.error_embed(False, "You cant sell what you dont have!"))
+                    await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You cant sell what you dont have!"))
                     return
                 else:
                     delta = 0 - int(amount)
@@ -59,7 +59,7 @@ def setup(Bot):
                 
                 if msg.content.lower() in ["yes", "ye", "yep", "yeah", "confirm", "affirmative", "true"]:
                     if int(amount) > database_utils.fetch_inventory(ctx.author.id, False, key):# and ctx.author.id != general_utils.bot_owner_id:
-                        await ctx.send(embed=general_utils.error_embed(False, "You cant sell what you dont have!"))
+                        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You cant sell what you dont have!"))
                         return
                     database_utils.alter_items(ctx.author.id, "delta", {key: delta})
                     database_utils.alter_balance(ctx.author.id, sell_value)
@@ -73,6 +73,6 @@ def setup(Bot):
                     await ctx.send(embed=general_utils.format_embed(ctx.author, discord.Embed(title=f"Okie, {random.choice(['nevermind!', 'aborted!'])}")))
                     return
 
-        await ctx.send(embed=general_utils.error_embed(False, f"{item_name} isnt a valid item!"))
+        await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, f"{item_name} isnt a valid item!"))
 
     Bot.add_command(_sell)

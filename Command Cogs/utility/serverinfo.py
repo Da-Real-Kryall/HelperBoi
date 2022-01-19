@@ -34,7 +34,7 @@ def setup(Bot):
         guild_info_embed = discord.Embed(title=f"Info about the guild \"{ctx.guild.name}\"")
         
         #embed icon
-        guild_info_embed.set_thumbnail(url=ctx.guild.icon_url)
+        guild_info_embed.set_thumbnail(url=ctx.guild.icon.url)
 
         #server owner
         guild_info_embed.add_field(name="Owner:", value=ctx.guild.owner.mention, inline=True)

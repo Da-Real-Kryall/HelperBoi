@@ -13,7 +13,7 @@ def setup(Bot):
     @commands.command(name="jump", aliases=["seek"])
     async def _jump(ctx, num_seconds):
         if general_utils.represents_int(num_seconds) == False:
-            await ctx.send(embed=general_utils.error_embed(True, "You must provide a valid integer for the number of seconds to jump, optionally prefixxed by + or - for relative jump positions."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "You must provide a valid integer for the number of seconds to jump, optionally prefixxed by + or - for relative jump positions."))
             return
         is_relative = False
         if num_seconds[0] in ['+', '-']:
@@ -30,7 +30,7 @@ def setup(Bot):
         jump_embed = discord.Embed(colour=general_utils.Colours.red)
         if player.current != None:
             if destination > player.current.duration:
-                await ctx.send(embed=general_utils.error_embed(True, "That is more seconds than is in the current track, use the `skip` command to skip songs if that was your intention."))
+                await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "That is more seconds than is in the current track, use the `skip` command to skip songs if that was your intention."))
                 return
             jump_embed.title = f"Jumped {'back' if player.position > destination else 'forwards'} to {general_utils.strf_timedelta(int(destination/1000)) if destination > 0 else 'to the start'}" #, song duration is {general_utils.strf_timedelta(int(player.current.duration/1000))}
             await player.seek(destination)

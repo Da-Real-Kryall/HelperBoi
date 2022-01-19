@@ -21,12 +21,12 @@ def setup(Bot):
     async def _randname(ctx, count="1"):
 
         if general_utils.represents_int(count) == False:
-            await ctx.send(embed=general_utils.error_embed(False, "Please pick a valid positive number for count below or equal to 10, generating names is hard!"))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Please pick a valid positive number for count below or equal to 10, generating names is hard!"))
             return
 
         #these are split because it errors i think if they are combined
         if int(count) > 10 or int(count) < 1:
-            await ctx.send(embed=general_utils.error_embed(False, "Please pick a valid positive number for count below or equal to 10, generating names is hard!"))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "Please pick a valid positive number for count below or equal to 10, generating names is hard!"))
             return
         
         count = int(count)

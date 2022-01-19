@@ -12,7 +12,7 @@ def setup(Bot):
     }})
     @commands.command(name="pay")
     async def _pay(ctx, user, amount):
-        error_embed = general_utils.error_embed(ctx.author, "Please give a valid positive integer or 'all' as the amount of simoleons to give.")
+        error_embed = general_utils.error_embed(Bot, ctx, ctx.author, "Please give a valid positive integer or 'all' as the amount of simoleons to give.")
         if general_utils.represents_int(amount):
             if int(amount) < 1 and ctx.author.id != general_utils.bot_owner_id:
                 await ctx.send(embed=error_embed)
@@ -26,11 +26,11 @@ def setup(Bot):
             return
         user = await Bot.fetch_user(user_id)
         if user.bot:
-            await ctx.send(embed=general_utils.error_embed(True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, True, "The user specified is a bot, and thus doesn't and won't have any economy data."))
             return
 
         if int(amount) > database_utils.fetch_balance(ctx.author.id):# and ctx.author.id != general_utils.bot_owner_id:
-            await ctx.send(embed=general_utils.error_embed(False, "You can't pay what you dont have!"))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You can't pay what you dont have!"))
             return
             
         recipient_name = await Bot.fetch_user(user_id)
@@ -53,7 +53,7 @@ def setup(Bot):
         if amount == 'all':
             delta = 0 - cur_balance
         elif int(amount) > cur_balance:# and ctx.author.id != general_utils.bot_owner_id:
-            await ctx.send(embed=general_utils.error_embed(False, "You can't pay what you dont have!"))
+            await ctx.send(embed=general_utils.error_embed(Bot, ctx, False, "You can't pay what you dont have!"))
             return
         else:
             delta = 0 - int(amount)
