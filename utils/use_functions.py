@@ -10,7 +10,7 @@ reference = {
 }
 
 def create_eat_function(upper_bound:int=1000000000, colour:str="main", chance_event:list=[0.0, lambda: None], excess:list=[0.0, float("inf"), []], item_name:str="item_name"):
-    with open(os.getcwd()+"/Recources/json/items.json") as file:
+    with open(os.getcwd()+"/Resources/json/items.json") as file:
         item_json = json.loads(file.read())
     item = item_json[item_name]
     async def use_function(message, amount): #excess is [chance, upper_bound, [possible messages]]
@@ -201,7 +201,7 @@ async def use_megaphone(ctx, Bot, amount):
     tmp_file.close()
 
 async def admire_diamond(ctx, Bot, amount):
-    await ctx.send(embed=discord.Embed(title="You admire the diamond...", description="In response it seems to generate a stereotypical twinkling sound effect...", colour=general_utils.Colours.main), file=discord.File("Recources/sounds/Twinkle Twinkle.mp3"))
+    await ctx.send(embed=discord.Embed(title="You admire the diamond...", description="In response it seems to generate a stereotypical twinkling sound effect...", colour=general_utils.Colours.main), file=discord.File("Resources/sounds/Twinkle Twinkle.mp3"))
 
 async def spin_spinner(ctx, Bot, amount):
     embed = discord.Embed(title="You spin the spinner...")
@@ -213,7 +213,7 @@ async def spin_spinner(ctx, Bot, amount):
     await msg.edit(embed=embed, content= "<:Spinner:771187921460920320>")
 
 async def eat_fortunecookie(ctx, Bot, amount):
-    with open(os.getcwd()+"/Recources/json/misc_economy.json") as file:
+    with open(os.getcwd()+"/Resources/json/misc_economy.json") as file:
         fortunes = json.loads(file.read())["fortunes"]
     embed = discord.Embed(title=f"You open and eat {amount} fortune cookies, here are their fortunes:", colour=general_utils.Colours.bread)
     embed.description = "\n".join([random.choice(fortunes) for g in range(min(amount, 10))])+("\n..."*int(amount > 10))
