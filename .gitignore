@@ -1,5 +1,6 @@
 #sensitive info
-token.txt
+tokens.txt
+tokensDev.txt
 
 #other files automatically created when running the scripts/using vscode (idk what the official term for them is)
 __pycache__
@@ -17,3 +18,5 @@ todo.txt
 
 #log files, arent needed and can contain sensitive info probably
 *.log*
+
+_legacy

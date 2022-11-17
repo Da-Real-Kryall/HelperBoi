@@ -7,13 +7,13 @@
 
 import math, sqlite3, os, json, time
 
-with open(os.getcwd()+"/Recources/json/items.json") as file:
+with open(os.getcwd()+"/Resources/json/items.json") as file:
     item_json = json.loads(file.read())
-with open(os.getcwd()+"/Recources/json/misc_economy.json") as file:
+with open(os.getcwd()+"/Resources/json/misc_economy.json") as file:
     misc_economy_json = json.loads(file.read())
-with open(os.getcwd()+"/Recources/json/settings_key.json") as file:
+with open(os.getcwd()+"/Resources/json/settings_key.json") as file:
     settings_json = json.loads(file.read())
-with open(os.getcwd()+"/Recources/json/command_cooldowns.json") as file:
+with open(os.getcwd()+"/Resources/json/command_cooldowns.json") as file:
     cooldowns_json = json.loads(file.read())
 
 #init suggstions and bug reports:
@@ -90,7 +90,7 @@ def init_main():
         )''')
 
     if created_cah_db:
-        with open("Recources/plaintext/cards_data.txt") as file:
+        with open("Resources/plaintext/cards_data.txt") as file:
             file_data = file.read()
         file_data = file_data.split("\n")
         mode = "black"
