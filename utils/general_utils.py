@@ -23,6 +23,7 @@ class Colours:
     cobalt = 0x0047ab
     indigo = 0x4B0082
     blue = 0x2298D3
+    lime = 0x00FF88
 
 #utils file for functions used repeatadly across command files.
 
@@ -58,7 +59,7 @@ def Embed(author:Union[discord.Member, discord.User]=None, title:str="\u200b",de
 
 def error_embed(author:Union[discord.Member, discord.User]=None, message:str="Something went wrong!", apologise:bool=True):
     seed = random.randint(1, 15) == 1
-    title = ["Hey!", "Hay!"][seed] if apologise == False else ["Sorry!", "Sorey!"][seed]
+    title = random.choice([["Hey!", "Hay!"][seed], ["Uhm"+"."*random.randint(1,4)]]) if apologise == False else ["Sorry!", "Sorey!"][seed]
 
     desc = message+(f"\n\nUse the `report_bug` command if you want to report this as an unfixed issue." if random.randint(1,7) == 3 and apologise == True else "")
     return Embed(title=title, description=desc, colour="red", author=author)
@@ -88,4 +89,4 @@ async def send_via_webhook(channel, Bot, message, username, avatar_url, files=[]
 #        elif newlevel < level:
 #            await channel.send(f"{':confused: ' if random.randint(1,3) == 3 else ''}{author.name}, your coolness has decreased to level {newlevel}...")
 
-#strf_timedelta = lambda delta: ', '.join(f"{v}{k}" for k, v in ((" Minutes", delta//60), (" Seconds", delta%60)) if v != 0)
+strf_timedelta = lambda delta: ', '.join(f"{v}{k}" for k, v in ((" Minutes", delta//60), (" Seconds", delta%60)) if v != 0)

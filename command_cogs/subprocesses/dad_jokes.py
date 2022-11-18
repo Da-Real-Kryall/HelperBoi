@@ -13,6 +13,7 @@ async def setup(Bot):
 
     @Bot.listen()
     async def on_message(message):
+
         if message.guild != None: #seperate to avoid errors with database_utils.fetch_setting
             if message.author.bot == False and database_utils.fetch_setting("servers", message.guild.id, "dad_jokes") == True:
 
@@ -44,3 +45,4 @@ async def setup(Bot):
                         await message.channel.send(msg)
                     return
 
+    print("Dad jokes loaded!")
