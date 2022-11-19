@@ -81,6 +81,9 @@ class Bible(commands.Cog):
         data = json.loads(requests.get(url, headers={"api-key": self.nonokey}).text)
         return data["data"]["content"]
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print("Bible cog loaded.")
 
     def __init__(self, Bot):
         self.Bot = Bot
