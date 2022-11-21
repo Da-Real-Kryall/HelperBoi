@@ -100,8 +100,8 @@ class Music(commands.GroupCog, name="music"):
         player = self.Bot.lavalink.player_manager.get(interaction.guild.id)
         if not player.current:
             return await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message="There is nothing playing right now.", apologise=False), ephemeral=True)
-        await player.skip()
         await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=f"Skipped {player.current.title}.", colour="lime"))
+        await player.skip()
 
     @app_commands.command(name="pause", description="Pauses the current song.")
     async def _pause(self, interaction: discord.Interaction):

@@ -1,4 +1,4 @@
-import discord, os, json, requests
+import discord, os, json, requests, math
 from discord.ext import commands
 from discord import app_commands
 from utils import general_utils, database_utils
@@ -68,6 +68,7 @@ async def setup(Bot):
             user_info_embed.set_thumbnail(url=user.avatar.url)
 
             user_info = {}
+            descroption = ""
             #account creation date
             user_info.update({"Account created at:": f"<t:{int(user.created_at.timestamp())}:f> (<t:{int(user.created_at.timestamp())}:R>)"})
 
@@ -136,26 +137,25 @@ async def setup(Bot):
             #id
             user_info.update({"Id:": str(user.id)})
 
-
             #economy stuff
 
-            #boops
+            #slaps
             if user.bot == False:
-                boops = database_utils.fetch_boops(user.id)
-                user_info.update({"Boops:": general_utils.si_format(boops)})
-                if database_utils.fetch_setting("users", user.id, "economy_invisibility") == False:
+                slaps = database_utils.fetch_user_data(user.id, "slaps")
+                user_info.update({"Slaps:": general_utils.si_format(slaps)})
+                if database_utils.fetch_user_data(user.id, "settings")["economy_invisibility"] == False:
                     with open(os.getcwd()+"/Resources/json/items.json") as file:
                         item_json = json.loads(file.read())
 
                     #coolness
-                    level = database_utils.fetch_coolness(user.id)[1]
-                    user_info.update({"Level:": f"Coolness level {level} :{'sunglasses' if level >= 0 else 'confused'}:"})
+                    level = math.floor(general_utils.exp_to_level(database_utils.fetch_user_data(user.id, "coolness")))
+                    user_info.update({"Level:": f"Coolness level {level} {':sunglasses:' if level >= 0 else ':nerd:'}"})
 
                     #balance
-                    user_info.update({"Balance:": f"§{general_utils.si_format(database_utils.fetch_balance(user.id))}"})
+                    user_info.update({"Balance:": f"§{general_utils.si_format(database_utils.fetch_user_data(user.id, 'balance'))}"})
 
                     #inventory
-                    inv_data = database_utils.fetch_inventory(user.id, True)
+                    inv_data = database_utils.fetch_user_data(user.id, "inventory")
                     inventory_string = []
                     for item, quantity in inv_data.items():
                         if quantity != 0:
@@ -232,18 +232,18 @@ async def setup(Bot):
             #server id
             guild_info_embed.add_field(name='Server ID:', value=str(interaction.guild.id), inline=True)
 
-            #total boops
-            total_boops = 0
+            #total slaps
+            total_slaps = 0
             for user in interaction.guild.members:
                 if user.bot == False:
-                    total_boops += database_utils.fetch_boops(user.id)
-            guild_info_embed.add_field(name="Total boops:", value=general_utils.si_format(total_boops))
+                    total_slaps += database_utils.fetch_user_data(user.id, "slaps")
+            guild_info_embed.add_field(name="Total slaps:", value=general_utils.si_format(total_slaps))
 
             #net worth
             net_worth = 0
             for user in interaction.guild.members:
                 if user.bot == False:
-                    net_worth += database_utils.fetch_balance(user.id)
+                    net_worth += database_utils.fetch_user_data(user.id, "balance")
             guild_info_embed.add_field(name="Server Net Worth:", value=f"§{general_utils.si_format(net_worth)}")
 
             await interaction.response.send_message(embed=guild_info_embed)

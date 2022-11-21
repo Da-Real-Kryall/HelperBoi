@@ -40,6 +40,8 @@ item_plural = lambda value, amount: ((value['plural'][1] if amount != 1 or amoun
 ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])
 
 def si_format(num): #2.412k 3.234M etc
+    if num == 0:
+        return "0"
     if num == 69:   # Comedy amirite
         return "nice"
     num = round(num, -math.ceil(math.log(num, 10)-4))

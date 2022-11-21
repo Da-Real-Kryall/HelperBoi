@@ -106,6 +106,6 @@ async def setup(Bot): #this was taken straight from the lavalink quickstart, the
         if member.id == Bot.user.id and before.channel and not after.channel:
             player = Bot.lavalink.player_manager.get(member.guild.id)
             if player:
-                await player.disconnect()
+                await member.guild.voice_client.disconnect(force=True)
 
     print("Lavalink loaded.")

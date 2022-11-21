@@ -33,7 +33,7 @@ def get_help_embed(Bot, author: discord.User) -> discord.Embed:
     for category, commands in categories.items():
         embed.add_field(name=category.capitalize()+":", value="`"+'`, `'.join(commands)+"`")
 
-    embed.add_field(name="Notes:", value="To use commands, type `/` followed by the command name in question; The rest should be intuitive enough.\n\nAlso, if you have any suggestions, feel free to send them to my owner (Kryal|#2231) with the `suggest` command!")#. If you need help with a specific command, type `/help <command>`.
+    embed.add_field(name="Notes:", value="To use commands, type `/` followed by the command name in question; The rest should be intuitive enough.\n\nAlso, if you have any suggestions, feel free to send them to my owner (Kryal|#2231) with the `suggest` command!", inline=False)#. If you need help with a specific command, type `/help <command>`.
     
     return embed
 
