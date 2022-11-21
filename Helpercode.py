@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 from discord.ext import commands
 from utils import general_utils, database_utils
 
+database_utils.init_everything()
+#database_utils.transfer_all_data()
+
 load_dotenv()
 stop_event = asyncio.Event()
 loop = asyncio.get_event_loop()

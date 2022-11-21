@@ -15,7 +15,7 @@ async def setup(Bot):
     async def on_message(message):
 
         if message.guild != None: #seperate to avoid errors with database_utils.fetch_setting
-            if message.author.bot == False and database_utils.fetch_setting("servers", message.guild.id, "dad_jokes") == True:
+            if message.author.bot == False and database_utils.fetch_guild_settings(message.guild.id)["dad_jokes"] == True:
 
                 #try the hi hungry im dad
                 if random.randint(1, 6) == 2:

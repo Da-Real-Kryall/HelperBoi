@@ -173,8 +173,7 @@ async def setup(Bot):
             for key, value in user_info.items():
                 user_info_embed.add_field(name=key, value=value)
 
-            await interaction.response.send_message(embed=user_info_embed, ephemeral=True)
-
+            await interaction.response.send_message(embed=user_info_embed)
 
         @app_commands.command(name="server", description="Get info about the server.")
         async def serverinfo_command(self, interaction: discord.Interaction):
@@ -247,9 +246,8 @@ async def setup(Bot):
                     net_worth += database_utils.fetch_balance(user.id)
             guild_info_embed.add_field(name="Server Net Worth:", value=f"§{general_utils.si_format(net_worth)}")
 
-            await interaction.response.send_message(embed=guild_info_embed, ephemeral=True)
+            await interaction.response.send_message(embed=guild_info_embed)
 
-        
         @app_commands.command(name="define", description="Looks up a dictionary definition for a word.")
         async def _define(self, interaction: discord.Interaction, word: str):
             data = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}").json()

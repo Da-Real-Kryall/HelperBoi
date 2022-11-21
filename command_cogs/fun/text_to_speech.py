@@ -2,7 +2,6 @@ import discord, random, tempfile
 from discord.ext import commands
 from discord import app_commands
 from gtts import gTTS
-from utils import general_utils
 
 tld_list = [
     "com.au",
@@ -18,6 +17,7 @@ tld_list = [
     "com.mx",
     "es"
 ]
+
 class TextToSpeech(commands.Cog):
     def __init__(self, Bot):
         self.Bot = Bot
@@ -37,11 +37,3 @@ class TextToSpeech(commands.Cog):
 
 async def setup(Bot):
     await Bot.add_cog(TextToSpeech(Bot))
-                
-
-
-
-
-                
-                
-                

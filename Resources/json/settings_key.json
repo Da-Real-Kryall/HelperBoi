@@ -11,6 +11,10 @@
         "geoforecast_alert": {
             "default": 0,
             "description": "This setting controls wether the bot will attempt to alert you at 12:00 UTC when there is an upcoming Kp index above or equal to 5."
+        },
+        "ghost_command_output": {
+            "default": 0,
+            "description": "Controls wether all command outputs will be ephemeral; only visible to you."
         }
     },
     "servers": {
@@ -21,10 +25,6 @@
         "autoresponses_require_ping": {
             "default": 1,
             "description": "Controls whether autoresponses occur without the bot being directly @'ed also."
-        },
-        "cmd_not_found_errors": {
-            "default": 1,
-            "description": "Controls whether the bot sends error messages when a command isnt valid. Toggleable because the messages can be both useful and annoying."
         },
         "censoring": {
             "default": 0,

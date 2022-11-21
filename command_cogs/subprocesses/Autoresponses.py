@@ -11,7 +11,7 @@ async def setup(Bot):
     @Bot.listen()
     async def on_message(message):
         if message.guild != None and message.author != Bot.user:
-            require_ping = database_utils.fetch_setting("servers", message.guild.id, "autoresponses_require_ping")
+            require_ping = database_utils.fetch_guild_settings(message.guild.id)["autoresponses_require_ping"]
 
             if Bot.user not in message.mentions and require_ping is True:
                 return

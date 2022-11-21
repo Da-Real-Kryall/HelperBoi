@@ -148,7 +148,7 @@
         "plural": ["% piece", "% pieces"],
         "emoji": ":flatbread:",
         "description":"A kind of unleavened (without yeast) bread that usually includes yogurt in its dough.",
-        "value": 70,
+        "value": 105,
         "purchasable": "baker",
         "type":"Food",
         "usability": {
@@ -223,7 +223,7 @@
         "display_name": "Cheese",
         "plural": ["% wedge", "% wedges"],
         "emoji": ":cheese:",
-        "description":"Aged gestating mammal liquid, in block form!",
+        "description":"Gestating mammal liquid, aged and solidified with added bacteria!",
         "value": 40,
         "purchasable": "grocer",
         "type":"Food",
@@ -252,7 +252,7 @@
         "plural": ["%", "%s"],
         "emoji": "<:Pizza_Cake:777082342434668584>",
         "description":"An abomination of a dessert; a cake composed of ten pizzas stacked on top of one another.",
-        "value": 1750,
+        "value": 1500,
         "purchasable": null,
         "type": "Food",
         "usability": {

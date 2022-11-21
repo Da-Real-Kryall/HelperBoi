@@ -1,0 +1,14 @@
+Currently, I have:
+    Inventories (items)
+    Balances (money)
+    Coolness (so levels)
+    Reminders
+    Bug reports
+    Suggestions
+    Permission Rank
+    Blocked
+    Boops (or slaps)
+    Guild settings
+    User settings
+    Command cooldowns
+    

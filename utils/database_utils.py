@@ -1,9 +1,4 @@
-#an import file for economy manipulation methods
 
-# how inv is stored:
-
-
-#migrate coolness methods to here
 
 import math, sqlite3, os, json, time
 
@@ -16,9 +11,185 @@ with open(os.getcwd()+"/Resources/json/settings_key.json") as file:
 with open(os.getcwd()+"/Resources/json/command_cooldowns.json") as file:
     cooldowns_json = json.loads(file.read())
 
-#init suggstions and bug reports:
+def init_everything():
+    # runs the init.sql file to create the databases that don't already exist
+    main_connection = sqlite3.connect("Resources/everything.db")
+    main_cursor = main_connection.cursor()
+    main_cursor.executescript(open("utils/init.sql", "r").read())
+
+def initialize_user(user_id):
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
+
+    cursor.execute('''SELECT count(discord_id) FROM users WHERE discord_id = ?''', (user_id,))
+    count = cursor.fetchone()[0]
+
+    if count == 0:
+        # insert (user_id, 100, 0, 0, 1, 0)
+        cursor.execute('''
+        INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)
+        ''', (user_id, 100, 0, 0, 1, 0))
+
+        cursor.execute('''
+        INSERT INTO inventory VALUES (?, ?, ?)
+        ''', (user_id, "biscuit", 1))
+
+        for setting in settings_json["users"].keys():
+            cursor.execute('''
+            INSERT INTO user_settings VALUES (?, ?, ?)
+            ''', (user_id, setting, settings_json["users"][setting]["default"])
+            )
+
+        everything.commit()
+    everything.close()
+
+def initialize_server(server_id:int):
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
+
+    cursor.execute('''
+    SELECT count(guild_id) FROM guild_settings WHERE guild_id = ?
+    ''', (server_id,))
+
+    if cursor.fetchone()[0] == 0:
+        for setting in settings_json["servers"].keys():
+            cursor.execute('''
+            INSERT INTO guild_settings VALUES (?, ?, ?)
+            ''', (server_id, setting, settings_json["servers"][setting]["default"])
+            )
+
+    #if count < len(settings_json["servers"]):
+    #    cursor.execute('''
+    #    SELECT * FROM server_settings WHERE server_id = ?
+    #    ''', (server_id,))
+    #    data = cursor.fetchall()
+    #    for setting in settings_json["servers"].keys():
+    #        if setting not in [x[1] for x in data]:
+    #            cursor.execute('''
+    #            INSERT INTO server_settings (?, ?, ?)
+    #            ''', (server_id, setting, settings_json["servers"][setting]["default"]))
+    
+        everything.commit()
+    everything.close()
+
+def fetch_user_data(user_id: int, data_type: str):
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
+
+    initialize_user(user_id)
+
+    if data_type == "balance":
+        cursor.execute('''SELECT balance FROM users WHERE discord_id = ?''', (user_id,))
+        return cursor.fetchone()[0]
+    
+    elif data_type == "coolness":
+        cursor.execute('''SELECT coolness FROM users WHERE discord_id = ?''', (user_id,))
+        return cursor.fetchone()[0]
+
+    elif data_type == "slaps":
+        cursor.execute('''SELECT slaps FROM users WHERE discord_id = ?''', (user_id,))
+        return cursor.fetchone()[0]
+
+    elif data_type == "permission_level":
+        cursor.execute('''SELECT permission_level FROM users WHERE discord_id = ?''', (user_id,))
+        return cursor.fetchone()[0]
+
+    elif data_type == "blocked":
+        cursor.execute('''SELECT blocked FROM users WHERE discord_id = ?''', (user_id,))
+        return cursor.fetchone()[0]
+
+    elif data_type == "inventory":
+        cursor.execute('''SELECT item_name, quantity FROM inventory WHERE user_id = ?''', (user_id,))
+        return dict(cursor.fetchall())
+
+    elif data_type == "settings":
+        cursor.execute('''SELECT option, value FROM user_settings WHERE user_id = ?''', (user_id,))
+        return dict(cursor.fetchall())
+
+    else:
+        raise ValueError("invalid data type")
+
+def fetch_guild_settings(server_id: int):
+    initialize_server(server_id)
+
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
+
+    cursor.execute('''SELECT option, value FROM guild_settings WHERE guild_id = ?''', (server_id,))
+    
+    return dict(cursor.fetchall())
+
+def set_user_data(user_id: int, data_type: str, value):
+    initialize_user(user_id)
+
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
+
+    if data_type == "balance":
+        cursor.execute('''UPDATE users SET balance = ? WHERE discord_id = ?''', (value, user_id))
+    
+    elif data_type == "coolness":
+        cursor.execute('''UPDATE users SET coolness = ? WHERE discord_id = ?''', (value, user_id))
+
+    elif data_type == "slaps":
+        cursor.execute('''UPDATE users SET slaps = ? WHERE discord_id = ?''', (value, user_id))
+
+    elif data_type == "permission_level":
+        cursor.execute('''UPDATE users SET permission_level = ? WHERE discord_id = ?''', (value, user_id))
+
+    elif data_type == "blocked":
+        cursor.execute('''UPDATE users SET blocked = ? WHERE discord_id = ?''', (value, user_id))
+
+    elif data_type == "settings":
+        for setting in value.keys():
+            cursor.execute('''UPDATE user_settings SET value = ? WHERE user_id = ? AND option = ?''', (value[setting], user_id, setting))
+
+    elif data_type == "inventory":
+        for item in value.keys():
+            cursor.execute('''SELECT count(user_id) FROM inventory WHERE user_id = ? AND item_name = ?''', (user_id, item))
+            if cursor.fetchone()[0] == 0:
+                cursor.execute('''INSERT INTO inventory VALUES (?, ?, ?)''', (user_id, item, value[item]))
+            else:
+                cursor.execute('''UPDATE inventory SET quantity = ? WHERE user_id = ? AND item_name = ?''', (value[item], user_id, item))
+    else:
+        raise ValueError("invalid data type")
+
+    everything.commit()
+    everything.close()
+
+def set_guild_settings(server_id: int, value):
+    initialize_server(server_id)
+
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
+
+    for setting in value.keys():
+        cursor.execute('''UPDATE guild_settings SET value = ? WHERE guild_id = ? AND option = ?''', (value[setting], server_id, setting))
+
+    everything.commit()
+    everything.close()
+
+# there is no guild data
+
+
+
+
+"""
+
+
+
+
+
+#an import file for economy manipulation methods
+
+# how inv is stored:
+#migrate coolness methods to here
+
+
+
+# This will initialize any database tables that don't exist already.
 def init_main():
-    submission_database = sqlite3.connect(f"Databases/misc/submissions.db")
+    submission_database = sqlite3.connect(f"Databases_old/misc/submissions.db")
     cursor = submission_database.cursor()
     cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'suggestions' ''')
     if cursor.fetchone()[0] == 0:
@@ -40,7 +211,7 @@ def init_main():
     submission_database.commit()
     submission_database.close()
 
-    prefix_database = sqlite3.connect(f"Databases/misc/prefixes.db")
+    prefix_database = sqlite3.connect(f"Databases_old/misc/prefixes.db")
     cursor = prefix_database.cursor()
     cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'prefixes' ''')
     if cursor.fetchone()[0] == 0:
@@ -52,7 +223,7 @@ def init_main():
     prefix_database.commit()
     prefix_database.close()
 
-    reminder_database = sqlite3.connect(f"Databases/misc/reminders.db")
+    reminder_database = sqlite3.connect(f"Databases_old/misc/reminders.db")
     cursor = reminder_database.cursor()
     cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'reminders' ''')
     if cursor.fetchone()[0] == 0:
@@ -70,7 +241,7 @@ def init_main():
 
     created_cah_db = False #if this is true then i populate the database with the default cards
 
-    cah_database = sqlite3.connect(f"Databases/misc/cards_against_humanity.db")
+    cah_database = sqlite3.connect(f"Databases_old/misc/cards_against_humanity.db")
     cursor = cah_database.cursor()
     cursor.execute('''SELECT count(name) FROM sqlite_master WHERE TYPE = 'table' AND name = 'white' ''')
     if cursor.fetchone()[0] == 0:
@@ -108,7 +279,7 @@ def init_main():
 
 def init_user(user_id):  #inits a user's balance, inventory and preferences. try to make this efficient.
     
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     #single values, balance, exp etc
@@ -208,7 +379,7 @@ def init_user(user_id):  #inits a user's balance, inventory and preferences. try
     user_database.close()
 
 def init_server(server_id):
-    server_database = sqlite3.connect(f"Databases/servers/{server_id}.db")
+    server_database = sqlite3.connect(f"Databases_old/servers/{server_id}.db")
     server_cursor = server_database.cursor()
 
     #settings
@@ -240,7 +411,7 @@ def init_server(server_id):
     server_database.close()
 
 def fetch_reminders(user:int=0):#returns the reminders that will occur within the hour, or all from the user if given
-    reminder_database = sqlite3.connect(f"Databases/misc/reminders.db")
+    reminder_database = sqlite3.connect(f"Databases_old/misc/reminders.db")
     cursor = reminder_database.cursor()
     if user == 0:
         cursor.execute('''SELECT ID, content, timestamp, author_id, guild_id, channel_id FROM reminders WHERE timestamp < ?''', (int(time.time()+3600),))
@@ -257,7 +428,7 @@ def fetch_timedelta(user_id:int, entry:str):
     if entry not in cooldowns_json.keys():
         raise KeyError("this isnt a valid cooldown")
 
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     user_cursor.execute(''' SELECT timestamp FROM cooldowns WHERE name = ?''', (str(entry),))
@@ -272,7 +443,7 @@ def fetch_cards(mode, amount:int): #SELECT * FROM table WHERE id IN (SELECT id F
     if mode not in ["white", "black"]:
         raise ValueError("please pick either white or black as the mode argument for fetch_cards")
 
-    cah_database = sqlite3.connect(f"Databases/misc/cards_against_humanity.db")
+    cah_database = sqlite3.connect(f"Databases_old/misc/cards_against_humanity.db")
     cursor = cah_database.cursor()
     
     cursor.execute(f'''SELECT * FROM {mode} WHERE ID IN (SELECT ID FROM {mode} ORDER BY RANDOM() LIMIT ?)''', (amount,))
@@ -284,7 +455,7 @@ def fetch_cards(mode, amount:int): #SELECT * FROM table WHERE id IN (SELECT id F
 
 def fetch_balance(user_id:int):
     init_user(user_id)
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     user_cursor.execute('''SELECT balance from single_values''')
@@ -296,7 +467,7 @@ def fetch_balance(user_id:int):
 
 def fetch_boops(user_id):
     init_user(user_id)
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     user_cursor.execute('''SELECT boops from single_values''')
@@ -310,7 +481,7 @@ def fetch_bugreports(mode:str, integer:int):
     if mode not in ["all", "primary_key", "user", "latest"]: #grab all, those with a certain primary id, all from a specific user's id, or the n latest submissions
         raise ValueError("For the \'mode\' argument specify either \'all\' for all entries, \'primary_key\' for search by primary key (given as 'integer'), \'user\' for all entries from a given id (given in the 'integer' arg), or \'latest\' for the <integer> latest entries.")
 
-    submissions_database = sqlite3.connect(f"Databases/misc/submissions.db")
+    submissions_database = sqlite3.connect(f"Databases_old/misc/submissions.db")
     cursor = submissions_database.cursor()
 
     if mode == "all":
@@ -339,7 +510,7 @@ def fetch_suggestions(mode:str, integer:int):
     if mode not in ["all", "primary_key", "user", "latest"]: #grab all, those with a certain primary id, all from a specific user's id, or the n latest submissions
         raise ValueError("For the \'mode\' argument specify either \'all\' for all entries, \'primary_key\' for search by primary key (given as 'integer'), \'user\' for all entries from a given id (given in the 'integer' arg), or \'latest\' for the <integer> latest entries.")
 
-    submissions_database = sqlite3.connect(f"Databases/misc/submissions.db")
+    submissions_database = sqlite3.connect(f"Databases_old/misc/submissions.db")
     cursor = submissions_database.cursor()
 
     if mode == "all":
@@ -368,7 +539,7 @@ def fetch_suggestions(mode:str, integer:int):
 def fetch_coolness(user_id):
     #if type(user_id) == int: #assume user id is a user id
     init_user(user_id)
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     user_cursor.execute('''SELECT coolness from single_values''')
@@ -395,7 +566,7 @@ def fetch_inventory(user_id:int, all_items:bool=True, item:str=None):
         if item not in item_json.keys():
             raise KeyError(f"Invalid item for lookup: \"{item}\"")
 
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     if all_items:
@@ -412,7 +583,7 @@ def fetch_inventory(user_id:int, all_items:bool=True, item:str=None):
 
 def fetch_prefixes():
 
-    database = sqlite3.connect(f"Databases/misc/prefixes.db")
+    database = sqlite3.connect(f"Databases_old/misc/prefixes.db")
     cursor = database.cursor()
 
     cursor.execute('''SELECT guild_id, prefix FROM prefixes''')
@@ -435,7 +606,7 @@ def fetch_setting(group:str, id:int,setting:str):
     else:
         init_server(id)
 
-    database = sqlite3.connect(f"Databases/{group}/{id}.db")
+    database = sqlite3.connect(f"Databases_old/{group}/{id}.db")
     cursor = database.cursor()
 
     cursor.execute('''SELECT value FROM settings WHERE option = ? ''', (str(setting),))
@@ -452,7 +623,7 @@ def fetch_setting(group:str, id:int,setting:str):
 def omit_data(user_id:int=0, table:str="none", drop:bool=False, obliterate:bool=False):
     init_user(user_id)
 
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     if obliterate == False:
@@ -462,7 +633,7 @@ def omit_data(user_id:int=0, table:str="none", drop:bool=False, obliterate:bool=
     else: #boom!
         user_database.commit()
         user_database.close()
-        os.remove(f'Databases/users/{user_id}.db')
+        os.remove(f'Databases_old/users/{user_id}.db')
 
     #remove user from balance or inventory databases, or both
 
@@ -472,7 +643,7 @@ def refresh_cooldown(user_id:int, entry:str):
     if entry not in cooldowns_json.keys():
         raise KeyError("this isnt a valid cooldown")
 
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     user_cursor.execute('''UPDATE cooldowns SET timestamp = ? WHERE name = ? ''', (int(time.time()), str(entry)))
@@ -494,7 +665,7 @@ def alter_items(user_id:int, mode:str, items:dict): #set, take, or overwrite to.
         if item not in item_json.keys():
             raise ValueError(f"{item} is not a valid item.")
 
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     if mode == "delta": #change existing values of items given
@@ -522,7 +693,7 @@ def alter_items(user_id:int, mode:str, items:dict): #set, take, or overwrite to.
     #    if item not in item_json.keys():
     #        raise KeyError(f"Invalid item for lookup: \"{item}\"")
     #
-    #user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    #user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     #user_cursor = user_database.cursor()
     #
     #if all_items:
@@ -534,9 +705,10 @@ def alter_items(user_id:int, mode:str, items:dict): #set, take, or overwrite to.
     #    user_cursor.execute(f'''SELECT quantity FROM inventory WHERE item_name = '{item}' ''')
     #    data = user_cursor.fetchall()
     #    return data[0][0]
+    pass
 
 def remove_reminders(ids:list):#removes the reminders with the ids in the list
-    reminder_database = sqlite3.connect(f"Databases/misc/reminders.db")
+    reminder_database = sqlite3.connect(f"Databases_old/misc/reminders.db")
     cursor = reminder_database.cursor()
     for primary_key in ids:
         cursor.execute('''DELETE FROM reminders WHERE ID = ?''',(int(primary_key),))
@@ -544,7 +716,7 @@ def remove_reminders(ids:list):#removes the reminders with the ids in the list
     reminder_database.close()
 
 def add_reminder(content:str, timestamp:int, author_id:int, guild_id:int, channel_id:int):
-    reminder_database = sqlite3.connect(f"Databases/misc/reminders.db")
+    reminder_database = sqlite3.connect(f"Databases_old/misc/reminders.db")
     cursor = reminder_database.cursor()
     cursor.execute('''INSERT INTO reminders (content, timestamp, author_id, guild_id, channel_id) values (?,?,?,?,?)''',(content, timestamp, author_id, guild_id, channel_id))
     reminder_database.commit()
@@ -554,7 +726,7 @@ def add_reminder(content:str, timestamp:int, author_id:int, guild_id:int, channe
 
 def alter_prefix(guild_ids:list, mode:str, prefix:str):
 
-    database = sqlite3.connect(f"Databases/misc/prefixes.db")
+    database = sqlite3.connect(f"Databases_old/misc/prefixes.db")
     cursor = database.cursor()
 
     if mode not in ["insert", "update", "remove"]:
@@ -601,7 +773,7 @@ def alter_setting(group:str,id:int,setting:str,value:int=0,todefault:bool=False)
     if setting not in list(settings_json[group].keys()):
         raise KeyError
 
-    database = sqlite3.connect(f"Databases/{group}/{id}.db")
+    database = sqlite3.connect(f"Databases_old/{group}/{id}.db")
     cursor = database.cursor()
 
     new_value = value if todefault == False else settings_json[setting]["default"]
@@ -619,7 +791,7 @@ def alter_cards(mode, changes:dict): #SELECT * FROM table WHERE id IN (SELECT id
     if mode not in ["white", "black"]:
         raise ValueError("please pick either white or black as the mode argument for fetch_cards")
 
-    cah_database = sqlite3.connect(f"Databases/misc/cards_against_humanity.db")
+    cah_database = sqlite3.connect(f"Databases_old/misc/cards_against_humanity.db")
     cursor = cah_database.cursor()
     insert_ids = {}
     for primary_key in changes["delete"]:
@@ -635,7 +807,7 @@ def alter_cards(mode, changes:dict): #SELECT * FROM table WHERE id IN (SELECT id
 def alter_bugreports(changes:dict):#mode:str,ids:list,contents:str):
     #dict with "delete" and "insert" items, delete having [primary_key,], insert having {user_id:content,}
 
-    submissions_database = sqlite3.connect(f"Databases/misc/submissions.db")
+    submissions_database = sqlite3.connect(f"Databases_old/misc/submissions.db")
     cursor = submissions_database.cursor()
 
     for primary_key in changes["delete"]:
@@ -649,7 +821,7 @@ def alter_bugreports(changes:dict):#mode:str,ids:list,contents:str):
 def alter_suggestions(changes:dict):#mode:str,ids:list,contents:str):
     #dict with "delete" and "insert" items, delete having [primary_key,], insert having {user_id:content,}
 
-    submissions_database = sqlite3.connect(f"Databases/misc/submissions.db")
+    submissions_database = sqlite3.connect(f"Databases_old/misc/submissions.db")
     cursor = submissions_database.cursor()
 
     for primary_key in changes["delete"]:
@@ -663,7 +835,7 @@ def alter_suggestions(changes:dict):#mode:str,ids:list,contents:str):
 def alter_coolness(user_id:int,value:int,overwrite:bool=False):
     init_user(user_id)
 
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     user_cursor.execute('''SELECT coolness from single_values''')
@@ -681,7 +853,7 @@ def alter_coolness(user_id:int,value:int,overwrite:bool=False):
 def alter_boops(user_id:int,value:int,overwrite:bool=False):
     init_user(user_id)
 
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     user_cursor.execute('''SELECT boops from single_values''')
@@ -699,7 +871,7 @@ def alter_boops(user_id:int,value:int,overwrite:bool=False):
 def alter_balance(user_id:int, value:int, overwrite:bool=False):
     init_user(user_id)
 
-    user_database = sqlite3.connect(f"Databases/users/{user_id}.db")
+    user_database = sqlite3.connect(f"Databases_old/users/{user_id}.db")
     user_cursor = user_database.cursor()
 
     user_cursor.execute('''SELECT balance from single_values''')
@@ -713,3 +885,120 @@ def alter_balance(user_id:int, value:int, overwrite:bool=False):
     user_database.close()
 
     return (balance, delta)
+
+# transfers all user data from old database to new database
+def transfer_all_data():
+
+    # get all user ids
+    user_ids = []
+    for file in os.listdir("Databases_old/users"):
+        if file.endswith(".db"):
+            user_ids.append(int(file[:-3]))
+
+    # transfer data for each user
+    for user_id in user_ids:
+        initialize_user(user_id)
+        everything = sqlite3.connect("Resources/everything.db")
+        cursor = everything.cursor()
+        
+        # transfer balance
+        balance = fetch_balance(user_id)
+        cursor.execute('''UPDATE users set balance = ? WHERE discord_id = ?''', (balance, user_id))
+
+        # transfer coolness 
+        coolness = fetch_coolness(user_id)[0]
+        cursor.execute('''UPDATE users set coolness = ? WHERE discord_id = ?''', (coolness, user_id))
+
+        # (don't transfer boops)
+
+        # transfer settings
+        settings = []
+        for setting in settings_json["users"].keys():
+            if setting != "ghost_command_output":
+                settings.append([setting, fetch_setting("users", user_id, setting)])
+
+        for setting in settings:
+            cursor.execute('''UPDATE user_settings set value = ? WHERE (user_id = ? AND option = ?)''', (setting[1], user_id, setting[0]))
+        #cursor.executemany('''UPDATE users set "{}" = ? WHERE discord_id = ?'''.format(settings[0]), settings)
+
+        # transfer inventory
+        inventory = fetch_inventory(user_id)
+
+        for key, value in inventory.items():
+            cursor.execute('''
+            INSERT INTO inventory VALUES (?,?,?)
+            ''', (user_id, key, value))
+
+        # transfer cah cards
+        cah_database = sqlite3.connect(f"Databases_old/misc/cards_against_humanity.db")
+        cah_cursor = cah_database.cursor()
+
+        cah_cursor.execute('''SELECT content FROM white WHERE author_id = ?''', (user_id,))
+        white_cards = cah_cursor.fetchall()
+        cah_cursor.execute('''SELECT content FROM black WHERE author_id = ?''', (user_id,))
+        black_cards = cah_cursor.fetchall()
+
+        cah_database.close()
+
+        cursor.executemany('''
+        INSERT INTO cards_against_humanity (user_id, content, type) VALUES (?, ?, ?)
+        ''', [(user_id, card[0], "white") for card in white_cards] + [(user_id, card[0], "black") for card in black_cards])
+        
+        everything.commit()
+        everything.close()
+
+    print("users done, doing guilds")
+    # transfer all guild settings
+
+    guild_ids = []
+    for file in os.listdir("Databases_old/servers"):
+        if file.endswith(".db"):
+            guild_ids.append(int(file[:-3]))
+
+
+    for guild_id in guild_ids:
+        initialize_server(guild_id)
+        everything = sqlite3.connect("Resources/everything.db")
+        cursor = everything.cursor()
+
+        # transfer settings
+        settings = []
+        for setting in settings_json["servers"].keys():
+            settings.append([setting, fetch_setting("servers", guild_id, setting)])
+
+        for setting in settings:
+            cursor.execute('''UPDATE guild_settings set value = ? WHERE (guild_id = ? AND option = ?)''', (setting[1], guild_id, setting[0]))
+
+        #settings = []
+        #for setting in settings_json["servers"].keys():
+        #    settings.append([setting, fetch_setting("servers", guild_id, setting)])
+        #
+        #cursor.executemany('''UPDATE guilds set ? = ? WHERE guild_id = ?''', settings)
+
+        everything.commit()
+        everything.close()
+
+    # transfer all misc data
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
+
+    # transfer all suggestions
+    submissions_database = sqlite3.connect(f"Databases_old/misc/submissions.db")
+    submissions_cursor = submissions_database.cursor()
+
+    submissions_cursor.execute('''SELECT user_id, content, timestamp FROM suggestions''')
+    suggestions = submissions_cursor.fetchall()
+
+    submissions_cursor.execute('''SELECT user_id, content, timestamp FROM bugreports''')
+    bugreports = submissions_cursor.fetchall()
+
+    submissions_database.close()
+
+    cursor.executemany('''
+    INSERT INTO suggestions (user_id, content, timestamp) VALUES (?, ?, ?)
+    ''', tuple(suggestions))
+    
+    cursor.executemany('''
+    INSERT INTO bugreports (user_id, content, timestamp) VALUES (?,?,?)
+    ''', tuple(bugreports))
+"""

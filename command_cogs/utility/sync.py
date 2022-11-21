@@ -20,6 +20,7 @@ class Sync(commands.Cog):
         await ctx.send(f"Synced {len(fmt)} commands locally.")
     
     @app_commands.command(name="sync", description="Syncs slash commands.")
+    @general_utils.is_owner()
     @app_commands.guilds(discord.Object(id=747834673685594182))
     async def _sync(self, interaction: discord.Interaction):
         if interaction.user.id != 479963507631194133:
