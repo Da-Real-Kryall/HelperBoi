@@ -12,6 +12,7 @@ loop = asyncio.get_event_loop()
 
 
 Bot = commands.Bot(command_prefix="!kbr ", intents=discord.Intents.all())
+Bot.remove_command("help")
 
 @Bot.event
 async def on_connect(): 

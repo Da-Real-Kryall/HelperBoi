@@ -1,5 +1,6 @@
 import discord, textwrap, json, time
 from discord.ext import commands
+from discord import app_commands
 from utils import general_utils
 
 class DevTools(commands.Cog):
@@ -9,7 +10,25 @@ class DevTools(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print("DevTools cog loaded.")
-    
+
+    @app_commands.command(name="reload", description="Reloads a cog.")
+    @app_commands.guilds(discord.Object(id=747834673685594182))
+    @general_utils.is_owner()
+    async def _reload(self, interaction: discord.Interaction, cog: str) -> None:
+        try:
+            self.Bot.reload_extension("command_cogs."+cog)
+            await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title="Cog reloaded successfully.", colour="green"), ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message=f"The following error occurred while reloading the cog:\n```py\n{e}\n```"), ephemeral=True)
+        
+    @app_commands.command(name="sync", description="Syncs slash commands.")
+    @general_utils.is_owner()
+    @app_commands.guilds(discord.Object(id=747834673685594182))
+    async def _sync(self, interaction: discord.Interaction):
+        if interaction.user.id != 479963507631194133:
+            return await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message="You are not the owner of this bot.", apologise=False), ephemeral=True)
+        fmt = await self.Bot.tree.sync()
+        await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=f"Synced {len(fmt)} commands globally.", colour="green"))
 
     @commands.command(name="exec")
     @commands.is_owner()
