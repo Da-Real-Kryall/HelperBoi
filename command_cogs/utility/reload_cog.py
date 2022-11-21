@@ -17,9 +17,9 @@ class ReloadCog(commands.Cog):
     async def _reload(self, interaction: discord.Interaction, cog: str) -> None:
         try:
             self.Bot.reload_extension("command_cogs."+cog)
-            await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, message="Cog reloaded successfully.", colour="green"))
+            await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title="Cog reloaded successfully.", colour="green"), ephemeral=True)
         except Exception as e:
-            await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message=f"The following error occurred while reloading the cog:\n```py\n{e}\n```"))
+            await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message=f"The following error occurred while reloading the cog:\n```py\n{e}\n```"), ephemeral=True)
         
 async def setup(Bot):
     await Bot.add_cog(ReloadCog(Bot))
