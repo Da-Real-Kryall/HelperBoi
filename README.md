@@ -49,7 +49,7 @@ Put simply, a general purpose Discord bot currently serving as a passion project
 <br> Activate the lavalink server for music streaming, do this in that second window.
 
 6. `python3 Helpercode.py`
-<br> Run the actual bot file.
+<br> Run the actual bot file. (in the first window)
   
 All database files should be created automatically, and internal caches should follow suit, even once deleted, provided you restart the bot.
 
