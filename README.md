@@ -1,5 +1,5 @@
 # HelperBoi
-Put simply, a general purpose Discord bot.
+Put simply, a general purpose Discord bot currently serving as a passion project and sink for ideas.
 
 ### Main features (current and upcoming) include:
 
