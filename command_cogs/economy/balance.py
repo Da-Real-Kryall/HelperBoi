@@ -11,12 +11,17 @@ class Balance(commands.Cog):
     async def on_ready(self):
         print("Balance Cog Loaded")
 
-    @app_commands.command(name="balance", description="Shows your balance.")
-    async def _balance(self, interaction: discord.Interaction):
-        balance = database_utils.fetch_user_data(interaction.user.id, "balance")
-        embed = general_utils.Embed(author=interaction.user, title=f"Your balance is §{general_utils.si_format(balance)}", colour="yellow")
-        if balance > 1000:
-            embed.set_footer(text="§{balance}, to be exact.")
+    @app_commands.command(name="balance", description="Shows your balance or the balance of a specified user.")
+    async def _balance(self, interaction: discord.Interaction, user: discord.User = None):
+        if user == None:
+            user = interaction.user
+        balance = database_utils.fetch_user_data(user.id, "balance")
+        if database_utils.fetch_user_data(user.id, "settings")["economy_invisibility"] == True and user != interaction.user:
+            await interaction.response.send_message(embed=general_utils.error_embed(interaction.user, message="This user has hidden their economy data...", apologise=True), ephemeral=True)
+            return
+        embed = general_utils.Embed(author=interaction.user, title=f"There is **§**{general_utils.si_format(balance)} to your name." if user.id == interaction.user.id else f"{str(user)} has **§**{general_utils.si_format(balance)} to their name.", colour="yellow")
+        if balance > 10000:
+            embed.set_footer(text=f"{balance}, to be exact.")
 
         await interaction.response.send_message(embed=embed)
 

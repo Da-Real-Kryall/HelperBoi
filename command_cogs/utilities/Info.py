@@ -3,7 +3,53 @@ from discord.ext import commands
 from discord import app_commands
 from utils import general_utils, database_utils
 
+class Controller(discord.ui.View):
+    def __init__(self, scroll_index, max_index):
+        super().__init__()
 
+        self.add_item(discord.ui.Button(
+            label="<",
+            style=discord.ButtonStyle.blurple,
+            custom_id="df.previous",
+            disabled=True if scroll_index == 0 else False
+        ))
+
+        self.add_item(discord.ui.Button(
+            label=">",
+            style=discord.ButtonStyle.blurple,
+            custom_id="df.next",
+            disabled=True if scroll_index == max_index else False
+        )
+    )
+    
+    async def on_error(self, error, item, interaction):
+        await interaction.followup.send_message(embed=general_utils.error_embed(message=f"The following error occurred while your interaction:\n```py\n{error}\n```"), ephemeral=True)
+
+async def _previous(interaction: discord.Interaction):
+    await interaction.response.defer()
+    embed = interaction.message.embeds[0]
+    word = embed.title.split(' ')[2][:-1]
+    data = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}").json()
+    index = int(interaction.message.embeds[0].footer.text.split(' ')[1])-1
+    length = int(interaction.message.embeds[0].footer.text.split(' ')[3])
+    if index > 0:
+        index -= 1
+    embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic'] if data[0]['phonetic'] != None else ''}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
+    embed.set_footer(text=f"Meaning {index+1} of {length}")
+    await interaction.followup.edit_message(message_id=interaction.message.id, embed=embed, view=Controller(index, length-1))
+
+async def _next(interaction: discord.Interaction):
+    await interaction.response.defer()
+    embed = interaction.message.embeds[0]
+    word = embed.title.split(' ')[2][:-1]
+    data = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}").json()
+    index = int(interaction.message.embeds[0].footer.text.split(' ')[1])-1
+    length = int(interaction.message.embeds[0].footer.text.split(' ')[3])
+    if index < length-1:
+        index += 1
+    embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic'] if data[0]['phonetic'] != None else ''}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
+    embed.set_footer(text=f"Meaning {index+1} of {length}")
+    await interaction.followup.edit_message(message_id=interaction.message.id, embed=embed, view=Controller(index, length-1))
 
 async def setup(Bot):
 
@@ -47,6 +93,17 @@ async def setup(Bot):
             self.Bot = Bot
             super().__init__()
         
+        
+        @commands.Cog.listener()
+        async def on_interaction(self, interaction: discord.Interaction):
+            if interaction.type == discord.InteractionType.component:
+                info = interaction.data["custom_id"].split(".")
+                if info[0] in ["df"]: 
+                    if info[1] == "previous":
+                        await _previous(interaction)
+                    elif info[1] == "next":
+                        await _next(interaction)
+
         @commands.Cog.listener()
         async def on_ready(self):
             print("Info cog loaded.")
@@ -250,10 +307,10 @@ async def setup(Bot):
 
         @app_commands.command(name="define", description="Looks up a dictionary definition for a word.")
         async def _define(self, interaction: discord.Interaction, word: str):
+            await interaction.response.defer()
             data = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}").json()
-            
             if 'title' in data:
-                await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message=f"I couldn't find \"{word}\" in the dictionary..."), ephemeral=True)
+                await interaction.followup.send(embed=general_utils.error_embed(author=interaction.user, message=f"I couldn't find \"{word}\" in the dictionary..."), ephemeral=True)
                 return
             index = 0
 
@@ -266,41 +323,41 @@ async def setup(Bot):
             if len(data[0]['meanings']) > 1:
                 embed.set_footer(text=f"Meaning {index+1} of {len(data[0]['meanings'])}")
 
-                class Controller(discord.ui.View):
-                    @discord.ui.button(label='<', style=discord.ButtonStyle.blurple, disabled=True)
-                    async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
-
-                        index = int(interaction.message.embeds[0].footer.text.split(' ')[1])-1
-                        length = int(interaction.message.embeds[0].footer.text.split(' ')[3])
-                        if index > 0:
-                            index -= 1
-                        if index == 0:
-                            button.disabled = True
-                        if index != length-1:
-                            self.children[1].disabled = False
-
-                        embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic']}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
-                        embed.set_footer(text=f"Meaning {index+1} of {length}")
-                        await interaction.response.edit_message(embed=embed, view=self)
-
-                    @discord.ui.button(label='>', style=discord.ButtonStyle.blurple)
-                    async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
-
-                        index = int(interaction.message.embeds[0].footer.text.split(' ')[1])-1
-                        length = int(interaction.message.embeds[0].footer.text.split(' ')[3])
-                        if index < length-1:
-                            index += 1
-                        if index == length-1:
-                            button.disabled = True
-                        if index != 0:
-                            self.children[0].disabled = False
-
-                        embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic']}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
-                        embed.set_footer(text=f"Meaning {index+1} of {length}")
-                        await interaction.response.edit_message(embed=embed, view=self)
+                #class Controller(discord.ui.View):
+                #    @discord.ui.button(label='<', style=discord.ButtonStyle.blurple, disabled=True)
+                #    async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
+#
+                #        index = int(interaction.message.embeds[0].footer.text.split(' ')[1])-1
+                #        length = int(interaction.message.embeds[0].footer.text.split(' ')[3])
+                #        if index > 0:
+                #            index -= 1
+                #        if index == 0:
+                #            button.disabled = True
+                #        if index != length-1:
+                #            self.children[1].disabled = False
+#
+                #        embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic']}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
+                #        embed.set_footer(text=f"Meaning {index+1} of {length}")
+                #        await interaction.response.edit_message(embed=embed, view=self)
+#
+                #    @discord.ui.button(label='>', style=discord.ButtonStyle.blurple)
+                #    async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
+#
+                #        index = int(interaction.message.embeds[0].footer.text.split(' ')[1])-1
+                #        length = int(interaction.message.embeds[0].footer.text.split(' ')[3])
+                #        if index < length-1:
+                #            index += 1
+                #        if index == length-1:
+                #            button.disabled = True
+                #        if index != 0:
+                #            self.children[0].disabled = False
+#
+                #        embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic']}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
+                #        embed.set_footer(text=f"Meaning {index+1} of {length}")
+                #        await interaction.response.edit_message(embed=embed, view=self)
+                await interaction.followup.send(embed=embed, view=Controller(0, len(data[0]['meanings'])))
             else:
-                Controller = lambda: None
+                await interaction.followup.send(embed=embed)
 
-            await interaction.response.send_message(embed=embed, view=Controller())
 
     await Bot.add_cog(Info(Bot))

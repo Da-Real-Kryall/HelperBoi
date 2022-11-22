@@ -19,6 +19,10 @@ def generate_embeds(mode: str, format: str, amount: int):
     
     return embeds
 
+class Controller(discord.ui.View):
+    def __init__(self, mode, format, amount):
+        super().__init__()
+        self.add_item(discord.ui.Button(label=f"Reroll", custom_id=f"rc.{mode}.{format}.{amount}", style=discord.ButtonStyle.blurple))
 
 class RandColour(commands.Cog):
     def __init__(self, Bot):
@@ -27,6 +31,16 @@ class RandColour(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print("RandColour cog loaded.")
+
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction):
+        data = interaction.data["custom_id"].split(".")
+        if data[0] == "rc":
+            mode = data[1]
+            format = data[2]
+            amount = int(data[3])
+            embeds = generate_embeds(mode, format, amount)
+            await interaction.response.edit_message(embeds=embeds, view=Controller(mode, format, amount))
 
     @app_commands.command(name="randcolour", description="Returns randomised colour(s) based on the args given.")
     @app_commands.choices(
@@ -42,12 +56,12 @@ class RandColour(commands.Cog):
         ],
     )
     async def _randcolour(self, interaction: discord.Interaction, mode: str="normal", format: str="hex", amount: app_commands.Range[int, 1, 10]=1) -> None:
-        class Controller(discord.ui.View):
-            @discord.ui.button(label="Reroll", style=discord.ButtonStyle.blurple)
-            async def reroll(self, interaction: discord.Interaction, button: discord.ui.Button):
-                await interaction.response.edit_message(embeds=generate_embeds(mode, format, amount), view=self)
+        #class Controller(discord.ui.View):
+        #    @discord.ui.button(label="Reroll", style=discord.ButtonStyle.blurple)
+        #    async def reroll(self, interaction: discord.Interaction, button: discord.ui.Button):
+        #        await interaction.response.edit_message(embeds=generate_embeds(mode, format, amount), view=self)
         embeds = generate_embeds(mode, format, amount)
-        await interaction.response.send_message(embeds=embeds, view=Controller())
+        await interaction.response.send_message(embeds=embeds, view=Controller(mode, format, amount))
 
         
 
