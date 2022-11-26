@@ -80,19 +80,14 @@ class RandName(commands.Cog):
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
-        if interaction.data['custom_id'].split('.')[0] == 'rn':
-            await interaction.response.defer()
-            await interaction.followup.edit_message(message_id=interaction.message.id, embed=generate_embed(interaction.user, int(interaction.data['custom_id'].split('.')[1])), view=Controller(count=int(interaction.data['custom_id'].split('.')[1])))
-    
+        if "custom_id" in interaction.data:
+            if interaction.data['custom_id'].split('.')[0] == 'rn':
+                await interaction.response.defer()
+                await interaction.followup.edit_message(message_id=interaction.message.id, embed=generate_embed(interaction.user, int(interaction.data['custom_id'].split('.')[1])), view=Controller(count=int(interaction.data['custom_id'].split('.')[1])))
+
     @app_commands.command(name="randname", description="Random name generator 4.0! uses markov chains to generate name, trained a british name data set.")
     async def _randname(self, interaction: discord.Interaction, count: app_commands.Range[int, 1, 10]=1) -> None:
         embed = generate_embed(interaction.user, count)
-
-
-            #@discord.ui.button(label="Reroll", style=discord.ButtonStyle.blurple, custom_id="rn."+str(count))
-            #async def reroll(self, interaction: discord.Interaction, button: discord.ui.Button):
-            #    pass#await interaction.response.edit_message(embed=generate_embed(interaction.user, count), view=self)
-
         await interaction.response.send_message(embed=embed, view=Controller(count))
                     
 async def setup(Bot):

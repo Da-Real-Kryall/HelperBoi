@@ -169,6 +169,40 @@ def set_guild_settings(server_id: int, value):
     everything.commit()
     everything.close()
 
+def fetch_reminders(user_id: int=None):
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
+
+    if user_id is None:
+        cursor.execute('''SELECT * FROM reminders''')
+        return cursor.fetchall()
+    else:
+        cursor.execute('''SELECT * FROM reminders WHERE user_id = ?''', (user_id,))
+        return cursor.fetchall()
+
+#adds a reminder and returns it's id
+def add_reminder(user_id: int, time: int, message: str, channel_id: int):
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
+    
+    cursor.execute('''INSERT INTO reminders (user_id, timestamp, content, channel_id) VALUES (?, ?, ?, ?)''', (user_id, time, message, channel_id))
+
+    everything.commit()
+
+    cursor.execute('''SELECT id FROM reminders WHERE user_id = ? AND timestamp = ? AND content = ? AND channel_id = ?''', (user_id, time, message, channel_id))
+    res = cursor.fetchone()[0]
+    everything.close()
+    return res
+    
+
+def remove_reminders(reminder_ids: list):
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
+    for reminder_id in reminder_ids:
+        cursor.execute('''DELETE FROM reminders WHERE id = ?''', (reminder_id,))
+
+    everything.commit()
+    everything.close()
 # there is no guild data
 
 
