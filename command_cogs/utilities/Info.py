@@ -25,19 +25,6 @@ class Controller(discord.ui.View):
     async def on_error(self, error, item, interaction):
         await interaction.followup.send_message(embed=general_utils.error_embed(message=f"The following error occurred while your interaction:\n```py\n{error}\n```"), ephemeral=True)
 
-async def _previous(interaction: discord.Interaction):
-    await interaction.response.defer()
-    embed = interaction.message.embeds[0]
-    word = embed.title.split(' ')[2][:-1]
-    data = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}").json()
-    index = int(interaction.message.embeds[0].footer.text.split(' ')[1])-1
-    length = int(interaction.message.embeds[0].footer.text.split(' ')[3])
-    if index > 0:
-        index -= 1
-    embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic'] if data[0]['phonetic'] != None else ''}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
-    embed.set_footer(text=f"Meaning {index+1} of {length}")
-    await interaction.followup.edit_message(message_id=interaction.message.id, embed=embed, view=Controller(index, length-1))
-
 async def _next(interaction: discord.Interaction):
     await interaction.response.defer()
     embed = interaction.message.embeds[0]
@@ -47,6 +34,19 @@ async def _next(interaction: discord.Interaction):
     length = int(interaction.message.embeds[0].footer.text.split(' ')[3])
     if index < length-1:
         index += 1
+    embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic'] if data[0]['phonetic'] != None else ''}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
+    embed.set_footer(text=f"Meaning {index+1} of {length}")
+    await interaction.followup.edit_message(message_id=interaction.message.id, embed=embed, view=Controller(index, length-1))
+
+async def _previous(interaction: discord.Interaction):
+    await interaction.response.defer()
+    embed = interaction.message.embeds[0]
+    word = embed.title.split(' ')[2][:-1]
+    data = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}").json()
+    index = int(interaction.message.embeds[0].footer.text.split(' ')[1])-1
+    length = int(interaction.message.embeds[0].footer.text.split(' ')[3])
+    if index > 0:
+        index -= 1
     embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic'] if data[0]['phonetic'] != None else ''}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
     embed.set_footer(text=f"Meaning {index+1} of {length}")
     await interaction.followup.edit_message(message_id=interaction.message.id, embed=embed, view=Controller(index, length-1))
