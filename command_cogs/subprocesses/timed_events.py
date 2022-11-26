@@ -13,6 +13,10 @@ async def thread_function(Bot, data):
         await channel.send(f"<@!{data[2][1]}>, reminder:", embed=general_utils.Embed(author=user, title=data[2][2]))
         # remove reminder from database
         database_utils.remove_reminders([data[2][0]])
+    elif data[0] == "geoforecast":
+        await asyncio.sleep(max(0, data[1] - time.time()))
+        # send warning message
+        pass
 
 async def event_loop(Bot):
     Bot.event_cache = []# (type, time, data)
@@ -44,6 +48,8 @@ async def event_loop(Bot):
                         #await _thread_function(Bot, ("reminder", reminder[3], reminder))
                     else:
                         Bot.event_cache.append(("reminder", reminder[3], reminder))
+            #add geoforecast events to the cache
+            pass
         else:
             for event in Bot.event_cache:
                 if event[1] - time.time() < 3600:

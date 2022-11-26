@@ -38,8 +38,10 @@ async def on_connect():
 
 @Bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError):
-    await interaction.response.send_message(embed=general_utils.error_embed(message=f"The following error occurred while processing your command:\n```py\n{error}\n```"), ephemeral=True)
-
+    try:
+        await interaction.response.send_message(embed=general_utils.error_embed(message=f"The following error occurred while processing your command:\n```py\n{error}\n```"), ephemeral=True)
+    except discord.errors.InteractionResponded:
+        await interaction.followup.send(embed=general_utils.error_embed(message=f"The following error occurred while processing your command:\n```py\n{error}\n```"), ephemeral=True)
 with open(os.getcwd()+"/tokens.txt") as nonofile:
     nonokey = nonofile.readlines()[0].split(" # ")[0]
 

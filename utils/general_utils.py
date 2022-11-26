@@ -70,7 +70,8 @@ exp_to_level = lambda exp: exp*(0.6/208)#-(((exp/1.6)-exp)/130)
 level_to_exp = lambda exp: exp/(0.6/208)#-(((exp/1.6)-exp)/130)
 
 async def send_via_webhook(channel, Bot, message, username, avatar_url, files=[], embeds=[]):
-
+    #trim message down to the first 2000 characters
+    message = message[:2000] if len(message) > 2000 else message
     webhooks = await channel.webhooks()
     webhook = [webhook for webhook in webhooks if webhook.name == f"{Bot.user.name} Webhook"]
     if len(webhook) == 0: #make webhook if it doesn't exist
