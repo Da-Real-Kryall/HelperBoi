@@ -205,7 +205,13 @@ def remove_reminders(reminder_ids: list):
     everything.close()
 # there is no guild data
 
+def fetch_users_by_setting(setting: str, value):
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
 
+    cursor.execute('''SELECT user_id FROM user_settings WHERE option = ? AND value = ?''', (setting, value))
+
+    return [user[0] for user in cursor.fetchall()]
 
 
 """

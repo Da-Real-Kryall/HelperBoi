@@ -30,11 +30,12 @@ async def on_connect():
     Bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'au', 'default-node')
     # ansi escape code for green: 
     print("\x1b[32m I'm ready!\x1b[0m")
-    while 1:
-        await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f" {str(len(Bot.guilds))} servers | @{str(Bot.user.name)} for help."))
-        await asyncio.sleep(60)
-        await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"REWRITE COMPLETED!"))
-        await asyncio.sleep(15)
+    await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f" {str(len(Bot.guilds))} servers | @{str(Bot.user.name)} for help."))
+    #while 1:
+    #    await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f" {str(len(Bot.guilds))} servers | @{str(Bot.user.name)} for help."))
+    #    await asyncio.sleep(60)
+    #    await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"REWRITE COMPLETED!"))
+    #    await asyncio.sleep(15)
 
 @Bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError):
