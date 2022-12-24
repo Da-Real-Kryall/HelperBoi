@@ -97,6 +97,8 @@ async def setup(Bot): #this was taken straight from the lavalink quickstart, the
             if int(player.channel_id) != interaction.guild.get_member(interaction.user.id).voice.channel.id:
                 await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.guild.get_member(interaction.user.id), message='You must be in the same voice channel as me, to do this command.', apologise=False))
                 return False
+        #set volume to be 50
+        await player.set_volume(50)
         return True
     Bot.ensure_voice = _ensure_voice
 

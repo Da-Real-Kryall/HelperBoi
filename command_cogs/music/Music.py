@@ -12,19 +12,25 @@ class Music(commands.GroupCog, name="music"):
         print("Music cog loaded.")
     
     @app_commands.command(name="volume", description="Set the bot's music volume.")
-    async def _volume(self, interaction: discord.Interaction, volume: app_commands.Range[int, 0, 1000]) -> None:
+    async def _volume(self, interaction: discord.Interaction, volume: app_commands.Range[int, 0, 1000]=None) -> None:
         if not await self.Bot.ensure_voice(interaction):
             return
         player = self.Bot.lavalink.player_manager.get(interaction.guild.id)
 
         volume_embed=general_utils.Embed(author=interaction.user, colour="lime")
-        if volume == player.volume:
-            volume_embed.title = f"Volume wasn't changed, it is already at {volume}%."
+        if volume != None:
+            if volume == player.volume:
+                volume_embed.title = f"Volume wasn't changed, it is already at {volume}%."
+            else:
+                volume_embed.title = f"Volume {'decreased' if player.volume > volume else 'increased'} to {volume}%."
+            if volume == 1000:
+                volume_embed.description = "(I wish your eardrums the best of luck.)"
+            await player.set_volume(volume)
         else:
-            volume_embed.title = f"Volume {'decreased' if player.volume > volume else 'increased'} to {volume}%."
-        if volume == 1000:
-            volume_embed.description = "(I wish your eardrums the best of luck.)"
-        await player.set_volume(volume)
+            volume_embed.title = f"Volume is currently at {player.volume}%."
+            if player.volume == 1000:
+                volume_embed.description = "(I wish your eardrums the best of luck.)"
+
         await interaction.response.send_message(embed=volume_embed)
 
     @app_commands.command(name="play", description="Queries the given song from YouTube and adds it to the queue.")
