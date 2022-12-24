@@ -17,6 +17,9 @@ def get_help_embed(Bot, author: discord.User) -> discord.Embed:
     for command in commands:
         if type(command) == discord.app_commands.Command:
             category = command.module.split(".")[-2]
+            if category == "subprocesses":
+                continue
+            
             if category not in categories:
                 categories.update({category: [command.name]})
             else:

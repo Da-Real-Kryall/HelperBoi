@@ -7,7 +7,9 @@ async def thread_function(Bot, data):
     if data[0] == "reminder":
         await asyncio.sleep(max(0, data[1] - time.time()))
         # send reminder
-        user = await Bot.fetch_user(data[2][1])
+        user = Bot.get_user(data[2][1])
+        if user == None:
+            user = await Bot.fetch_user(data[2][1])
 
         channel = await Bot.fetch_channel(data[2][4])
         await channel.send(f"<@!{data[2][1]}>, reminder:", embed=general_utils.Embed(author=user, title=data[2][2]))

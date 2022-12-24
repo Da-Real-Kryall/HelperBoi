@@ -1,7 +1,7 @@
-import discord, os, json, random
-from discord.ext import commands
-from discord import app_commands
-from utils import database_utils
+import discord, os, json, random#
+from discord.ext import commands#
+from discord import app_commands#
+from utils import database_utils# lol same length
 
 # if autoresponses_require_ping is false AND the chance roll is good, then go
 # or, if the setting is true, then check for a ping, and go
