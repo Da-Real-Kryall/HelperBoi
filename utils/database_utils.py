@@ -180,7 +180,6 @@ def fetch_reminders(user_id: int=None):
         cursor.execute('''SELECT * FROM reminders WHERE user_id = ?''', (user_id,))
         return cursor.fetchall()
 
-#adds a reminder and returns it's id
 def add_reminder(user_id: int, time: int, message: str, channel_id: int):
     everything = sqlite3.connect("Resources/everything.db")
     cursor = everything.cursor()
@@ -193,7 +192,6 @@ def add_reminder(user_id: int, time: int, message: str, channel_id: int):
     res = cursor.fetchone()[0]
     everything.close()
     return res
-    
 
 def remove_reminders(reminder_ids: list):
     everything = sqlite3.connect("Resources/everything.db")
@@ -203,7 +201,6 @@ def remove_reminders(reminder_ids: list):
 
     everything.commit()
     everything.close()
-# there is no guild data
 
 def fetch_users_by_setting(setting: str, value):
     everything = sqlite3.connect("Resources/everything.db")
@@ -213,6 +210,34 @@ def fetch_users_by_setting(setting: str, value):
 
     return [user[0] for user in cursor.fetchall()]
 
+# create the function inferred from this line:
+# id = database_utils.add_submission(interaction.user.id, content, time.time(), "bug")
+def add_submission(user_id: int, content: str, timestamp: int, submission_type: str):
+    everything = sqlite3.connect(f"Resources/everything.db")
+    cursor = everything.cursor()
+
+    if submission_type == "bug":
+        cursor.execute('''INSERT INTO bugreports (user_id, content, timestamp) VALUES (?, ?, ?)''', (user_id, content, timestamp))
+    elif submission_type == "suggestion":
+        cursor.execute('''INSERT INTO suggestions (user_id, content, timestamp) VALUES (?, ?, ?)''', (user_id, content, timestamp))
+    else:
+        raise ValueError("invalid submission type")
+
+    everything.commit()
+    everything.close()
+
+def fetch_submissions(submission_type: str):
+    everything = sqlite3.connect(f"Resources/everything.db")
+    cursor = everything.cursor()
+
+    if submission_type == "bug":
+        cursor.execute('''SELECT * FROM bugreports''')
+    elif submission_type == "suggestion":
+        cursor.execute('''SELECT * FROM suggestions''')
+    else:
+        raise ValueError("invalid submission type")
+
+    return cursor.fetchall()
 
 """
 
