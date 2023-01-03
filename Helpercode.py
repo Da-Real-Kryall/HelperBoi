@@ -46,6 +46,12 @@ async def on_app_command_error(interaction: discord.Interaction, error: discord.
 with open(os.getcwd()+"/tokens.txt") as nonofile:
     nonokey = nonofile.readlines()[0].split(" # ")[0]
 
+# on interaction print custom id
+@Bot.event
+async def on_interaction(interaction):
+    if "custom_id" in interaction.data:
+        print(interaction.data["custom_id"])
+
 Bot.run(nonokey)
 
 #windows xp statrup noise
