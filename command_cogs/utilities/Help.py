@@ -58,7 +58,7 @@ class Help(commands.Cog):
     async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
-        if self.Bot.user in message.mentions:
+        if "<@!"+str(self.Bot.user.id)+">" in message.content or "<@"+str(self.Bot.user.id)+">" in message.content:
             msg = await message.reply(embed=get_help_embed(self.Bot, message.author))
             await msg.add_reaction("💥")
 
@@ -67,6 +67,8 @@ class Help(commands.Cog):
             try:
                 reaction, user = await self.Bot.wait_for('reaction_add', timeout=60.0, check=check)
             except asyncio.TimeoutError:
+                # remove reaction
+                await msg.clear_reactions()
                 return
             else:
                 await msg.delete()
