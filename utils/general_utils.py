@@ -81,15 +81,111 @@ async def send_via_webhook(channel, Bot, message, username, avatar_url, files=[]
     webhook = webhook[0]
     await webhook.send(message, username=username, avatar_url=avatar_url, files=files, embeds=embeds)
 
-
-#async def level_check(delta, cur_amount, channel, author):
-#    if database_utils.fetch_setting("users", author.id, "level_up_alert"):
-#        level = int(exp_to_level(cur_amount))
-#        newlevel = int(exp_to_level(cur_amount+delta))
-#        #print(level, newlevel)
-#        if newlevel > level:
-#            await channel.send(f"{':tada: ' if random.randint(1,3) == 3 else ''}{author.name}, your coolness is now level {newlevel}. :sunglasses:")
-#        elif newlevel < level:
-#            await channel.send(f"{':confused: ' if random.randint(1,3) == 3 else ''}{author.name}, your coolness has decreased to level {newlevel}...")
-
 strf_timedelta = lambda delta: ', '.join(f"{v}{k}" for k, v in ((" Minutes", delta//60), (" Seconds", delta%60)) if v != 0)
+
+
+# the thing that makes the on_interaction function, it can take the identifier (usually the command name) and a dict of functions to do on each 2 of custom_id splti
+
+# example functions dict
+# functions = {
+#     "next": lambda interaction: interaction.respond(content="next"),
+#     "previous": lambda interaction: interaction.respond(content="previous")
+# }
+
+class Controller(discord.ui.View): 
+    """
+    controller class for a scrollable embed view thingy
+    """
+    def __init__(self, identifier: str, scroll_index: int, max_index: int):
+        super().__init__()
+        label_equiv = {
+            "next": "⬇",
+            "previous": "⬆",
+            "delete": "💥"
+        }
+        for name in label_equiv.keys():
+            self.add_item(
+                discord.ui.Button(
+                    label=label_equiv[name],
+                    style=discord.ButtonStyle.blurple if name != "delete" else discord.ButtonStyle.red,
+                    custom_id=f"{identifier}.{name}",
+                    disabled=True if  #apparently parentheses remove a bunch of python's forced indents!
+                    (name == "next" and scroll_index >= (max_index-1)) 
+                    or 
+                    (name == "previous" and scroll_index <= 0)
+                    else 
+                    ( #mmm eye candy
+                        True if
+                        (name == "delete" and max_index == 0)
+                        else
+                        False
+                    )
+                )
+            )
+    
+    async def on_error(self, error, item, interaction):
+        await interaction.followup.send_message(embed=error_embed(message=f"The following error occurred while your interaction:\n```py\n{error}\n```"), ephemeral=True)
+
+def make_functions_dict(identifier, embed_modifier: callable, delete_function: callable):
+    functions_dict = {}
+    async def _next(interaction: discord.Interaction):
+        await interaction.response.defer() 
+        embed = interaction.message.embeds[0]
+
+        scroll_index = int(embed.footer.text.split(" ")[1]) - 1
+        max_index = int(embed.footer.text.split(" ")[3]) - 1
+        identifier = interaction.data["custom_id"].split(".")[0]
+        
+        scroll_index += 1
+
+        embed = embed_modifier(embed, scroll_index, identifier)
+
+        view = Controller(identifier, scroll_index, max_index)
+        await interaction.followup.edit_message(message_id=interaction.message.id, embed=embed, view=view)
+
+    async def _previous(interaction: discord.Interaction):
+        await interaction.response.defer() 
+        embed = interaction.message.embeds[0]
+
+        scroll_index = int(embed.footer.text.split(" ")[1]) - 1
+        max_index = int(embed.footer.text.split(" ")[3]) - 1
+        identifier = interaction.data["custom_id"].split(".")[0]
+        scroll_index -= 1
+
+        embed = embed_modifier(embed, scroll_index, identifier)
+
+        view = Controller(identifier, scroll_index, max_index)
+        await interaction.followup.edit_message(message_id=interaction.message.id, embed=embed, view=view)
+
+    async def _delete(interaction: discord.Interaction):
+        await interaction.response.defer() # [(id, user_id, message, timestamp, channel_id)]
+        embed = interaction.message.embeds[0]
+
+        scroll_index = int(embed.footer.text.split(" ")[1]) - 1
+        identifier = interaction.data["custom_id"].split(".")[0]
+        delete_function(scroll_index)
+        max_index = int(embed.footer.text.split(" ")[3]) - 2
+
+        if scroll_index > max_index:
+            scroll_index = max_index
+        print(scroll_index)
+        embed = embed_modifier(embed, scroll_index, identifier)
+
+        view = Controller(interaction.data["custom_id"].split(".")[0], scroll_index, max_index)
+        await interaction.followup.edit_message(message_id=interaction.message.id, embed=embed, view=view)
+
+    functions_dict["next"] = _next
+    functions_dict["previous"] = _previous
+    functions_dict["delete"] = _delete
+
+    return functions_dict
+
+def interaction_listener_generator(identifier: str, functions: dict):
+    async def on_interaction(interaction: discord.Interaction):
+        if "custom_id" not in interaction.data:
+            return
+        if not interaction.data["custom_id"].startswith(f"{identifier}."):
+            return
+        if interaction.data["custom_id"].split(".")[1] in functions:
+            await functions[interaction.data["custom_id"].split(".")[1]](interaction)
+    return on_interaction

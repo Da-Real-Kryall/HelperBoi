@@ -1,7 +1,18 @@
 import discord, textwrap, json, time
 from discord.ext import commands
 from discord import app_commands
-from utils import general_utils
+from utils import general_utils, database_utils
+
+def suggest_embed_modifier(embed: discord.Embed, scroll_index: int, identifier: str):
+    submissions = database_utils.fetch_submissions(identifier)
+
+    embed.description = ""
+    for index, submission in enumerate(submissions):
+        embed.description += f"` {'>' if index == scroll_index else ' '} ` **[**<t:{submission[3]}:R>**]** - \"{submission[2][:16]+('...' if len(submission[2]) > 16 else '')}\"\n"
+    
+    embed.set_footer(text=f"{identifier.capitalize()} {scroll_index + 1} of {len(submissions)}")
+
+    return embed
 
 class DevTools(commands.Cog):
     def __init__(self, Bot: commands.Bot):
@@ -53,8 +64,6 @@ class DevTools(commands.Cog):
             if '\'await\' expression' not in str(e):
                 await ctx.send(embed=error_embed)
 
-
-
     @commands.command(name="eval")
     @commands.is_owner()
     async def _eval(self, ctx, *, code=None):
@@ -100,7 +109,55 @@ class DevTools(commands.Cog):
             
             if '\'await\' expression' not in str(e): await msg.edit(embed=error_embed)
 
+    
 
+
+    @app_commands.command(name="submissions", description="Recalls and displays either bugreports or suggestions in a menu.")
+    @app_commands.choices(
+        type=[
+            app_commands.Choice(name="Bugreports", value="bug"),
+            app_commands.Choice(name="Suggestions", value="suggestion")
+        ]
+    )
+    # ensure the command author is the bot owner
+    @general_utils.is_owner()
+    async def _submissions(self, interaction: discord.Interaction, type: str):
+        await interaction.response.defer()
+        submissions = database_utils.fetch_submissions(type)
+        print(submissions, len(submissions))
+        if len(submissions) == 0:
+            embed = general_utils.Embed(author=interaction.user, title=f"No {type}s!", description="Nobody has given you any feedback. :(")
+            await interaction.followup.send(embed=embed)
+            return
+
+        embed = general_utils.Embed(author=interaction.user, title={"bug": "Bug Reports:", "suggestion": "Suggestions:"}[type], description="")
+        embed = suggest_embed_modifier(embed, 0, type)
+
+        await interaction.followup.send(embed=embed, view=general_utils.Controller(type, 0, len(submissions)))
+
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction: discord.Interaction):
+        # suggestions
+        if "custom_id" in interaction.data.keys():
+            if interaction.data["custom_id"].split(".")[0] == "suggestion":
+                def delete_suggestion(scroll_index: int):
+                    suggestions = database_utils.fetch_submissions("suggestion")
+                    id = suggestions[scroll_index][0]
+                    database_utils.remove_submission(id, "suggestion")
+                    return max(scroll_index-1, 0)
+                functions = general_utils.make_functions_dict("suggestion", suggest_embed_modifier, delete_suggestion)
+                await general_utils.interaction_listener_generator("suggestion", functions)(interaction)
+
+            # bugreports
+            if interaction.data["custom_id"].split(".")[0] == "bug":
+                def delete_bug(scroll_index: int):
+                    suggestions = database_utils.fetch_submissions("bug")
+                    id = suggestions[scroll_index][0]
+                    database_utils.remove_submission(id, "bug")
+                    return max(scroll_index-1, 0)
+                functions = general_utils.make_functions_dict("bug", suggest_embed_modifier, delete_bug)
+                await general_utils.interaction_listener_generator("bug", functions)(interaction)
+            
 
 async def setup(Bot):
     await Bot.add_cog(DevTools(Bot))

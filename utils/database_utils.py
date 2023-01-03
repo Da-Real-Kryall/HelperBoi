@@ -239,6 +239,19 @@ def fetch_submissions(submission_type: str):
 
     return cursor.fetchall()
 
+def remove_submission(submission_id: int, submission_type: str):
+    everything = sqlite3.connect(f"Resources/everything.db")
+    cursor = everything.cursor()
+
+    if submission_type == "bug":
+        cursor.execute('''DELETE FROM bugreports WHERE id = ?''', (submission_id,))
+    elif submission_type == "suggestion":
+        cursor.execute('''DELETE FROM suggestions WHERE id = ?''', (submission_id,))
+    else:
+        raise ValueError("invalid submission type")
+
+    everything.commit()
+    everything.close()
 """
 
 
