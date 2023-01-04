@@ -3,14 +3,15 @@ from discord.ext import commands
 from discord import app_commands
 from utils import general_utils, database_utils
 
-def suggest_embed_modifier(embed: discord.Embed, scroll_index: int, identifier: str):
+def suggest_embed_modifier(embed: discord.Embed, scroll_index: int, interaction: discord.Interaction):
+    identifier = interaction.data["custom_id"].split(".")[0]
     submissions = database_utils.fetch_submissions(identifier)
 
     embed.description = ""
     for index, submission in enumerate(submissions):
         embed.description += f"` {'>' if index == scroll_index else ' '} ` **[**<t:{submission[3]}:R>**]** - \"{submission[2][:16]+('...' if len(submission[2]) > 16 else '')}\"\n"
     
-    embed.set_footer(text=f"{identifier.capitalize()} {scroll_index + 1} of {len(submissions)}")
+    embed.set_footer(text=f"{identifier.capitalize()} {min(scroll_index + 1, len(submissions))} of {len(submissions)}")
 
     return embed
 
@@ -131,7 +132,8 @@ class DevTools(commands.Cog):
             return
 
         embed = general_utils.Embed(author=interaction.user, title={"bug": "Bug Reports:", "suggestion": "Suggestions:"}[type], description="")
-        embed = suggest_embed_modifier(embed, 0, type)
+        interaction.data.update({"custom_id": "suggestion.0"})
+        embed = suggest_embed_modifier(embed, 0, interaction)
 
         await interaction.followup.send(embed=embed, view=general_utils.Controller(type, 0, len(submissions)))
 
