@@ -31,7 +31,7 @@ class Music(commands.GroupCog, name="music"):
             if player.volume == 1000:
                 volume_embed.description = "(I wish your eardrums the best of luck.)"
 
-        await interaction.response.send_message(embed=volume_embed)
+        await interaction.response.send_message(embed=volume_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
     @app_commands.command(name="play", description="Queries the given song from YouTube and adds it to the queue.")
     async def _play(self, interaction: discord.Interaction, query: str) -> None:
@@ -47,7 +47,7 @@ class Music(commands.GroupCog, name="music"):
         results = await player.node.get_tracks(query)
 
         if not results or not results['tracks']:
-            await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message="No songs were found!", apologise=True))
+            await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message="No songs were found!", apologise=True), ephemeral=general_utils.is_ghost(interaction.user.id))
             return
         
         track = results['tracks'][0]
@@ -62,7 +62,7 @@ class Music(commands.GroupCog, name="music"):
         playing_embed = general_utils.Embed(author=interaction.user, title=embed_title, description=embed_desc, colour="lime")
         playing_embed.set_thumbnail(url=embed_thumbnail)
         
-        await interaction.response.send_message(embed=playing_embed)
+        await interaction.response.send_message(embed=playing_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
         if not player.is_playing:
             await player.play()
@@ -84,7 +84,7 @@ class Music(commands.GroupCog, name="music"):
         else:
             embed_title = "There are no songs in the queue."
         queue_embed.title = embed_title
-        await interaction.response.send_message(embed=queue_embed)
+        await interaction.response.send_message(embed=queue_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
         
     @app_commands.command(name="shuffle", description="Toggle queue shuffle.")
     async def _shuffle(self, interaction: discord.Interaction) -> None:
@@ -97,7 +97,7 @@ class Music(commands.GroupCog, name="music"):
         else:
             embed_title = f"Disabled shuffle."
         shuffle_embed = general_utils.Embed(author=interaction.user, title=embed_title, colour="lime")
-        await interaction.response.send_message(embed=shuffle_embed)
+        await interaction.response.send_message(embed=shuffle_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
     @app_commands.command(name="skip", description="Skip the current song.")
     async def _skip(self, interaction: discord.Interaction) -> None:
@@ -106,7 +106,7 @@ class Music(commands.GroupCog, name="music"):
         player = self.Bot.lavalink.player_manager.get(interaction.guild.id)
         if not player.current:
             return await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message="There is nothing playing right now.", apologise=False), ephemeral=True)
-        await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=f"Skipped {player.current.title}.", colour="lime"))
+        await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=f"Skipped {player.current.title}.", colour="lime"), ephemeral=general_utils.is_ghost(interaction.user.id))
         await player.skip()
 
     @app_commands.command(name="pause", description="Pauses the current song.")
@@ -116,10 +116,10 @@ class Music(commands.GroupCog, name="music"):
         player = self.Bot.lavalink.player_manager.get(interaction.guild.id)
         if player.paused == False:
             await player.set_pause(True)
-            await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=":pause_button:  Pausing music.", colour="lime"))
+            await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=":pause_button:  Pausing music.", colour="lime"), ephemeral=general_utils.is_ghost(interaction.user.id))
         else:
             await player.set_pause(False)
-            await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=":arrow_forward:  Resuming music.", colour="lime"))
+            await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=":arrow_forward:  Resuming music.", colour="lime"), ephemeral=general_utils.is_ghost(interaction.user.id))
     
     @app_commands.command(name="resume", description="Resumes the current song.")
     async def _resume(self, interaction: discord.Interaction):
@@ -128,10 +128,10 @@ class Music(commands.GroupCog, name="music"):
         player = self.Bot.lavalink.player_manager.get(interaction.guild.id)
         if player.paused == False:
             await player.set_pause(True)
-            await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=":pause_button:  Pausing music.", colour="lime"))
+            await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=":pause_button:  Pausing music.", colour="lime"), ephemeral=general_utils.is_ghost(interaction.user.id))
         else:
             await player.set_pause(False)
-            await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=":arrow_forward:  Resuming music.", colour="lime"))
+            await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=":arrow_forward:  Resuming music.", colour="lime"), ephemeral=general_utils.is_ghost(interaction.user.id))
 
     @app_commands.command(name="no_mic", description="Toggles relaying any messages you send from the current text channel into your current vc.")
     async def _no_mic(self, interaction: discord.Interaction):
@@ -165,7 +165,7 @@ class Music(commands.GroupCog, name="music"):
                     }
                 }
             })
-            await interaction.response.send_message(embed=general_utils.Embed(author=author, title="You have been added to the session.", colour="lime"))
+            await interaction.response.send_message(embed=general_utils.Embed(author=author, title="You have been added to the session.", colour="lime"), ephemeral=general_utils.is_ghost(interaction.user.id))
         else:
             if author.id not in self.Bot.current_nm_sessions[interaction.guild.id]["users"]:
                 self.Bot.current_nm_sessions[interaction.guild.id]["users"].update({
@@ -173,11 +173,11 @@ class Music(commands.GroupCog, name="music"):
                 })
             else:
                 self.Bot.current_nm_sessions[interaction.guild.id]["users"].pop(author.id)
-                await interaction.response.send_message(embed=general_utils.Embed(author=author, title="You have been removed from the session.", colour="lime"))
+                await interaction.response.send_message(embed=general_utils.Embed(author=author, title="You have been removed from the session.", colour="lime"), ephemeral=general_utils.is_ghost(interaction.user.id))
                 if len(self.Bot.current_nm_sessions[interaction.guild.id]["users"]) == 0:
                     await self.Bot.current_nm_sessions[interaction.guild.id]["voice_client"].disconnect()
                     self.Bot.current_nm_sessions.pop(interaction.guild.id)
-                    await interaction.response.send_message(embed=general_utils.Embed(author=author, title="Ended the session in this channel because there were no active users. Have a nice day!", colour="lime"))
+                    await interaction.response.send_message(embed=general_utils.Embed(author=author, title="Ended the session in this channel because there were no active users. Have a nice day!", colour="lime"), ephemeral=general_utils.is_ghost(interaction.user.id))
 
     @app_commands.command(name="loop", description="Toggles looping of the song queue.")
     async def _loop(self, interaction: discord.Interaction):
@@ -190,7 +190,7 @@ class Music(commands.GroupCog, name="music"):
         else:
             embed_title = f"Disabled looping."
         repeat_embed = general_utils.Embed(author=interaction.user, title=embed_title, colour="lime")
-        await interaction.response.send_message(embed=repeat_embed)
+        await interaction.response.send_message(embed=repeat_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
     @app_commands.command(name="seek", description="Seeks to a specific point in the current song.")
     async def _seek(self, interaction: discord.Interaction, seconds: int):
@@ -202,7 +202,7 @@ class Music(commands.GroupCog, name="music"):
         if seconds > player.current.duration:
             return await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message="You cannot seek to a point in the song that is longer than the song itself.", apologise=False), ephemeral=True)
         await player.seek(seconds * 1000)
-        await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=f"Seeked to {seconds} seconds.", colour="lime"))
+        await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=f"Seeked to {seconds} seconds.", colour="lime"), ephemeral=general_utils.is_ghost(interaction.user.id))
 
     @app_commands.command(name="leave", description="Leaves the current voice channel. (And clears the queue.)")
     async def _leave(self, interaction: discord.Interaction):
@@ -218,7 +218,7 @@ class Music(commands.GroupCog, name="music"):
         await interaction.guild.voice_client.disconnect(force=False)
 
         disconnect_embed = general_utils.Embed(author=interaction.user, title="Disconnected and cleared the queue. Have a nice day!", colour="lime")
-        await interaction.response.send_message(embed=disconnect_embed)
+        await interaction.response.send_message(embed=disconnect_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
     @app_commands.command(name="join", description="Joins the voice channel you are in.")
     async def _join(self, interaction: discord.Interaction):
@@ -232,7 +232,7 @@ class Music(commands.GroupCog, name="music"):
             return
         author = interaction.guild.get_member(interaction.user.id)
         channel = author.voice.channel
-        await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=f"Joined {channel.name}.", colour="lime"))
+        await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=f"Joined {channel.name}.", colour="lime"), ephemeral=general_utils.is_ghost(interaction.user.id))
 
     @app_commands.command(name="current", description="Shows info about the current song.")
     async def _current(self, interaction: discord.Interaction):
@@ -247,7 +247,7 @@ class Music(commands.GroupCog, name="music"):
         embed.add_field(name="Position:", value=f"{general_utils.strf_timedelta(int(player.position/1000))}")
         embed.add_field(name="Requested by:", value=f"{interaction.guild.get_member(song.requester).mention}")
         embed.set_thumbnail(url=f"https://img.youtube.com/vi/{song.identifier}/default.jpg")
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=general_utils.is_ghost(interaction.user.id))
         
 async def setup(Bot):
     await Bot.add_cog(Music(Bot))

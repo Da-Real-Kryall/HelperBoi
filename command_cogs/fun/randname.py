@@ -88,7 +88,7 @@ class RandName(commands.Cog):
     @app_commands.command(name="randname", description="Random name generator 4.0! uses markov chains to generate name, trained a british name data set.")
     async def _randname(self, interaction: discord.Interaction, count: app_commands.Range[int, 1, 10]=1) -> None:
         embed = generate_embed(interaction.user, count)
-        await interaction.response.send_message(embed=embed, view=Controller(count))
+        await interaction.response.send_message(embed=embed, view=Controller(count), ephemeral=general_utils.is_ghost(interaction.user.id))
                     
 async def setup(Bot):
     await Bot.add_cog(RandName(Bot))

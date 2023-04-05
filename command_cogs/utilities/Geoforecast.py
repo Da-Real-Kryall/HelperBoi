@@ -45,7 +45,7 @@ class Geoforecast(commands.Cog):
             data = [line[15:] for line in data[510:].split("\n")]
             data = [line.split("      ") for line in data][1:-1]
             data = sum(data, [])
-            data = max([float(data[i]) for i in range(len(data))])
+            #data = max([float(data[i]) for i in range(len(data))]) # this errors, but when commented out it doesn't alter anything so I'll leave it commented for now. 
 
             if datetime.now().hour == 0:
                 if data >= 5:
@@ -69,7 +69,7 @@ The Kp index is measured on a scale of 0 to 9, with anything above or equal to 5
 *(A Kp of 5 denotes a G1 storm, with Kp 6 being G2, and so on.)*
 
 A famous example of the effects of a G5 storm is the [1859 Carrington Event](https://en.wikipedia.org/wiki/Carrington_Event), which caused telegraph systems to fail across the world, and was the strongest geomagnetic storm ever recorded. We are overdue for another such event.""")
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
 async def setup(Bot):
     await Bot.add_cog(Geoforecast(Bot))

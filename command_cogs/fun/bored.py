@@ -63,7 +63,7 @@ class Bored(commands.Cog):
 
     @app_commands.command(name="bored", description="Sends a random activity for when you're bored. Powered by (the bored api)[http://www.boredapi.com].")
     async def _bored(self, interaction: discord.Interaction):
-        await interaction.response.send_message(embed=generate_embed(interaction), view=Controller())
+        await interaction.response.send_message(embed=generate_embed(interaction), view=Controller(), ephemeral=general_utils.is_ghost(interaction.user.id))
 
 async def setup(Bot):
     await Bot.add_cog(Bored(Bot))

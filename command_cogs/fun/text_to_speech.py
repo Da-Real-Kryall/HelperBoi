@@ -1,6 +1,7 @@
 import discord, random, tempfile
 from discord.ext import commands
 from discord import app_commands
+from utils import  general_utils
 from gtts import gTTS
 
 tld_list = [
@@ -32,7 +33,7 @@ class TextToSpeech(commands.Cog):
         tts = gTTS(text = text, tld=random.choice(tld_list))
         tmp_file=tempfile.NamedTemporaryFile(delete=True, suffix=".mp3")
         tts.save(tmp_file.name)
-        await interaction.followup.send(file=discord.File(tmp_file.name))
+        await interaction.followup.send(file=discord.File(tmp_file.name), ephemeral=general_utils.is_ghost(interaction.user.id))
         tmp_file.close()
 
 async def setup(Bot):

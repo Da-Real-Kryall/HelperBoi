@@ -14,7 +14,7 @@
         },
         "ghost_command_output": {
             "default": 0,
-            "description": "Controls wether all command outputs will be ephemeral; only visible to you."
+            "description": "Controls wether all command outputs will be ephemeral; only visible to you. Exceptions to this are commands that directly involve another user, which will always be visible."
         }
     },
     "servers": {

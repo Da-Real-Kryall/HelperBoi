@@ -84,18 +84,18 @@ async def setup(Bot): #this was taken straight from the lavalink quickstart, the
         player = Bot.lavalink.player_manager.create(interaction.guild.id, endpoint="sydney")
         player.store("text_channel", interaction.channel.id)
         if not interaction.guild.get_member(interaction.user.id).voice or not interaction.guild.get_member(interaction.user.id).voice.channel:
-            await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.guild.get_member(interaction.user.id), message='Please join a voicechannel first.', apologise=False))
+            await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.guild.get_member(interaction.user.id), message='Please join a voicechannel first.', apologise=False), ephemeral=general_utils.is_ghost(interaction.user.id))
             return False
         if not player.is_connected:
             permissions = interaction.app_permissions
             if not permissions.connect or not permissions.speak:  # Check user limit too?
-                await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.guild.get_member(interaction.user.id), message="I'm missing the `connect` and `speak` permissions required to play songs...", apologise=True))
+                await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.guild.get_member(interaction.user.id), message="I'm missing the `connect` and `speak` permissions required to play songs...", apologise=True), ephemeral=general_utils.is_ghost(interaction.user.id))
                 return False
             player.store('channel', interaction.channel.id)
             await interaction.guild.get_member(interaction.user.id).voice.channel.connect(cls=LavalinkVoiceClient)
         else:
             if int(player.channel_id) != interaction.guild.get_member(interaction.user.id).voice.channel.id:
-                await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.guild.get_member(interaction.user.id), message='You must be in the same voice channel as me, to do this command.', apologise=False))
+                await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.guild.get_member(interaction.user.id), message='You must be in the same voice channel as me, to do this command.', apologise=False), ephemeral=general_utils.is_ghost(interaction.user.id))
                 return False
         #set volume to be 50
         await player.set_volume(50)

@@ -21,7 +21,7 @@ class Brocode(commands.Cog):
 
         embed = general_utils.Embed(author=interaction.user, title=f"The {general_utils.ordinal(int(number))} rule of the brocode is:", description=data[number])
         embed.colour = discord.Colour.random()
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
 async def setup(Bot):
     await Bot.add_cog(Brocode(Bot))

@@ -1,6 +1,7 @@
 import discord, random, colorsys
-from discord.ext import commands
+from discord.ext import commands # heh square
 from discord import app_commands
+from utils import  general_utils
 
 def generate_embeds(mode: str, format: str, amount: int):
     if mode == "normal":
@@ -59,7 +60,7 @@ class RandColour(commands.Cog):
     )
     async def _randcolour(self, interaction: discord.Interaction, mode: str="normal", format: str="hex", amount: app_commands.Range[int, 1, 10]=1) -> None:
         embeds = generate_embeds(mode, format, amount)
-        await interaction.response.send_message(embeds=embeds, view=Controller(mode, format, amount))
+        await interaction.response.send_message(embeds=embeds, view=Controller(mode, format, amount), ephemeral=general_utils.is_ghost(interaction.user.id))
 
     
 async def setup(Bot):

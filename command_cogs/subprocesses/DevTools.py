@@ -5,14 +5,17 @@ from utils import general_utils, database_utils
 
 def suggest_embed_modifier(embed: discord.Embed, scroll_index: int, interaction: discord.Interaction):
     identifier = interaction.data["custom_id"].split(".")[0]
+    print(identifier)
     submissions = database_utils.fetch_submissions(identifier)
 
+    embed.set_footer(text=f"{identifier.capitalize()} {min(scroll_index + 1, len(submissions))} of {len(submissions)}")
+    
+    embed.clear_fields()
     embed.description = ""
     for index, submission in enumerate(submissions):
         embed.description += f"` {'>' if index == scroll_index else ' '} ` **[**<t:{submission[3]}:R>**]** - \"{submission[2][:16]+('...' if len(submission[2]) > 16 else '')}\"\n"
+        #embed.add_field(name="Message:", value=submission[2], inline=False)
     
-    embed.set_footer(text=f"{identifier.capitalize()} {min(scroll_index + 1, len(submissions))} of {len(submissions)}")
-
     return embed
 
 class DevTools(commands.Cog):
@@ -28,7 +31,7 @@ class DevTools(commands.Cog):
     @general_utils.is_owner()
     async def _reload(self, interaction: discord.Interaction, cog: str) -> None:
         try:
-            self.Bot.reload_extension("command_cogs."+cog)
+            await self.Bot.reload_extension("command_cogs."+cog)
             await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title="Cog reloaded successfully.", colour="green"), ephemeral=True)
         except Exception as e:
             await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message=f"The following error occurred while reloading the cog:\n```py\n{e}\n```"), ephemeral=True)
@@ -115,27 +118,28 @@ class DevTools(commands.Cog):
 
     @app_commands.command(name="submissions", description="Recalls and displays either bugreports or suggestions in a menu.")
     @app_commands.choices(
-        type=[
+        submission_type=[
             app_commands.Choice(name="Bugreports", value="bug"),
             app_commands.Choice(name="Suggestions", value="suggestion")
         ]
     )
     # ensure the command author is the bot owner
     @general_utils.is_owner()
-    async def _submissions(self, interaction: discord.Interaction, type: str):
+    async def _submissions(self, interaction: discord.Interaction, submission_type: str):
+        print(submission_type)
         await interaction.response.defer()
-        submissions = database_utils.fetch_submissions(type)
+        submissions = database_utils.fetch_submissions(submission_type)
         print(submissions, len(submissions))
         if len(submissions) == 0:
-            embed = general_utils.Embed(author=interaction.user, title=f"No {type}s!", description="Nobody has given you any feedback. :(")
+            embed = general_utils.Embed(author=interaction.user, title=f"No {submission_type}s!", description="Nobody has given you any feedback. :(")
             await interaction.followup.send(embed=embed)
             return
 
-        embed = general_utils.Embed(author=interaction.user, title={"bug": "Bug Reports:", "suggestion": "Suggestions:"}[type], description="")
-        interaction.data.update({"custom_id": "suggestion.0"})
+        embed = general_utils.Embed(author=interaction.user, title={"bug": "Bug Reports:", "suggestion": "Suggestions:"}[submission_type], description="")
+        interaction.data.update({"custom_id": f"{submission_type}.0"})
         embed = suggest_embed_modifier(embed, 0, interaction)
 
-        await interaction.followup.send(embed=embed, view=general_utils.Controller(type, 0, len(submissions)))
+        await interaction.followup.send(embed=embed, view=general_utils.Controller(submission_type, 0, len(submissions)))
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):

@@ -23,7 +23,7 @@ class Balance(commands.Cog):
         if balance > 10000:
             embed.set_footer(text=f"{balance}, to be exact.")
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
 async def setup(Bot):
     await Bot.add_cog(Balance(Bot))

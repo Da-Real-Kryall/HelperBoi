@@ -83,6 +83,15 @@ async def send_via_webhook(channel, Bot, message, username, avatar_url, files=[]
 
 strf_timedelta = lambda delta: ', '.join(f"{v}{k}" for k, v in ((" Minutes", delta//60), (" Seconds", delta%60)) if v != 0)
 
+def is_ghost(id: int) -> bool:
+    """
+    Returns whether the user with the given id has enabled the ghost setting, and thus whether to make message responses to them ephemeral.
+    """
+    from utils import database_utils
+    settings = database_utils.fetch_user_data(id, "settings")
+    return bool(settings["ghost_command_output"])
+
+
 class Controller(discord.ui.View): 
     """
     controller class for a scrollable embed view thingy
@@ -100,6 +109,7 @@ class Controller(discord.ui.View):
                     label=label_equiv[name],
                     style=discord.ButtonStyle.blurple if name != "delete" else discord.ButtonStyle.red,
                     custom_id=f"{identifier}.{name}",
+                    row=1 if name == "next" else 0,
                     disabled=True if  #apparently parentheses remove a bunch of python's forced indents!
                     (name == "next" and scroll_index >= length-1) 
                     or 

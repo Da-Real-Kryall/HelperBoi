@@ -1,6 +1,7 @@
 
 
 import math, sqlite3, os, json, time
+from typing import Union
 
 with open(os.getcwd()+"/Resources/json/items.json") as file:
     item_json = json.loads(file.read())
@@ -72,7 +73,18 @@ def initialize_server(server_id:int):
         everything.commit()
     everything.close()
 
+
 def fetch_user_data(user_id: int, data_type: str):
+    """
+    Valid data types:
+        * balance
+        * coolness
+        * slaps
+        * permission_level
+        * blocked
+        * inventory
+        * settings
+    """
     everything = sqlite3.connect("Resources/everything.db")
     cursor = everything.cursor()
 
@@ -120,6 +132,16 @@ def fetch_guild_settings(server_id: int):
     return dict(cursor.fetchall())
 
 def set_user_data(user_id: int, data_type: str, value):
+    """
+    Valid data types:
+        * balance
+        * coolness
+        * slaps
+        * permission_level
+        * blocked
+        * inventory
+        * settings
+    """
     initialize_user(user_id)
 
     everything = sqlite3.connect("Resources/everything.db")
@@ -252,6 +274,58 @@ def remove_submission(submission_id: int, submission_type: str):
 
     everything.commit()
     everything.close()
+
+# returns, in seconds, the time until or since a cooldown has expired. If reset is true and the cooldown delta is negative, the cooldown will be reset, and the negative delta will be returned.
+# If there is no cooldown with the specified name, returns None
+def check_cooldown(user_id: int, cooldown_name: str, reset: bool=True) -> float:
+    #just to note, the timestamp is the time when the command was last used, not when it'l next be available.
+    #the delta calculated is the difference between the current time and the timestamp (calculated as the current time minus the timestamp) and when 
+    """
+    CREATE TABLE IF NOT EXISTS `cooldowns` (
+        `user_id` INT NOT NULL,
+        `name` TEXT NOT NULL,
+        `timestamp` INT NOT NULL,
+        CONSTRAINT `user_id`
+            FOREIGN KEY (`user_id`)
+            REFERENCES `users` (`discord_id`)
+    );
+    """
+
+    everything = sqlite3.connect("Resources/everything.db")
+    cursor = everything.cursor()
+
+    # sync the cooldowns table for this user with the cooldowns.json file
+
+    cursor.execute('''SELECT name FROM cooldowns WHERE user_id = ?''', (user_id,))
+    res = cursor.fetchall()
+    if res is None:
+        res = []
+    else:
+        res = [row[0] for row in res]
+
+    cooldowns = json.load(open("Resources/json/command_cooldowns.json", "r"))
+
+    for cooldown in cooldowns.keys():
+        if cooldown not in res:
+            cursor.execute('''INSERT INTO cooldowns (user_id, name, timestamp) VALUES (?, ?, ?)''', (user_id, cooldown, time.time()))
+
+    cursor.execute('''SELECT timestamp FROM cooldowns WHERE user_id = ? AND name = ?''', (user_id, cooldown_name))
+    res = cursor.fetchone()
+    if res is None:
+        return None
+    delta = time.time() - res[0]
+    #print(time.time(), res[0], delta, cooldowns[cooldown_name])
+    if delta > cooldowns[cooldown_name] and reset:
+        #print(delta, "RESETTED")
+        cursor.execute('''UPDATE cooldowns SET timestamp = ? WHERE user_id = ? AND name = ?''', (time.time(), user_id, cooldown_name))
+        everything.commit()
+        everything.close()
+        return delta
+    else:
+        everything.commit()
+        everything.close()
+        return delta
+
 """
 
 

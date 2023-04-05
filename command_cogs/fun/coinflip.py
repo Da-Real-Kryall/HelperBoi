@@ -26,7 +26,7 @@ class Coinflip(commands.Cog):
 
         cf_embed = general_utils.Embed(author=interaction.user, title=res_dict[result])
 
-        await interaction.response.send_message(embed=cf_embed)
+        await interaction.response.send_message(embed=cf_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
 async def setup(Bot):
     await Bot.add_cog(Coinflip(Bot))

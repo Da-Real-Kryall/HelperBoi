@@ -230,7 +230,7 @@ async def setup(Bot):
             for key, value in user_info.items():
                 user_info_embed.add_field(name=key, value=value)
 
-            await interaction.response.send_message(embed=user_info_embed)
+            await interaction.response.send_message(embed=user_info_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
         @app_commands.command(name="server", description="Get info about the server.")
         async def serverinfo_command(self, interaction: discord.Interaction):
@@ -303,7 +303,7 @@ async def setup(Bot):
                     net_worth += database_utils.fetch_user_data(user.id, "balance")
             guild_info_embed.add_field(name="Server Net Worth:", value=f"§{general_utils.si_format(net_worth)}")
 
-            await interaction.response.send_message(embed=guild_info_embed)
+            await interaction.response.send_message(embed=guild_info_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
         @app_commands.command(name="define", description="Looks up a dictionary definition for a word.")
         async def _define(self, interaction: discord.Interaction, word: str):
@@ -355,9 +355,9 @@ async def setup(Bot):
                 #        embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic']}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
                 #        embed.set_footer(text=f"Meaning {index+1} of {length}")
                 #        await interaction.response.edit_message(embed=embed, view=self)
-                await interaction.followup.send(embed=embed, view=Controller(0, len(data[0]['meanings'])))
+                await interaction.followup.send(embed=embed, view=Controller(0, len(data[0]['meanings'])), ephemeral=general_utils.is_ghost(interaction.user.id))
             else:
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
 
     await Bot.add_cog(Info(Bot))

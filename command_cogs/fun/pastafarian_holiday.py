@@ -18,7 +18,7 @@ class PastafarianHoliday(commands.Cog):
             data = json.loads(file.read())
         pf_embed = general_utils.Embed(interaction.user, title=f"Today is {data[datetime.now().strftime('%b %-d')]}!")
         pf_embed.colour = discord.Colour.random()
-        await interaction.response.send_message(embed=pf_embed)
+        await interaction.response.send_message(embed=pf_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
         
 async def setup(Bot):
     await Bot.add_cog(PastafarianHoliday(Bot))

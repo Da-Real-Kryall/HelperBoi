@@ -34,7 +34,7 @@ class Inventory(commands.Cog):
         
         embed.description = description[:-5]
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
 async def setup(Bot):
     await Bot.add_cog(Inventory(Bot))

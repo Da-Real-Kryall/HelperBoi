@@ -180,7 +180,7 @@ class Bible(commands.Cog):
 
         bible_embed = general_utils.Embed(author=interaction.user, title=f"{book} {chapter}:{verse}{'-'+str(end_verse) if end_verse != 0 else ''}", description=data, colour="blue")
 
-        await interaction.response.send_message(embed=bible_embed)
+        await interaction.response.send_message(embed=bible_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
 async def setup(Bot):
     await Bot.add_cog(Bible(Bot))

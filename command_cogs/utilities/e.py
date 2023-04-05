@@ -14,7 +14,7 @@ class E(commands.Cog):
     @app_commands.command(name="e", description="Test command. Makes E.")
     async def _e(self, interaction: discord.Interaction) -> None:
         e,n='E'*5,'\n'
-        await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=((e*3+n)*2+(e+n)*2)*2+(e*3+n)*2))
+        await interaction.response.send_message(embed=general_utils.Embed(author=interaction.user, title=((e*3+n)*2+(e+n)*2)*2+(e*3+n)*2), ephemeral=general_utils.is_ghost(interaction.user.id))
 
 async def setup(Bot):
     await Bot.add_cog(E(Bot))

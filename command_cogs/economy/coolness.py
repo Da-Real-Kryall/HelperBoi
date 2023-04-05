@@ -24,7 +24,7 @@ class Coolness(commands.Cog):
         embed_description = f"`{str(int(level)).rjust(2, ' ')} |{'='*int((level%1)*30-1)}{'>' if int((level%1)*30) > 0 else ''}{' '*int(30-(level%1)*30)}| {str(int(level+1)).rjust(2, ' ')}`"
         embed = general_utils.Embed(author=interaction.user, title=embed_title, description=embed_description, colour="indigo")
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
 async def setup(Bot):
     await Bot.add_cog(Coolness(Bot))
