@@ -34,35 +34,61 @@ class Music(commands.GroupCog, name="music"):
         await interaction.response.send_message(embed=volume_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
     @app_commands.command(name="play", description="Queries the given song from YouTube and adds it to the queue.")
-    async def _play(self, interaction: discord.Interaction, query: str) -> None:
+    #@app_commands.choices(
+    #    type=[
+    #        app_commands.Choice(name="Tracks", value="tracks"),
+    #        app_commands.Choice(name="Playlists", value="playlists")
+    #    ]
+    #)
+    #async def _randcolour(self, interaction: discord.Interaction, mode: str="normal", format: str="hex", amount: app_commands.Range[int, 1, 10]=1) -> None:
+    
+    async def _play(self, interaction: discord.Interaction, query: str) -> None: #, search_playlists: bool=False
+        await interaction.response.defer()
+
         if not await self.Bot.ensure_voice(interaction):
             return
 
         player = self.Bot.lavalink.player_manager.get(interaction.guild.id)
 
         # SoundCloud searching is possible by prefixing "scsearch:" instead
+        query = query.strip('<>')
         if not re.compile(r'https?://(?:www\.)?.+').match(query):
             query = f'ytsearch:{query} song'
 
         results = await player.node.get_tracks(query)
 
-        if not results or not results['tracks']:
-            await interaction.response.send_message(embed=general_utils.error_embed(author=interaction.user, message="No songs were found!", apologise=True), ephemeral=general_utils.is_ghost(interaction.user.id))
+        if not results or not results.tracks:
+            await interaction.followup.send(embed=general_utils.error_embed(author=interaction.user, message="No songs were found!", apologise=True), ephemeral=general_utils.is_ghost(interaction.user.id))
             return
-        
-        track = results['tracks'][0]
-        track = lavalink.models.AudioTrack(track, interaction.user.id, recommended=True)
-        player.add(requester=interaction.user.id, track=track)
 
-        embed_title = 'Song added to queue:'
-        embed_desc = f'[{track["info"]["title"]}]({track["info"]["uri"]})'
-        embed_desc += f'\n\nDuration: {general_utils.strf_timedelta(int(track.duration/1000))}.'
-        embed_thumbnail = f"https://img.youtube.com/vi/{track['info']['identifier']}/default.jpg"
-        
+        if results.load_type == 'PLAYLIST_LOADED':
+            tracks = results.tracks
+            for track in tracks:
+                player.add(requester=interaction.user.id, track=track)
+    
+            embed_title = f'{len(tracks)} songs added to queue:'
+            embed_desc = '\n'.join([f'**{index}.** [{track["info"]["title"]}]({track["info"]["uri"]})' for index, track in enumerate(tracks, start=1)])
+            embed_desc += f'\n\nDuration: {general_utils.strf_timedelta(int(sum([track.duration for track in tracks])/1000))}.'
+            embed_thumbnail = f"https://img.youtube.com/vi/{tracks[0]['info']['identifier']}/default.jpg"
+            
+        else:
+            track = results['tracks'][0]
+
+            track = lavalink.models.AudioTrack(track, interaction.user.id, recommended=True)
+            player.add(requester=interaction.user.id, track=track)
+
+            embed_title = 'Song added to queue:'
+            embed_desc = f'[{track["info"]["title"]}]({track["info"]["uri"]})'
+            embed_desc += f'\n\nDuration: {general_utils.strf_timedelta(int(track.duration/1000))}.'
+            embed_thumbnail = f"https://img.youtube.com/vi/{track['info']['identifier']}/default.jpg"
+
+        while len(embed_desc) > 4090:
+            embed_desc = '\n'.join(embed_desc.split('\n')[:-2])+'\n...'
+            
         playing_embed = general_utils.Embed(author=interaction.user, title=embed_title, description=embed_desc, colour="lime")
         playing_embed.set_thumbnail(url=embed_thumbnail)
-        
-        await interaction.response.send_message(embed=playing_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
+
+        await interaction.followup.send(embed=playing_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
         if not player.is_playing:
             await player.play()

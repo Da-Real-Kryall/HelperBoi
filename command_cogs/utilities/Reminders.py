@@ -6,15 +6,27 @@ from utils import database_utils, general_utils
 
 def remind_embed_modifier(embed: discord.Embed, scroll_index: int, interaction: discord.Interaction):
     reminders = database_utils.fetch_reminders(interaction.user.id)
-    scroll_index = int(embed.footer.text.split(" ")[1]) - 1
     length = int(embed.footer.text.split(" ")[3])
-
-    embed.set_footer(text=f"Reminder {min(scroll_index + 1, length)} of {length}")
+    embed.set_footer(text=f"Reminder {min(scroll_index+1, length)} of {length}")
     embed.clear_fields()
     embed.description = ""
-    for index, reminder in enumerate(reminders):
-        embed.description += f"` {'>' if index == scroll_index else ' '} ` **[**<t:{reminder[3]}:R>**]** - \"{reminder[2]}\"\n"
-        #embed.add_field(name="Message:", value=reminder[2])
+    offset = 0
+    if len(reminders) > 10:
+        offset = scroll_index - 5
+        if offset < 0:
+            offset = 0
+        if offset > len(reminders) - 10:
+            offset = len(reminders) - 10
+    if offset != 0:
+        embed.description += f"[{offset} more]\n"
+        
+    for index, reminder in enumerate(reminders[offset:offset+10], offset):
+        #embed.description += f"` {'>' if index == scroll_index else ' '} ` **[**<t:{reminder[3]}:R>**]**\n"# - \"{reminder[2]}\"\n"
+        embed.description += f"` {'>' if index == scroll_index else ' '} ` **[**<t:{reminder[3]}:R>**]** - \"{reminder[2][:16]+('...' if len(reminder[2]) > 16 else '')}\"\n"
+        if index == scroll_index:
+            embed.add_field(name="Message:", value=reminder[2])
+    if offset != len(reminders) - 10:
+        embed.description += f"[{len(reminders)-10} more]"
 
     return embed
 

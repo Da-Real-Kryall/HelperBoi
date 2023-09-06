@@ -27,7 +27,7 @@ async def on_connect():
 
     #lavalink thing
     Bot.lavalink = lavalink.Client(Bot.user.id)
-    Bot.lavalink.add_node('127.0.0.1', 2333, 'youshallnotpass', 'au', 'default-node')
+    Bot.lavalink.add_node('127.0.0.1', 2334, 'idontcareaboutsecurity', 'au', 'default-node')
     # ansi escape code for green: 
     print("\x1b[32m I'm ready!\x1b[0m")
     #await Bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f" {str(len(Bot.guilds))} servers | @{str(Bot.user.name)} for help."))

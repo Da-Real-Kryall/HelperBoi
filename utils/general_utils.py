@@ -30,6 +30,7 @@ class Colours:
 def represents_int(s):
     try: 
         int(s)
+        #if s % 1 != 0: raise ValueError
         return True
     except ValueError:
         return False

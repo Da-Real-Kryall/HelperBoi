@@ -1,4 +1,5 @@
 import discord, os, json, requests, math
+from random import randint
 from discord.ext import commands
 from discord import app_commands
 from utils import general_utils, database_utils
@@ -34,6 +35,8 @@ async def _next(interaction: discord.Interaction):
     length = int(interaction.message.embeds[0].footer.text.split(' ')[3])
     if index < length-1:
         index += 1
+    if 'phonetic' not in data[0]:
+        data[0]['phonetic'] = None
     embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic'] if data[0]['phonetic'] != None else ''}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
     embed.set_footer(text=f"Meaning {index+1} of {length}")
     await interaction.followup.edit_message(message_id=interaction.message.id, embed=embed, view=Controller(index, length-1))
@@ -47,6 +50,8 @@ async def _previous(interaction: discord.Interaction):
     length = int(interaction.message.embeds[0].footer.text.split(' ')[3])
     if index > 0:
         index -= 1
+    if 'phonetic' not in data[0]:
+        data[0]['phonetic'] = None
     embed.description = f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic'] if data[0]['phonetic'] != None else ''}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
     embed.set_footer(text=f"Meaning {index+1} of {length}")
     await interaction.followup.edit_message(message_id=interaction.message.id, embed=embed, view=Controller(index, length-1))
@@ -112,7 +117,7 @@ async def setup(Bot):
         async def _whois(self, interaction: discord.Interaction, user: discord.Member):
             user = interaction.guild.get_member(user.id)
             #base embed
-            user_info_embed = general_utils.Embed(author=interaction.user, title=f"About {user.name}#{user.discriminator}: {f'{statuses_dict[user.status[1]]} '}")
+            user_info_embed = general_utils.Embed(author=interaction.user, title=f"About {user.name}: {f'{statuses_dict[user.status[1]]} '}")
             
             if user.bot:
                 user_info_embed.title += f"{'<:CHECK:768779393509097484>' if user.public_flags.verified_bot else ''}<:B_:768779404888899605><:O_:768779415852417034><:T_:768779427487416341>"
@@ -310,14 +315,18 @@ async def setup(Bot):
             await interaction.response.defer()
             data = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}").json()
             if 'title' in data:
-                await interaction.followup.send(embed=general_utils.error_embed(author=interaction.user, message=f"I couldn't find \"{word}\" in the dictionary..."), ephemeral=True)
+                error_embed = general_utils.error_embed(author=interaction.user, message=f"I couldn't find \"{word}\" in the dictionary...")
+                if randint(0,5) == 3:
+                    error_embed.description += "\nWords are more likely to be recognised the less niche their definition is. (For example, scientific terms like 'Diastereoisomerism' probably won't be picked up.)"
+                await interaction.followup.send(embed=error_embed, ephemeral=True)
                 return
             index = 0
-
+            if 'phonetic' not in data[0]:
+                data[0]['phonetic'] = None
             embed = general_utils.Embed(
                 author=interaction.user,
                 title=f"Definition of {word}.",
-                description=f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic']}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
+                description=f"[{data[0]['meanings'][index]['partOfSpeech']}]     {data[0]['phonetic'] if data[0]['phonetic'] != None else ''}\n {data[0]['meanings'][index]['definitions'][0]['definition']}"
             )
             
             if len(data[0]['meanings']) > 1:
