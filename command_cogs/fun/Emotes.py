@@ -29,7 +29,9 @@ async def setup(Bot):
             cuddle_embed.colour = discord.Colour.random()
             cuddle_embed.set_image(url=f"https://cdn.weeb.sh/images/{random.choice(gif_json['cuddle'])}")
 
-            await interaction.response.send_message(embed=cuddle_embed)
+            await interaction.response.send_message(embed=cuddle_embed, ephemeral=(
+                general_utils.is_ghost(interaction.user.id) if interaction.user.id == user.id else False
+            ))
 
         @app_commands.command(name="pat", description="Use to headpat someone! (powered by weeb.sh)")
         async def _pat(self, interaction: discord.Interaction, user: discord.Member) -> None:
@@ -44,7 +46,9 @@ async def setup(Bot):
             pat_embed.colour = discord.Colour.random()
             pat_embed.set_image(url=f"https://cdn.weeb.sh/images/{random.choice(gif_json['pat'])}")
 
-            await interaction.response.send_message(embed=pat_embed)
+            await interaction.response.send_message(embed=pat_embed, ephemeral=(
+                general_utils.is_ghost(interaction.user.id) if interaction.user.id == user.id else False
+            ))
 
         @app_commands.command(name="hug", description="Use to hug someone! (powered by weeb.sh)")
         async def _hug(self, interaction: discord.Interaction, user: discord.Member) -> None:
@@ -59,6 +63,8 @@ async def setup(Bot):
             hug_embed.colour = discord.Colour.random()
             hug_embed.set_image(url=f"https://cdn.weeb.sh/images/{random.choice(gif_json['hug'])}")
 
-            await interaction.response.send_message(embed=hug_embed)
+            await interaction.response.send_message(embed=hug_embed, ephemeral=(
+                general_utils.is_ghost(interaction.user.id) if interaction.user.id == user.id else False
+            ))
 
     await Bot.add_cog(Emotes(Bot))
