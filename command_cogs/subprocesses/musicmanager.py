@@ -1,5 +1,6 @@
 import discord, lavalink
 from utils import general_utils
+#from time import sleep
 
 async def setup(Bot): #this was taken straight from the lavalink quickstart, the site said this is the preferred way to do things.
 
@@ -81,6 +82,15 @@ async def setup(Bot): #this was taken straight from the lavalink quickstart, the
             self.cleanup()
 
     async def _ensure_voice(interaction):
+        # add node if there aren't any nodes
+        if Bot.lavalink.node_manager.nodes == []:
+            Bot.lavalink.add_node('127.0.0.1', 2334, 'idontcareaboutsecurity', 'au', 'default-node')
+        
+        # for _ in range(10):
+        #     if Bot.lavalink.node_manager.nodes[0].available:
+        #         break
+        #     sleep(1)
+
         player = Bot.lavalink.player_manager.create(interaction.guild.id, endpoint="sydney")
         player.store("text_channel", interaction.channel.id)
         if not interaction.guild.get_member(interaction.user.id).voice or not interaction.guild.get_member(interaction.user.id).voice.channel:

@@ -6,6 +6,55 @@ from utils import general_utils
 class Music(commands.GroupCog, name="music"):
     def __init__(self, Bot: commands.Bot):
         self.Bot = Bot
+        def queue_embed_modifier(embed: discord.Embed, scroll_index: int, interaction: discord.Interaction) -> discord.Embed:
+            player = self.Bot.lavalink.player_manager.get(interaction.guild.id)
+            queue_embed = embed
+            embed_desc = ""
+
+            if player.current != None:
+                embed_title = f"Current queue:"+(" :twisted_rightwards_arrows:" if player.shuffle else '')+(" :repeat:" if player.repeat else '')
+
+                offset = 0
+                if len(player.queue) > 10:
+                    offset = scroll_index - 5
+                    if offset < 0:
+                        offset = 0
+                    if offset > len(player.queue) - 10:
+                        offset = len(player.queue) - 10
+                
+                if offset == 0:
+                    embed_desc += f"` {'>' if 0 == scroll_index else ' '} `**1.** [{player.current.title}](https://youtu.be/{player.current.identifier}) **[**Playing**]**\n"
+                else:
+                    embed_desc += f"[{offset} more]\n"
+                for num, song in enumerate(player.queue[offset:offset+10]):
+                    num += offset
+                    embed_desc += f"` {'>' if num+1 == scroll_index else ' '} `**{num+2}.** [{song.title}](https://youtu.be/{song.identifier}) {'**[**Next**]**' if num == 0 else ''}\n"
+                if offset != len(player.queue) - 10:
+                    embed_desc += f"[{len(player.queue)-10 - offset} more]"
+
+                queue_embed.description = embed_desc
+                embed.set_footer(text=f"Track {scroll_index+1} of {len(player.queue)}")
+            else:
+                embed_title = "There are no songs in the queue."
+            queue_embed.title = embed_title
+
+            return queue_embed
+        self.queue_embed_modifier = queue_embed_modifier
+
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction: discord.Interaction):
+        if "custom_id" in interaction.data:
+            if interaction.data["custom_id"].startswith("queue."):
+                def delete_queue_song(scroll_index: int) -> int:
+                    player = self.Bot.lavalink.player_manager.get(interaction.guild.id)
+                    if scroll_index == 0:
+                        player.skip()
+                    else:
+                        player.queue.pop(scroll_index-1)
+                    return max(scroll_index-1, 0)
+                functions = general_utils.make_functions_dict("queue", self.queue_embed_modifier, delete_queue_song)
+                await general_utils.interaction_listener_generator("queue", functions)(interaction)
+            
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -33,16 +82,8 @@ class Music(commands.GroupCog, name="music"):
 
         await interaction.response.send_message(embed=volume_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
-    @app_commands.command(name="play", description="Queries the given song from YouTube and adds it to the queue.")
-    #@app_commands.choices(
-    #    type=[
-    #        app_commands.Choice(name="Tracks", value="tracks"),
-    #        app_commands.Choice(name="Playlists", value="playlists")
-    #    ]
-    #)
-    #async def _randcolour(self, interaction: discord.Interaction, mode: str="normal", format: str="hex", amount: app_commands.Range[int, 1, 10]=1) -> None:
-    
-    async def _play(self, interaction: discord.Interaction, query: str) -> None: #, search_playlists: bool=False
+    @app_commands.command(name="play", description="Queries the given song from YouTube and adds it to the queue. Works for playlist web links!")
+    async def _play(self, interaction: discord.Interaction, query: str) -> None:
         await interaction.response.defer()
 
         if not await self.Bot.ensure_voice(interaction):
@@ -98,19 +139,9 @@ class Music(commands.GroupCog, name="music"):
         if not await self.Bot.ensure_voice(interaction):
             return
         player = self.Bot.lavalink.player_manager.get(interaction.guild.id)
-        queue_embed=general_utils.Embed(colour="lime")
-        embed_desc = []
-        if player.current != None:
-            embed_title = f"Current queue:"+(" :twisted_rightwards_arrows:" if player.shuffle else '')+(" :repeat:" if player.repeat else '')
-            embed_desc += [f"**1.** [{player.current.title}](https://youtu.be/{player.current.identifier}) **[**Playing**]**"]
-            for num, song in enumerate(player.queue):
-                embed_desc += [f"**{num+2}.** [{song.title}](https://youtu.be/{song.identifier}) {'**[**Next**]**' if num == 0 else ''}"]
-            embed_desc = '\n'.join(embed_desc)
-            queue_embed.description = embed_desc
-        else:
-            embed_title = "There are no songs in the queue."
-        queue_embed.title = embed_title
-        await interaction.response.send_message(embed=queue_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
+
+        queue_embed = self.queue_embed_modifier(general_utils.Embed(colour="lime"), 0, interaction)
+        await interaction.response.send_message(embed=queue_embed, view=(general_utils.Controller("queue", 0, len(player.queue)+1) if player.current != None else None), ephemeral=general_utils.is_ghost(interaction.user.id))
         
     @app_commands.command(name="shuffle", description="Toggle queue shuffle.")
     async def _shuffle(self, interaction: discord.Interaction) -> None:
