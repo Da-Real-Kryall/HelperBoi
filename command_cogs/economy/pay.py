@@ -14,7 +14,7 @@ class Pay(commands.Cog):
     @app_commands.command(name="pay", description="Pays some amount of money to a given user. Amount defaults to all of your money.")
     async def _pay(self, interaction: discord.Interaction, user: discord.User, amount: app_commands.Range[int, 1]):
         """
-        
+        e
         """
         payer_balance = database_utils.fetch_user_data(interaction.user.id, "balance")
         if amount == None:

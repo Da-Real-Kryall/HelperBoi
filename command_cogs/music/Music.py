@@ -107,7 +107,7 @@ class Music(commands.GroupCog, name="music"):
             for track in tracks:
                 player.add(requester=interaction.user.id, track=track)
     
-            embed_title = f'{len(tracks)} songs added to queue:'
+            embed_title = f'Would you like to add the following {len(tracks)} songs?'
             embed_desc = '\n'.join([f'**{index}.** [{track["info"]["title"]}]({track["info"]["uri"]})' for index, track in enumerate(tracks, start=1)])
             embed_desc += f'\n\nDuration: {general_utils.strf_timedelta(int(sum([track.duration for track in tracks])/1000))}.'
             embed_thumbnail = f"https://img.youtube.com/vi/{tracks[0]['info']['identifier']}/default.jpg"
@@ -118,21 +118,54 @@ class Music(commands.GroupCog, name="music"):
             track = lavalink.models.AudioTrack(track, interaction.user.id, recommended=True)
             player.add(requester=interaction.user.id, track=track)
 
-            embed_title = 'Song added to queue:'
+            embed_title = 'Would you like to add the following song?'
             embed_desc = f'[{track["info"]["title"]}]({track["info"]["uri"]})'
             embed_desc += f'\n\nDuration: {general_utils.strf_timedelta(int(track.duration/1000))}.'
             embed_thumbnail = f"https://img.youtube.com/vi/{track['info']['identifier']}/default.jpg"
 
         while len(embed_desc) > 4090:
             embed_desc = '\n'.join(embed_desc.split('\n')[:-2])+'\n...'
-            
-        playing_embed = general_utils.Embed(author=interaction.user, title=embed_title, description=embed_desc, colour="lime")
+
+        
+        playing_embed = general_utils.Embed(author=interaction.user, title=embed_title, description=embed_desc, colour="yellow")
         playing_embed.set_thumbnail(url=embed_thumbnail)
 
-        await interaction.followup.send(embed=playing_embed, ephemeral=general_utils.is_ghost(interaction.user.id))
 
-        if not player.is_playing:
-            await player.play()
+        class PlayConfirm(discord.ui.View):
+            def __init__(self):
+                super().__init__()
+                self.value = None
+
+            @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
+            async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+                self.value = True
+                self.stop()
+
+            @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey)
+            async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+                self.value = False
+                self.stop()
+
+        view = PlayConfirm()
+        followup = await interaction.followup.send(embed=playing_embed, ephemeral=general_utils.is_ghost(interaction.user.id), view=view)
+        
+        await view.wait()
+        if view.value is None:
+            print('Timed out...')
+        elif view.value:
+            if playing_embed.title.endswith("s?"): # playlist
+                playing_embed.title = f"{len(tracks)} songs added to queue:"
+            else:
+                playing_embed.title = "Song added to queue:"
+            playing_embed.colour = general_utils.Colours.lime
+
+            await followup.edit(embed=playing_embed, view=None)
+
+            if not player.is_playing:
+                await player.play()
+        else:
+            await followup.delete()
+
 
     @app_commands.command(name="queue", description="Show the current queue.")
     async def _queue(self, interaction: discord.Interaction) -> None:
