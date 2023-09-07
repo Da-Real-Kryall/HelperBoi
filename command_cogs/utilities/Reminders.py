@@ -4,7 +4,7 @@ from discord import app_commands
 from utils import database_utils, general_utils
 
 
-def remind_embed_modifier(embed: discord.Embed, scroll_index: int, interaction: discord.Interaction):
+def remind_embed_modifier(embed: discord.Embed, scroll_index: int, interaction: discord.Interaction) -> discord.Embed:
     reminders = database_utils.fetch_reminders(interaction.user.id)
     length = int(embed.footer.text.split(" ")[3])
     embed.set_footer(text=f"Reminder {min(scroll_index+1, length)} of {length}")
@@ -21,12 +21,11 @@ def remind_embed_modifier(embed: discord.Embed, scroll_index: int, interaction: 
         embed.description += f"[{offset} more]\n"
         
     for index, reminder in enumerate(reminders[offset:offset+10], offset):
-        #embed.description += f"` {'>' if index == scroll_index else ' '} ` **[**<t:{reminder[3]}:R>**]**\n"# - \"{reminder[2]}\"\n"
         embed.description += f"` {'>' if index == scroll_index else ' '} ` **[**<t:{reminder[3]}:R>**]** - \"{reminder[2][:16]+('...' if len(reminder[2]) > 16 else '')}\"\n"
         if index == scroll_index:
             embed.add_field(name="Message:", value=reminder[2])
     if offset != len(reminders) - 10:
-        embed.description += f"[{len(reminders)-10} more]"
+        embed.description += f"[{len(reminders)-10 - offset} more]"
 
     return embed
 
